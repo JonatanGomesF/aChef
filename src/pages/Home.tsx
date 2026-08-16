@@ -82,8 +82,8 @@ export default function Home() {
       return;
     }
     // Contato via WhatsApp
-    const msg = `*Mensagem de Contato - A Chef Nair Delivery*\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Mensagem:* ${message}`;
-    window.open(`https://wa.me/5511963872966?text=${encodeURIComponent(msg)}`, "_blank");
+    const msg = `*Mensagem de Contato - Chef Nair*\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Mensagem:* ${message}`;
+    window.open(`https://wa.me/553599212311?text=${encodeURIComponent(msg)}`, "_blank");
     setName("");
     setEmail("");
     setMessage("");
@@ -106,21 +106,21 @@ export default function Home() {
         className="bg-white py-20 border-b border-gray-100"
       >
         <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
-          <h2 className="font-serif-display text-4xl italic text-[#b52626] font-semibold">
+          <h2 className="font-serif-display text-4xl italic text-[#e25c24] font-semibold">
             Sobre Nós
           </h2>
 
           {/* Separador */}
-          <div className="w-12 h-[2px] bg-[#b52626] mx-auto mt-2" />
+          <div className="w-12 h-[2px] bg-[#e25c24] mx-auto mt-2" />
 
           <p className="mt-4 text-xs md:text-sm text-gray-500 italic max-w-2xl mx-auto leading-relaxed">
-            A Chef Nair Delivery é especializada em marmitas deliciosas e yakisoba artesanal feito na chapa, tudo preparado com ingredientes frescos e selecionados. Nossa receita especial, aperfeiçoada ao longo dos anos, garante um sabor único e autêntico de comida caseira que você não encontra em outro lugar. Venha nos visitar e experimente nossas delícias!
+            Chef Nair é especializada em marmitas deliciosas e yakisoba artesanal feito na chapa, tudo preparado com ingredientes frescos e selecionados. Nossa receita especial, aperfeiçoada ao longo dos anos, garante um sabor único e autêntico de comida caseira que você não encontra em outro lugar. Venha nos visitar e experimente nossas delícias!
           </p>
 
           {/* Badges de destaque */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-6 max-w-3xl mx-auto">
             <div className="text-center sm:text-right flex-1">
-              <h4 className="text-xs font-black text-[#b52626] tracking-widest uppercase">A APRESENTAÇÃO</h4>
+              <h4 className="text-xs font-black text-[#e25c24] tracking-widest uppercase">A APRESENTAÇÃO</h4>
               <p className="text-[11px] text-gray-400 mt-1">Preparado pelo nosso Chef na chapa,<br/>é algo que você precisa experimentar.</p>
             </div>
             
@@ -129,7 +129,7 @@ export default function Home() {
             </div>
 
             <div className="text-center sm:text-left flex-1">
-              <h4 className="text-xs font-black text-[#b52626] tracking-widest uppercase">NOSSO ORGULHO</h4>
+              <h4 className="text-xs font-black text-[#e25c24] tracking-widest uppercase">NOSSO ORGULHO</h4>
               <p className="text-[11px] text-gray-400 mt-1">Servimos o yakisoba mais fresco, saboroso<br/>e irresistível da cidade.</p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center items-center gap-5 mt-10 select-none pointer-events-none max-w-4xl mx-auto">
             {yakiRow.map((img, i) => (
               <div key={i} className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden hover:scale-108 transition-transform duration-300 shadow-lg border border-gray-100/50 bg-gray-50">
-                <img src={img} alt="Prato A Chef Nair Delivery" className="w-full h-full object-cover" />
+                <img src={img} alt="Prato Chef Nair" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -218,28 +218,28 @@ export default function Home() {
       />
 
       {/* Seção: "MELHOR YAKISOBA DA CIDADE" (Fundo Escuro com Parallax) */}
-      <section className="relative overflow-hidden bg-black text-center min-h-[40vh] flex items-center">
+      <section className="relative overflow-hidden bg-[#2c2520] text-center min-h-[40vh] flex items-center">
         {/* Background image com overlay escuro */}
         <img 
           src={heroBg} 
           alt="Yakisoba Background" 
           className="absolute inset-0 w-full h-full object-cover opacity-30 select-none pointer-events-none scale-105"
         />
-        <div className="absolute inset-0 bg-[#070707]/75 backdrop-blur-xs" />
+        <div className="absolute inset-0 bg-[#2c2520]/80 backdrop-blur-xs" />
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-20 space-y-6">
           <h2 className="text-xl md:text-3xl font-extrabold tracking-[0.2em] text-white leading-relaxed uppercase">
-            O MELHOR YAKISOBA DA CIDADE. <span className="text-[#ea580c]">GARANTIDO!</span>
+            O MELHOR YAKISOBA DA CIDADE. <span className="text-[#e25c24]">GARANTIDO!</span>
           </h2>
           
-          <p className="text-[#808080] text-xs font-semibold tracking-wider max-w-2xl mx-auto italic leading-relaxed">
+          <p className="text-stone-300 text-xs font-semibold tracking-wider max-w-2xl mx-auto italic leading-relaxed">
             Nosso cardápio conta com deliciosas marmitas caseiras e uma grande variedade de yakisobas artesanais preparados na chapa, com ingredientes selecionados e muito carinho. Venha experimentar e descubra por que somos referência na região.
           </p>
 
           <div className="pt-4">
             <button 
               onClick={scrollToMenu}
-              className="px-8 py-3.5 border border-white hover:border-[#ea580c] hover:bg-[#ea580c] hover:text-white transition-all duration-300 text-xs tracking-[0.2em] font-bold text-white uppercase cursor-pointer"
+              className="px-8 py-3.5 border border-white hover:border-[#e25c24] hover:bg-[#e25c24] hover:text-white transition-all duration-300 text-xs tracking-[0.2em] font-bold text-white uppercase cursor-pointer"
             >
               VER NOSSO CARDÁPIO
             </button>
@@ -247,10 +247,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Seção: "CONTATO" (Gradiente Vermelho Escuro) */}
+      {/* Seção: "CONTATO" (Gradiente Terracota) */}
       <section
         id="contato"
-        className="bg-gradient-to-r from-[#5a0c0c] to-[#7d1818] text-white py-20 border-b border-red-950"
+        className="bg-gradient-to-r from-[#7c2d12] to-[#9a3412] text-white py-20 border-b border-orange-950"
       >
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
           
@@ -258,17 +258,17 @@ export default function Home() {
           <div className="space-y-6">
             <div>
               <h2 className="text-3xl font-extrabold uppercase tracking-[0.1em]">CONTATO</h2>
-              <p className="text-xs text-red-200/60 italic font-semibold mt-1.5">Marmitaria & Yakissobaria • A Chef Nair Delivery</p>
+              <p className="text-xs text-orange-200/60 italic font-semibold mt-1.5">Marmitaria & Yakissobaria • Chef Nair</p>
             </div>
 
-            <div className="space-y-4 text-xs font-semibold tracking-wider text-red-100/80">
+            <div className="space-y-4 text-xs font-semibold tracking-wider text-orange-100/80">
               <div className="flex items-start gap-3">
-                <Phone size={18} className="text-red-200 mt-0.5 flex-shrink-0" />
-                <p>(11) 96387-2966</p>
+                <Phone size={18} className="text-orange-200 mt-0.5 flex-shrink-0" />
+                <p>(35) 9921-2311</p>
               </div>
 
               <div className="flex items-start gap-3">
-                <Clock size={18} className="text-red-200 mt-0.5 flex-shrink-0" />
+                <Clock size={18} className="text-orange-200 mt-0.5 flex-shrink-0" />
                 <div>
                   <p>Ter - Sex: 17h45 às 23h45</p>
                   <p className="mt-1">Sáb & Dom: 15h às 00h</p>
@@ -281,38 +281,38 @@ export default function Home() {
           <form onSubmit={handleContactSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-red-200 tracking-wider uppercase">Seu Nome</label>
+                <label className="text-[10px] font-bold text-orange-200 tracking-wider uppercase">Seu Nome</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-white/20 hover:border-white/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
+                  className="w-full border border-orange-200/20 hover:border-orange-200/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-red-200 tracking-wider uppercase">E-mail</label>
+                <label className="text-[10px] font-bold text-orange-200 tracking-wider uppercase">E-mail</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-white/20 hover:border-white/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
+                  className="w-full border border-orange-200/20 hover:border-orange-200/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-red-200 tracking-wider uppercase">Mensagem</label>
+              <label className="text-[10px] font-bold text-orange-200 tracking-wider uppercase">Mensagem</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                className="w-full border border-white/20 hover:border-white/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300 resize-none"
+                className="w-full border border-orange-200/20 hover:border-orange-200/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300 resize-none"
               />
             </div>
 
             <button
               type="submit"
-              className="px-8 py-3 bg-white text-[#7d1818] font-black text-xs tracking-widest uppercase rounded hover:bg-orange-600 hover:text-white hover:scale-102 transition-all duration-300 shadow-md cursor-pointer"
+              className="px-8 py-3 bg-white text-[#7c2d12] font-black text-xs tracking-widest uppercase rounded hover:bg-orange-500 hover:text-white hover:scale-102 transition-all duration-300 shadow-md cursor-pointer"
             >
               ENVIAR
             </button>
@@ -321,7 +321,7 @@ export default function Home() {
       </section>
 
       {/* Rodapé */}
-      <footer className="bg-[#070707] text-gray-500 py-10">
+      <footer className="bg-[#1c1918] text-stone-400 py-10">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           
           <div className="flex items-center gap-1 font-bold text-xs tracking-[0.2em] text-white">
@@ -334,14 +334,14 @@ export default function Home() {
             </span>
           </div>
 
-          <p className="text-[9px] font-bold tracking-widest uppercase text-gray-600">
-            © {new Date().getFullYear()} A CHEF NAIR DELIVERY. TODOS OS DIREITOS RESERVADOS.
+          <p className="text-[9px] font-bold tracking-widest uppercase text-stone-500">
+            © {new Date().getFullYear()} CHEF NAIR. TODOS OS DIREITOS RESERVADOS.
           </p>
 
           {/* Scroll to Top */}
           <button 
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="w-8 h-8 rounded-full border border-gray-800 hover:border-orange-500 hover:text-[#ea580c] flex items-center justify-center text-gray-500 transition-colors duration-300 cursor-pointer text-xs"
+            className="w-8 h-8 rounded-full border border-stone-850 hover:border-orange-500 hover:text-[#ea580c] flex items-center justify-center text-stone-500 transition-colors duration-300 cursor-pointer text-xs"
           >
             ▲
           </button>

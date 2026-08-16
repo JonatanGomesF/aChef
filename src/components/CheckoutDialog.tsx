@@ -184,7 +184,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       console.error("Erro ao salvar pedido:", error);
     }
 
-    let msg = `*NOVO PEDIDO - A CHEF NAIR DELIVERY*\n\n`;
+    let msg = `*NOVO PEDIDO - CHEF NAIR*\n\n`;
 
     msg += `*Nome:* ${name}\n`;
     msg += `*WhatsApp:* ${phone}\n`;
@@ -235,7 +235,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       msg += ` (troco para R$ ${troco})`;
     }
 
-    const url = `https://wa.me/5511963872966?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/553599212311?text=${encodeURIComponent(msg)}`;
 
     setIsSending(false);
     setIsSuccess(true);
@@ -266,116 +266,115 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
         /* Order Success State Screen */
         <div 
           className="w-full max-w-md rounded-3xl p-8 shadow-2xl flex flex-col items-center justify-center text-center space-y-6 animate-scale-up"
-          style={{ background: "rgba(20,20,20,0.95)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}
+          style={{ background: "rgba(250,246,240,0.98)", border: "1px solid rgba(0,0,0,0.06)", backdropFilter: "blur(12px)" }}
         >
-          <div className="w-20 h-20 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center text-green-400 animate-bounce">
+          <div className="w-20 h-20 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center text-green-600 animate-bounce">
             <CheckCircle size={48} className="stroke-[2.5]" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-white">Pedido Confirmado!</h2>
-            <p className="text-sm text-white/50 font-medium max-w-xs mx-auto">
+            <h2 className="text-2xl font-black text-stone-900">Pedido Confirmado!</h2>
+            <p className="text-sm text-stone-600 font-medium max-w-xs mx-auto">
               Estamos preparando seu pedido. Redirecionando você para o WhatsApp em instantes...
             </p>
           </div>
-          <div className="w-12 h-1.5 bg-white/[0.06] rounded-full overflow-hidden relative">
-            <div className="absolute top-0 left-0 bottom-0 bg-green-400 rounded-full w-1/2 animate-[bannerScroll_1.5s_linear_infinite]" />
+          <div className="w-12 h-1.5 bg-stone-200 rounded-full overflow-hidden relative">
+            <div className="absolute top-0 left-0 bottom-0 bg-green-500 rounded-full w-1/2 animate-[bannerScroll_1.5s_linear_infinite]" />
           </div>
         </div>
       ) : (
         /* Checkout Form State */
         <div 
           className="w-full max-w-xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl p-4 sm:p-5 space-y-3 relative shadow-2xl animate-scale-up"
-          style={{ background: "rgba(20,20,20,0.98)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}
+          style={{ background: "rgba(250,246,240,0.98)", border: "1px solid rgba(0,0,0,0.06)", backdropFilter: "blur(12px)" }}
         >
           {/* Close button */}
           <button
             onClick={() => onOpenChange(false)}
-            className="absolute top-3 right-3 text-white/30 hover:text-white transition-colors duration-200 cursor-pointer"
+            className="absolute top-3 right-3 text-stone-400 hover:text-stone-800 transition-colors duration-200 cursor-pointer"
           >
             <X size={20} />
           </button>
 
           <div>
-            <h2 className="text-xl font-black text-white tracking-tight">Finalizar Pedido</h2>
-            <p className="text-xs text-white/40 font-semibold mt-1">Preencha os detalhes para entrega rápida</p>
+            <h2 className="text-xl font-black text-stone-900 tracking-tight">Finalizar Pedido</h2>
+            <p className="text-xs text-stone-500 font-semibold mt-1">Preencha os detalhes para entrega rápida</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Nome Completo *</label>
+              <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Nome Completo *</label>
               <input
                 placeholder="Seu nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">WhatsApp *</label>
+              <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">WhatsApp *</label>
               <input
-                placeholder="Ex: (11) 99999-9999"
+                placeholder="Ex: (35) 99999-9999"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">CEP</label>
+              <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">CEP</label>
               <div className="relative">
                 <input
                   placeholder="Digite o CEP"
                   value={cep}
                   onChange={(e) => handleCepChange(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 pr-10 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 pr-10 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
                 {cepLoading && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#c0261a] text-[10px] font-black uppercase">Buscando...</div>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e25c24] text-[10px] font-black uppercase">Buscando...</div>
                 )}
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Endereço de Entrega *</label>
+              <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Endereço de Entrega *</label>
               <input
                 placeholder="Nome da Rua / Avenida"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:col-span-2">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Número *</label>
+                <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Número *</label>
                 <input
                   placeholder="Nº"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Bairro</label>
+                <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Bairro</label>
                 <input
                   placeholder="Seu bairro"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Método de Pagamento</label>
+              <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Método de Pagamento</label>
               <select
                 value={payment}
                 onChange={(e) => setPayment(e.target.value)}
-                className="w-full bg-[#141414] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 font-semibold cursor-pointer"
-                style={{ colorScheme: "dark" }}
+                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-850 text-sm outline-none transition-all duration-300 font-semibold cursor-pointer"
               >
                 <option value="PIX">PIX</option>
                 <option value="Crédito">Cartão de Crédito</option>
@@ -386,42 +385,42 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
 
             {payment === "Dinheiro" && (
               <div className="space-y-1.5 animate-scale-up">
-                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Troco para quanto?</label>
+                <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Troco para quanto?</label>
                 <input
                   placeholder="Ex: R$ 100,00"
                   value={troco}
                   onChange={(e) => setTroco(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl p-3 text-white text-sm outline-none transition-all duration-300 placeholder:text-white/20"
+                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
               </div>
             )}
           </div>
 
-          <div className="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3 space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] text-white/50 font-semibold">
+          <div className="rounded-lg border border-stone-200/60 bg-stone-50 p-3 space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] text-stone-600 font-semibold">
               <span>Subtotal</span>
               <span>R$ {totalPrice.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between text-[11px] text-white/50 font-semibold">
+            <div className="flex items-center justify-between text-[11px] text-stone-600 font-semibold">
               <span>Taxa de entrega</span>
               <span>{deliveryFee > 0 ? `R$ ${deliveryFee.toFixed(2)}` : "Grátis"}</span>
             </div>
             {distanceKm !== null && (
-              <div className="flex items-center gap-2 text-[10px] text-[#c0261a] font-semibold">
+              <div className="flex items-center gap-2 text-[10px] text-[#e25c24] font-semibold">
                 <MapPin size={12} />
                 <span>Distância estimada: {distanceKm.toFixed(1)} km</span>
               </div>
             )}
-            <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total do Pedido</span>
-              <span className="text-lg font-black text-[#c0261a]">R$ {totalWithDelivery.toFixed(2)}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-stone-200/60">
+              <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Total do Pedido</span>
+              <span className="text-lg font-black text-[#e25c24]">R$ {totalWithDelivery.toFixed(2)}</span>
             </div>
           </div>
 
           <button
             onClick={send}
             disabled={isSending}
-            className="w-full bg-gradient-to-r from-[#c0261a] to-[#a31d12] hover:from-[#d93025] hover:to-[#c0261a] disabled:opacity-50 text-white py-3 rounded-lg font-bold transition-all duration-300 shadow-lg shadow-red-900/35 flex items-center justify-center gap-2 cursor-pointer text-sm font-sans"
+            className="w-full bg-gradient-to-r from-[#e25c24] to-[#c2410c] hover:from-[#f97316] hover:to-[#e25c24] disabled:opacity-50 text-white py-3 rounded-lg font-bold transition-all duration-300 shadow-lg shadow-orange-950/20 flex items-center justify-center gap-2 cursor-pointer text-sm font-sans"
           >
             <MessageSquare size={16} />
             <span>{isSending ? "Processando..." : "Enviar pedido no WhatsApp"}</span>

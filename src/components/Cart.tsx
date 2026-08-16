@@ -43,7 +43,7 @@ export default function Cart({
       {/* Header */}
       <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-[#b52626]">
+          <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-[#e25c24]">
             <ShoppingCart className="w-5 h-5" />
           </div>
           <div>
@@ -56,7 +56,7 @@ export default function Cart({
 
         <button
           onClick={onClose}
-          className="flex items-center gap-1 text-gray-500 hover:text-[#b52626] text-sm font-bold transition-colors duration-200 active:scale-95 cursor-pointer"
+          className="flex items-center gap-1 text-gray-500 hover:text-[#e25c24] text-sm font-bold transition-colors duration-200 active:scale-95 cursor-pointer"
         >
           <ArrowLeft size={16} />
           <span>Voltar</span>
@@ -76,7 +76,7 @@ export default function Cart({
             </div>
             <button
               onClick={onClose}
-              className="px-6 py-2.5 bg-red-50 text-[#b52626] rounded-xl text-xs font-black hover:bg-red-100 transition-colors duration-300"
+              className="px-6 py-2.5 bg-orange-50 text-[#e25c24] rounded-xl text-xs font-black hover:bg-orange-100 transition-colors duration-300"
             >
               Adicionar Yakisoba
             </button>
@@ -85,7 +85,7 @@ export default function Cart({
           items.map((item) => (
             <div
               key={item.id}
-              className="group border border-gray-100 rounded-3xl p-3 flex gap-3 bg-white hover:border-red-100 transition-all duration-300 shadow-sm"
+              className="group border border-gray-100 rounded-3xl p-3 flex gap-3 bg-white hover:border-orange-100 transition-all duration-300 shadow-sm"
             >
               {/* Product Thumbnail */}
               <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0 relative">
@@ -101,7 +101,7 @@ export default function Cart({
                 <div>
                   <div className="flex justify-between items-start gap-1">
                     <div>
-                      <h4 className="font-extrabold text-sm text-gray-800 group-hover:text-[#b52626] transition-colors duration-200">
+                      <h4 className="font-extrabold text-sm text-gray-800 group-hover:text-[#e25c24] transition-colors duration-200">
                         {item.name}
                       </h4>
                       {item.size && (
@@ -113,7 +113,7 @@ export default function Cart({
                     
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-gray-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                      className="text-gray-400 hover:text-[#e25c24] p-1 rounded-lg hover:bg-orange-50 transition-all duration-200 cursor-pointer"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -159,7 +159,7 @@ export default function Cart({
 
                     <button
                       onClick={() => increaseQuantity(item.id)}
-                      className="w-7 h-7 rounded-lg bg-[#b52626] hover:bg-[#8a1818] text-white font-bold flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-[#e25c24] hover:bg-[#c2410c] text-white font-bold flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer"
                     >
                       <Plus size={12} />
                     </button>
@@ -191,7 +191,7 @@ export default function Cart({
 
           <button
             onClick={onCheckout}
-            className="w-full bg-gradient-to-r from-[#b52626] to-[#8a1818] hover:from-[#8a1818] hover:to-[#5a0c0c] text-white py-3.5 px-5 rounded-2xl font-black text-center shadow-lg shadow-red-600/20 active:scale-98 transition-all duration-300 cursor-pointer text-sm md:text-sm flex justify-center items-center gap-2 group relative overflow-hidden"
+            className="w-full bg-gradient-to-r from-[#e25c24] to-[#c2410c] hover:from-[#c2410c] hover:to-[#9a3412] text-white py-3.5 px-5 rounded-2xl font-black text-center shadow-lg shadow-orange-600/10 active:scale-98 transition-all duration-300 cursor-pointer text-sm md:text-sm flex justify-center items-center gap-2 group relative overflow-hidden"
           >
             <span>Finalizar pedido</span>
             <span className="opacity-30">•</span>
