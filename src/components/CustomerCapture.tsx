@@ -31,7 +31,7 @@ export default function CustomerCapture() {
       }
 
       alert(
-        "Cadastro realizado! Você receberá promoções da YakinHome 🍜"
+        "Cadastro realizado! Você receberá promoções da Chef Nair Delivery 🍜"
       );
 
       setName("");
@@ -53,7 +53,7 @@ export default function CustomerCapture() {
 
         <p className="mt-3">
           Cadastre seu WhatsApp e receba cupons,
-          descontos e novidades da YakinHome.
+          descontos e novidades da Chef Nair Delivery.
         </p>
 
         <div className="mt-6 flex flex-col gap-3">

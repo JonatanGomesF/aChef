@@ -42,7 +42,7 @@ export default function AdminLogin() {
             </div>
             <div>
               <h1 className="text-white font-black text-xl tracking-tight">
-                Yakin<span className="text-[#c0261a]">Home</span>
+                Chef Nair<span className="text-[#c0261a] ml-1">Delivery</span>
               </h1>
               <p className="text-white/30 text-xs font-semibold tracking-wider mt-0.5 uppercase">Painel Administrativo</p>
             </div>
@@ -63,7 +63,7 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@yakinhome.com"
+                  placeholder="admin@chefnair.com"
                   className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl pl-9 pr-4 py-3 text-white text-sm outline-none transition-all duration-200 placeholder:text-white/20"
                 />
               </div>
@@ -114,7 +114,7 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <p className="text-center text-white/15 text-[10px] font-medium mt-4">
-          © {new Date().getFullYear()} YakinHome — Acesso restrito
+          © {new Date().getFullYear()} Chef Nair Delivery — Acesso restrito
         </p>
       </div>
     </div>

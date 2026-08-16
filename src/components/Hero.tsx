@@ -65,7 +65,7 @@ export default function Hero() {
         <div className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.10] rounded-full px-4 py-1.5 mb-5 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-[#c0261a] animate-pulse" />
           <span className="text-white/50 text-[10px] font-bold tracking-[0.35em] uppercase">
-            Yakissobaria Artesanal
+            Marmitaria & Yakissobaria
           </span>
         </div>
 
@@ -93,17 +93,17 @@ export default function Hero() {
             />
           </div>
           <h1
-            className="relative font-black leading-none tracking-tight"
-            style={{ fontSize: "clamp(4.5rem, 13vw, 8rem)" }}
+            className="relative font-black leading-none tracking-tight flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
+            style={{ fontSize: "clamp(3rem, 9vw, 5.5rem)" }}
           >
             <span className="text-white" style={{ textShadow: "0 4px 40px rgba(0,0,0,0.95)" }}>
-              Yakin
+              A Chef Nair
             </span>
             <span
               className="text-[#c0261a]"
               style={{ textShadow: "0 4px 44px rgba(192,38,26,0.7)" }}
             >
-              Home
+              Delivery
             </span>
           </h1>
         </div>
@@ -111,8 +111,8 @@ export default function Hero() {
         {/* Separador */}
         <div className="flex items-center gap-3 mb-6">
           <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#c0261a]/50" />
-          <span className="text-[#c0261a]/80 text-[9px] font-black tracking-[0.5em] uppercase">
-            Yakissobaria
+          <span className="text-[#c0261a]/80 text-[9px] font-black tracking-[0.2em] uppercase">
+            Marmitaria & Yakissobaria
           </span>
           <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#c0261a]/50" />
         </div>

@@ -46,8 +46,8 @@ export default function AdminLayout({ children }: Props) {
           <ChefHat size={16} className="text-white" />
         </div>
         <div>
-          <span className="text-white font-black text-sm tracking-tight">Yakin</span>
-          <span className="text-[#c0261a] font-black text-sm tracking-tight">Home</span>
+          <span className="text-white font-black text-sm tracking-tight">Chef Nair</span>
+          <span className="text-[#c0261a] font-black text-sm tracking-tight ml-1">Delivery</span>
           <div className="text-white/25 text-[9px] font-bold tracking-[0.2em] uppercase leading-none mt-0.5">
             Painel Admin
           </div>
@@ -136,8 +136,8 @@ export default function AdminLayout({ children }: Props) {
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-1.5">
-            <span className="text-white font-black text-sm">Yakin</span>
-            <span className="text-[#c0261a] font-black text-sm">Home</span>
+            <span className="text-white font-black text-sm">Chef Nair</span>
+            <span className="text-[#c0261a] font-black text-sm ml-1">Delivery</span>
           </div>
           <div className="w-5" />
         </header>

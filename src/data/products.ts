@@ -7,6 +7,8 @@ import yakiveg from "../assets/yaki-veg.png";
 import hotTemaky from "../assets/temaky2.jpeg";
 import hotRoll from "../assets/hotroll.jpg";
 import hotFiladelfia from "../assets/filadel.jpg";
+import parmegianaImg from "../assets/parmegiana.jpg";
+import yakisobaGourmetImg from "../assets/yakisoba_gourmet.jpg";
 
 export type Product = {
   id: number;
@@ -18,6 +20,7 @@ export type Product = {
   promotionalPrice?: number;
   promotionActive?: boolean;
   available?: boolean;
+  categoryId?: string;
 };
 
 export const products: Product[] = [
@@ -30,6 +33,7 @@ export const products: Product[] = [
     price: 32.9,
     size: "1 un.",
     image: hotTemaky,
+    categoryId: "hot-sushi",
   },
   {
     id: 13,
@@ -39,6 +43,7 @@ export const products: Product[] = [
     price: 26.9,
     size: "10 un.",
     image: hotRoll,
+    categoryId: "hot-sushi",
   },
   {
     id: 14,
@@ -48,6 +53,7 @@ export const products: Product[] = [
     price: 33.9,
     size: "10 un.",
     image: hotFiladelfia,
+    categoryId: "hot-sushi",
   },
 
   {
@@ -58,6 +64,7 @@ export const products: Product[] = [
     price: 35.9,
     size: "450g",
     image: frangoImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -68,6 +75,7 @@ export const products: Product[] = [
     price: 38.9,
     size: "750g",
     image: frangoImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -78,6 +86,7 @@ export const products: Product[] = [
     price: 41.9,
     size: "450g",
     image: carneImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -88,6 +97,7 @@ export const products: Product[] = [
     price: 44.9,
     size: "750g",
     image: carneImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -98,6 +108,7 @@ export const products: Product[] = [
     price: 56.9,
     size: "450g",
     image: camaraoImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -108,6 +119,7 @@ export const products: Product[] = [
     price: 59.9,
     size: "750g",
     image: camaraoImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -118,6 +130,7 @@ export const products: Product[] = [
     price: 49.9,
     size: "450g",
     image: mistoImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -128,6 +141,7 @@ export const products: Product[] = [
     price: 52.9,
     size: "750g",
     image: mistoImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -138,6 +152,7 @@ export const products: Product[] = [
     price: 62.9,
     size: "450g",
     image: especialImg,
+    categoryId: "yakissobas",
   },
 
   {
@@ -148,6 +163,7 @@ export const products: Product[] = [
     price: 72.9,
     size: "750g",
     image: especialImg,
+    categoryId: "yakissobas",
   },
   {
     id: 11,
@@ -157,5 +173,26 @@ export const products: Product[] = [
     price: 29.9,
     size: "450g",
     image: yakiveg,
+    categoryId: "yakissobas",
+  },
+  {
+    id: 15,
+    name: "Marmita de Parmegiana",
+    description:
+      "Filé de frango empanado crocante, coberto com molho de tomate artesanal e queijo muçarela derretido. Acompanha arroz e batata frita.",
+    price: 34.9,
+    size: "Individual (~650g)",
+    image: parmegianaImg,
+    categoryId: "marmitas",
+  },
+  {
+    id: 16,
+    name: "Yakisoba Gourmet",
+    description:
+      "Macarrão oriental com filé mignon, camarões grelhados, cogumelos frescos, legumes selecionados e nosso molho especial supremo.",
+    price: 64.9,
+    size: "750g",
+    image: yakisobaGourmetImg,
+    categoryId: "yakissobas",
   },
 ];

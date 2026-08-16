@@ -45,13 +45,13 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
               className="text-white font-black"
               style={{ fontSize: "1.25rem", fontFamily: "'Montserrat', sans-serif", letterSpacing: "-0.02em" }}
             >
-              Yakin
+              A Chef Nair
             </span>
             <span
-              className="text-[#c0261a] font-black"
+              className="text-[#c0261a] font-black ml-1.5"
               style={{ fontSize: "1.25rem", fontFamily: "'Montserrat', sans-serif", letterSpacing: "-0.02em" }}
             >
-              Home
+              Delivery
             </span>
           </span>
         </a>

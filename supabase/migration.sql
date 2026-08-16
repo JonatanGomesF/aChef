@@ -4,12 +4,21 @@
 -- ============================================================
 
 -- ─────────────────────────────────────────────
--- 1. CUSTOMERS (já existe — adicionar colunas)
+-- 1. CUSTOMERS (Cria se não existir)
 -- ─────────────────────────────────────────────
-ALTER TABLE public.customers
-  ADD COLUMN IF NOT EXISTS total_spent    NUMERIC(10,2) DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS orders_count   INTEGER       DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS updated_at     TIMESTAMPTZ   DEFAULT NOW();
+CREATE TABLE IF NOT EXISTS public.customers (
+  id               BIGSERIAL PRIMARY KEY,
+  name             TEXT NOT NULL,
+  phone            TEXT NOT NULL,
+  street           TEXT,
+  number           TEXT,
+  district         TEXT DEFAULT '',
+  last_order_value NUMERIC(10,2) DEFAULT 0,
+  total_spent      NUMERIC(10,2) DEFAULT 0,
+  orders_count     INTEGER DEFAULT 0,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- Trigger para atualizar updated_at automaticamente
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -26,11 +35,18 @@ CREATE TRIGGER customers_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ─────────────────────────────────────────────
--- 2. PROMOTIONS (já existe — adicionar colunas)
+-- 2. PROMOTIONS (Cria se não existir)
 -- ─────────────────────────────────────────────
-ALTER TABLE public.promotions
-  ADD COLUMN IF NOT EXISTS expires_at  TIMESTAMPTZ DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS created_at  TIMESTAMPTZ DEFAULT NOW();
+CREATE TABLE IF NOT EXISTS public.promotions (
+  id          BIGSERIAL PRIMARY KEY,
+  title       TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  discount    NUMERIC(10,2) NOT NULL DEFAULT 0,
+  active      BOOLEAN NOT NULL DEFAULT true,
+  product_id  INTEGER NOT NULL,
+  expires_at  TIMESTAMPTZ DEFAULT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- ─────────────────────────────────────────────
 -- 3. ORDERS — nova tabela de pedidos
@@ -179,7 +195,7 @@ CREATE TABLE IF NOT EXISTS public.admins (
 
 -- Inserir email do admin padrão
 INSERT INTO public.admins (email)
-VALUES ('admin@yakinhome.com')
+VALUES ('admin@chefnair.com')
 ON CONFLICT (email) DO NOTHING;
 
 -- Habilita RLS na tabela admins

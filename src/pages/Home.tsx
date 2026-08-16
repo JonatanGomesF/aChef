@@ -82,7 +82,7 @@ export default function Home() {
       return;
     }
     // Contato via WhatsApp
-    const msg = `*Mensagem de Contato - YakinHome*\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Mensagem:* ${message}`;
+    const msg = `*Mensagem de Contato - A Chef Nair Delivery*\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Mensagem:* ${message}`;
     window.open(`https://wa.me/5511963872966?text=${encodeURIComponent(msg)}`, "_blank");
     setName("");
     setEmail("");
@@ -114,7 +114,7 @@ export default function Home() {
           <div className="w-12 h-[2px] bg-[#b52626] mx-auto mt-2" />
 
           <p className="mt-4 text-xs md:text-sm text-gray-500 italic max-w-2xl mx-auto leading-relaxed">
-            O YakinHome é especializado em yakisoba artesanal feito na chapa, com ingredientes frescos e selecionados. Nossa receita especial, aperfeiçoada ao longo dos anos, garante um sabor único e autêntico que você não encontra em outro lugar. Venha nos visitar e experimente o melhor yakisoba da região!
+            A Chef Nair Delivery é especializada em marmitas deliciosas e yakisoba artesanal feito na chapa, tudo preparado com ingredientes frescos e selecionados. Nossa receita especial, aperfeiçoada ao longo dos anos, garante um sabor único e autêntico de comida caseira que você não encontra em outro lugar. Venha nos visitar e experimente nossas delícias!
           </p>
 
           {/* Badges de destaque */}
@@ -138,7 +138,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center items-center gap-5 mt-10 select-none pointer-events-none max-w-4xl mx-auto">
             {yakiRow.map((img, i) => (
               <div key={i} className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden hover:scale-108 transition-transform duration-300 shadow-lg border border-gray-100/50 bg-gray-50">
-                <img src={img} alt="Yakisoba YakinHome" className="w-full h-full object-cover" />
+                <img src={img} alt="Prato A Chef Nair Delivery" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -233,7 +233,7 @@ export default function Home() {
           </h2>
           
           <p className="text-[#808080] text-xs font-semibold tracking-wider max-w-2xl mx-auto italic leading-relaxed">
-            Nosso cardápio conta com uma grande variedade de yakisobas artesanais preparados na chapa, com ingredientes selecionados e o molho especial da casa. Venha experimentar e descubra por que somos referência em yakisoba na região.
+            Nosso cardápio conta com deliciosas marmitas caseiras e uma grande variedade de yakisobas artesanais preparados na chapa, com ingredientes selecionados e muito carinho. Venha experimentar e descubra por que somos referência na região.
           </p>
 
           <div className="pt-4">
@@ -258,7 +258,7 @@ export default function Home() {
           <div className="space-y-6">
             <div>
               <h2 className="text-3xl font-extrabold uppercase tracking-[0.1em]">CONTATO</h2>
-              <p className="text-xs text-red-200/60 italic font-semibold mt-1.5">Yakisoba Artesanal • YakinHome</p>
+              <p className="text-xs text-red-200/60 italic font-semibold mt-1.5">Marmitaria & Yakissobaria • A Chef Nair Delivery</p>
             </div>
 
             <div className="space-y-4 text-xs font-semibold tracking-wider text-red-100/80">
@@ -325,18 +325,17 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           
           <div className="flex items-center gap-1 font-bold text-xs tracking-[0.2em] text-white">
-            <span>YAKIN</span>
+            <span>CHEF NAIR</span>
             <span className="flex items-center text-white">
-              H
+              DELIVERY
               <span className="relative inline-flex items-center justify-center w-4.5 h-4.5 bg-[#ea580c] rounded-full mx-0.5">
                 <span className="text-[8px] text-white">🔥</span>
               </span>
-              ME
             </span>
           </div>
 
           <p className="text-[9px] font-bold tracking-widest uppercase text-gray-600">
-            © {new Date().getFullYear()} YAKINHOME. TODOS OS DIREITOS RESERVADOS.
+            © {new Date().getFullYear()} A CHEF NAIR DELIVERY. TODOS OS DIREITOS RESERVADOS.
           </p>
 
           {/* Scroll to Top */}

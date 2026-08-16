@@ -81,7 +81,7 @@ export default function AdminImpressora() {
     appendLog(`Abrindo impressao de teste para ${printerName}...`);
 
     try {
-      await printUsbText("TESTE DE IMPRESSAO YAKINHOME\n\nImpressora: KP-IM607 / POS58\n\nObrigado pela conexao!\n\n");
+      await printUsbText("TESTE DE IMPRESSAO CHEF NAIR DELIVERY\n\nImpressora: KP-IM607 / POS58\n\nObrigado pela conexao!\n\n");
       setPrinterStatus("Impressao concluida");
       appendLog("Janela de impressao aberta com sucesso.");
     } catch (error) {
