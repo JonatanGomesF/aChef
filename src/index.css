@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--primary-color);
+  --color-primary-hover: var(--primary-hover);
+  --color-brand-bg: var(--bg-color);
+  --color-brand-text: var(--text-color);
+  --color-brand-title: var(--title-color);
+  --color-brand-subtitle: var(--subtitle-color);
+  --color-brand-body: var(--body-text-color);
+  --color-brand-dark-bg: var(--dark-bg-color);
+  --color-brand-light-text: var(--light-text-color);
+}
+
+
 /* Suavizar rolagem geral */
 html {
   scroll-behavior: smooth;

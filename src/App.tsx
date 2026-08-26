@@ -11,6 +11,8 @@ import AdminLocalidade from "./pages/AdminLocalidade";
 import AdminProdutos from "./pages/AdminProdutos";
 import AdminCardapio from "./pages/AdminCardapio";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminAparencia from "./pages/AdminAparencia";
+import { ThemeProvider } from "./context/ThemeContext";
 
 import Cart from "./components/Cart";
 import Navbar from "./components/Navbar";
@@ -116,7 +118,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <ThemeProvider>
       <Navbar onOpenCart={() => setCartOpen(true)} />
 
       <Routes>
@@ -198,6 +200,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/admin/aparencia"
+          element={
+            <ProtectedRoute>
+              <AdminAparencia />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
       {/* Cart Drawer Background Overlay */}
@@ -256,7 +267,7 @@ function App() {
           <div className="text-white/40 text-[10px] font-medium mt-0.5">Item no carrinho</div>
         </div>
       </div>
-    </>
+    </ThemeProvider>
   );
 }
 

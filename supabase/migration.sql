@@ -340,6 +340,51 @@ BEGIN
   END IF;
 END $$;
 
+-- ─────────────────────────────────────────────
+-- 11. SITE_THEME — customização de aparência
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.site_theme (
+  id          INTEGER PRIMARY KEY DEFAULT 1,
+  theme_data  JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Habilita RLS
+ALTER TABLE public.site_theme ENABLE ROW LEVEL SECURITY;
+
+-- Política de Leitura Pública
+DROP POLICY IF EXISTS theme_read_anon ON public.site_theme;
+CREATE POLICY theme_read_anon ON public.site_theme
+  FOR SELECT TO anon USING (true);
+
+-- Política de Escrita para Admin
+DROP POLICY IF EXISTS theme_write_admin ON public.site_theme;
+CREATE POLICY theme_write_admin ON public.site_theme
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- Inserção inicial se não existir
+INSERT INTO public.site_theme (id, theme_data)
+VALUES (1, '{}'::jsonb)
+ON CONFLICT (id) DO NOTHING;
+
+-- Garante que a tabela site_theme esteja na replicação realtime
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_rel pr
+    JOIN pg_class c ON c.oid = pr.prrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_publication p ON p.oid = pr.prpubid
+    WHERE p.pubname = 'supabase_realtime'
+      AND n.nspname = 'public'
+      AND c.relname = 'site_theme'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.site_theme;
+  END IF;
+END $$;
+
 -- ============================================================
 -- FIM DA MIGRATION
 -- ============================================================

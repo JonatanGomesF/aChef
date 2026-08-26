@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useTheme } from "../context/ThemeContext";
 
 type NavbarProps = {
   onOpenCart: () => void;
@@ -10,6 +11,7 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const { totalItems } = useCart();
   const [animateCart, setAnimateCart] = useState(false);
+  const { settings } = useTheme();
 
   useEffect(() => {
     if (totalItems === 0) return;
@@ -19,7 +21,13 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
   }, [totalItems]);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#faf6f0]/95 backdrop-blur-md border-b border-stone-200/50 shadow-sm text-stone-800 font-sans-montserrat">
+    <header
+      className="sticky top-0 z-50 backdrop-blur-md border-b border-stone-200/50 shadow-sm font-sans-montserrat transition-colors duration-300"
+      style={{
+        backgroundColor: "color-mix(in srgb, var(--bg-color) 95%, transparent)",
+        color: "var(--body-text-color)",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-6 h-[60px] flex items-center justify-between">
 
         {/* ── Logo ── */}
@@ -32,8 +40,8 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
             <path d="M28 22 Q26 15 28 8 Q30 1 28 0" stroke="#e8c87a" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.9"/>
             <path d="M36 24 Q34 16 36 8 Q38 0 36 0" stroke="#e8c87a" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
             <path d="M44 22 Q42 15 44 8 Q46 1 44 0" stroke="#e8c87a" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.9"/>
-            <path d="M6 42 L36 20 L66 42" stroke="#e25c24" strokeWidth="5" strokeLinejoin="round" fill="none" strokeLinecap="round"/>
-            <rect x="15" y="40" width="42" height="24" rx="2" fill="none" stroke="#e25c24" strokeWidth="3"/>
+            <path d="M6 42 L36 20 L66 42" stroke="var(--primary-color)" strokeWidth="5" strokeLinejoin="round" fill="none" strokeLinecap="round"/>
+            <rect x="15" y="40" width="42" height="24" rx="2" fill="none" stroke="var(--primary-color)" strokeWidth="3"/>
             <rect x="27" y="46" width="18" height="13" rx="1.5" fill="none" stroke="#e8c87a" strokeWidth="2.5"/>
             <line x1="36" y1="46" x2="36" y2="59" stroke="#e8c87a" strokeWidth="2"/>
             <line x1="27" y1="52" x2="45" y2="52" stroke="#e8c87a" strokeWidth="2"/>
@@ -42,10 +50,15 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
           {/* Nome */}
           <span className="flex items-baseline leading-none">
             <span
-              className="text-stone-900 font-black"
-              style={{ fontSize: "1.25rem", fontFamily: "'Montserrat', sans-serif", letterSpacing: "-0.02em" }}
+              className="font-black"
+              style={{
+                fontSize: "1.25rem",
+                fontFamily: "var(--font-family)",
+                color: "var(--title-color)",
+                letterSpacing: "-0.02em",
+              }}
             >
-              Chef Nair
+              {settings.heroTitle}
             </span>
           </span>
         </a>
@@ -60,9 +73,10 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
             <a
               key={link.href}
               href={link.href}
-              className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 relative py-2 transition-colors duration-300
+              className="text-[11px] font-bold uppercase tracking-[0.18em] relative py-2 transition-colors duration-300
                          after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-0
-                         hover:after:w-full after:bg-[#e25c24] after:transition-all after:duration-300"
+                         hover:after:w-full after:bg-primary after:transition-all after:duration-300"
+              style={{ color: "color-mix(in srgb, var(--title-color) 60%, transparent)" }}
             >
               {link.label}
             </a>
@@ -75,11 +89,15 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
             type="button"
             id="cart-button-desktop"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onOpenCart(); }}
-            className={`relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-stone-200/50 text-stone-500 hover:text-stone-900 cursor-pointer transition-all duration-300 ${animateCart ? "animate-cart-pop" : ""}`}
+            className={`relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-stone-200/50 cursor-pointer transition-all duration-300 ${animateCart ? "animate-cart-pop" : ""}`}
+            style={{ color: "color-mix(in srgb, var(--title-color) 60%, transparent)" }}
           >
             <ShoppingCart size={19} />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-[#e25c24] text-white text-[9px] font-black w-[18px] h-[18px] rounded-full flex items-center justify-center border border-[#faf6f0] shadow-md">
+              <span
+                className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[9px] font-black w-[18px] h-[18px] rounded-full flex items-center justify-center border shadow-md"
+                style={{ borderColor: "var(--bg-color)" }}
+              >
                 {totalItems}
               </span>
             )}
@@ -87,7 +105,8 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
 
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden p-2 text-stone-550 hover:text-stone-900 transition-colors duration-300"
+            className="md:hidden p-2 hover:opacity-80 transition-colors duration-300"
+            style={{ color: "var(--title-color)" }}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -96,9 +115,14 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
 
       {/* ── Mobile menu ── */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out border-t border-stone-200/50 bg-[#faf6f0] ${
-          open ? "max-h-64 opacity-100 py-4" : "max-h-0 opacity-0 py-0"
-        }`}
+        className="md:hidden overflow-hidden transition-all duration-300 ease-in-out border-t border-stone-200/50"
+        style={{
+          maxHeight: open ? "16rem" : "0",
+          opacity: open ? "1" : "0",
+          paddingTop: open ? "1rem" : "0",
+          paddingBottom: open ? "1rem" : "0",
+          backgroundColor: "var(--bg-color)",
+        }}
       >
         <nav className="flex flex-col px-6 gap-5">
           {[
@@ -110,7 +134,8 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="text-stone-500 text-[11px] font-bold uppercase tracking-[0.18em] hover:text-stone-900 py-1 transition-colors duration-200"
+              className="text-[11px] font-bold uppercase tracking-[0.18em] hover:opacity-80 py-1 transition-all duration-200"
+              style={{ color: "color-mix(in srgb, var(--title-color) 60%, transparent)" }}
             >
               {link.label}
             </a>

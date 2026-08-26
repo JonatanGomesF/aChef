@@ -1,4 +1,3 @@
-
 import Hero from "../components/Hero";
 import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
@@ -15,6 +14,7 @@ import {
 import { getMenuCatalog } from "../lib/menuCatalog";
 import type { Product } from "../data/products";
 import { Phone, Clock, MapPin } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 // Local Yakisoba Assets for the About Us Row
 import frangoImg from "../assets/yaki-frango.png";
@@ -27,6 +27,8 @@ import heroBg from "../assets/hero.png";
 export default function Home() {
   const { addToCart } = useCart();
   const promotions = usePromotions();
+  const { settings } = useTheme();
+  
   const [selectedProduct, setSelectedProduct] =
     useState<Product | null>(null);
   const [catalog, setCatalog] = useState(() => getMenuCatalog());
@@ -81,15 +83,24 @@ export default function Home() {
       alert("Por favor, preencha todos os campos do formulário.");
       return;
     }
-    // Contato via WhatsApp
-    const msg = `*Mensagem de Contato - Chef Nair*\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Mensagem:* ${message}`;
-    window.open(`https://wa.me/553599212311?text=${encodeURIComponent(msg)}`, "_blank");
+
+    // Limpar o número do WhatsApp recebido para retirar formatação externa
+    const phoneClean = settings.contactPhone.replace(/[^0-9]/g, "");
+    const phoneWhatsApp = phoneClean.startsWith("55") ? phoneClean : "55" + phoneClean;
+
+    const msg = `*Mensagem de Contato - ${settings.heroTitle}*\n\n*Nome:* ${name}\n*E-mail:* ${email}\n*Mensagem:* ${message}`;
+    window.open(`https://wa.me/${phoneWhatsApp}?text=${encodeURIComponent(msg)}`, "_blank");
+    
     setName("");
     setEmail("");
     setMessage("");
   };
 
-  const yakiRow = [frangoImg, carneImg, camaraoImg, mistoImg, vegImg];
+  // Fotos circulares dos yakisobas na seção Sobre Nós
+  const localAboutImages = [frangoImg, carneImg, camaraoImg, mistoImg, vegImg];
+  const yakiRow = localAboutImages.map((localImg, idx) => {
+    return (settings.aboutImages && settings.aboutImages[idx]) || localImg;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50/30 text-gray-800 font-sans-montserrat">
@@ -106,31 +117,31 @@ export default function Home() {
         className="bg-white py-20 border-b border-gray-100"
       >
         <div className="max-w-4xl mx-auto px-6 text-center space-y-6">
-          <h2 className="font-serif-display text-4xl italic text-[#e25c24] font-semibold">
-            Sobre Nós
+          <h2 className="font-serif-display text-4xl italic text-primary font-semibold">
+            {settings.aboutTitle}
           </h2>
 
           {/* Separador */}
-          <div className="w-12 h-[2px] bg-[#e25c24] mx-auto mt-2" />
+          <div className="w-12 h-[2px] bg-primary mx-auto mt-2" />
 
           <p className="mt-4 text-xs md:text-sm text-gray-500 italic max-w-2xl mx-auto leading-relaxed">
-            Chef Nair é especializada em marmitas deliciosas e yakisoba artesanal feito na chapa, tudo preparado com ingredientes frescos e selecionados. Nossa receita especial, aperfeiçoada ao longo dos anos, garante um sabor único e autêntico de comida caseira que você não encontra em outro lugar. Venha nos visitar e experimente nossas delícias!
+            {settings.aboutText}
           </p>
 
           {/* Badges de destaque */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-6 max-w-3xl mx-auto">
             <div className="text-center sm:text-right flex-1">
-              <h4 className="text-xs font-black text-[#e25c24] tracking-widest uppercase">A APRESENTAÇÃO</h4>
-              <p className="text-[11px] text-gray-400 mt-1">Preparado pelo nosso Chef na chapa,<br/>é algo que você precisa experimentar.</p>
+              <h4 className="text-xs font-black text-primary tracking-widest uppercase">{settings.aboutLeftTitle}</h4>
+              <p className="text-[11px] text-gray-400 mt-1">{settings.aboutLeftDesc}</p>
             </div>
             
-            <div className="w-12 h-12 bg-[#ea580c] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-600/20 flex-shrink-0">
+            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-600/20 flex-shrink-0">
               <MapPin size={22} className="stroke-[2.5]" />
             </div>
 
             <div className="text-center sm:text-left flex-1">
-              <h4 className="text-xs font-black text-[#e25c24] tracking-widest uppercase">NOSSO ORGULHO</h4>
-              <p className="text-[11px] text-gray-400 mt-1">Servimos o yakisoba mais fresco, saboroso<br/>e irresistível da cidade.</p>
+              <h4 className="text-xs font-black text-primary tracking-widest uppercase">{settings.aboutRightTitle}</h4>
+              <p className="text-[11px] text-gray-400 mt-1">{settings.aboutRightDesc}</p>
             </div>
           </div>
 
@@ -151,7 +162,7 @@ export default function Home() {
         className="max-w-6xl mx-auto px-6 py-20"
       >
         <div className="text-center mb-14 space-y-2">
-          <span className="text-[10px] font-black text-[#ea580c] tracking-[0.25em] uppercase bg-orange-50 border border-orange-100/30 px-3 py-1 rounded-full">
+          <span className="text-[10px] font-black text-primary tracking-[0.25em] uppercase bg-orange-50 border border-orange-100/30 px-3 py-1 rounded-full">
             Cardápio
           </span>
 
@@ -218,60 +229,72 @@ export default function Home() {
       />
 
       {/* Seção: "MELHOR YAKISOBA DA CIDADE" (Fundo Escuro com Parallax) */}
-      <section className="relative overflow-hidden bg-[#2c2520] text-center min-h-[40vh] flex items-center">
+      <section
+        className="relative overflow-hidden text-center min-h-[40vh] flex items-center"
+        style={{ backgroundColor: "var(--dark-bg-color)" }}
+      >
         {/* Background image com overlay escuro */}
         <img 
-          src={heroBg} 
+          src={settings.middleBgImage || heroBg} 
           alt="Yakisoba Background" 
-          className="absolute inset-0 w-full h-full object-cover opacity-30 select-none pointer-events-none scale-105"
+          className="absolute inset-0 w-full h-full object-cover opacity-35 select-none pointer-events-none scale-105"
         />
-        <div className="absolute inset-0 bg-[#2c2520]/80 backdrop-blur-xs" />
+        <div
+          className="absolute inset-0 z-0 backdrop-blur-xs"
+          style={{ backgroundColor: "color-mix(in srgb, var(--dark-bg-color) 80%, transparent)" }}
+        />
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-20 space-y-6">
           <h2 className="text-xl md:text-3xl font-extrabold tracking-[0.2em] text-white leading-relaxed uppercase">
-            O MELHOR YAKISOBA DA CIDADE. <span className="text-[#e25c24]">GARANTIDO!</span>
+            {settings.middleTitle}
           </h2>
           
           <p className="text-stone-300 text-xs font-semibold tracking-wider max-w-2xl mx-auto italic leading-relaxed">
-            Nosso cardápio conta com deliciosas marmitas caseiras e uma grande variedade de yakisobas artesanais preparados na chapa, com ingredientes selecionados e muito carinho. Venha experimentar e descubra por que somos referência na região.
+            {settings.middleSubtitle}
           </p>
 
           <div className="pt-4">
             <button 
               onClick={scrollToMenu}
-              className="px-8 py-3.5 border border-white hover:border-[#e25c24] hover:bg-[#e25c24] hover:text-white transition-all duration-300 text-xs tracking-[0.2em] font-bold text-white uppercase cursor-pointer"
+              className="px-8 py-3.5 border border-white hover:border-primary hover:bg-primary hover:text-white transition-all duration-300 text-xs tracking-[0.2em] font-bold text-white uppercase cursor-pointer"
             >
-              VER NOSSO CARDÁPIO
+              {settings.middleButtonText}
             </button>
           </div>
         </div>
       </section>
 
-      {/* Seção: "CONTATO" (Gradiente Terracota) */}
+      {/* Seção: "CONTATO" (Gradiente Dinâmico da Paleta de Cores) */}
       <section
         id="contato"
-        className="bg-gradient-to-r from-[#7c2d12] to-[#9a3412] text-white py-20 border-b border-orange-950"
+        className="text-white py-20 border-b border-black/10"
+        style={{
+          background: "linear-gradient(to right, var(--primary-hover), var(--primary-color))",
+        }}
       >
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
           
           {/* Coluna Esquerda: Informações de Contato */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-3xl font-extrabold uppercase tracking-[0.1em]">CONTATO</h2>
-              <p className="text-xs text-orange-200/60 italic font-semibold mt-1.5">Marmitaria & Yakissobaria • Chef Nair</p>
+              <h2 className="text-3xl font-extrabold uppercase tracking-[0.1em]">{settings.contactTitle}</h2>
+              <p className="text-xs text-white/70 italic font-semibold mt-1.5">{settings.contactSubtitle}</p>
             </div>
 
-            <div className="space-y-4 text-xs font-semibold tracking-wider text-orange-100/80">
+            <div className="space-y-4 text-xs font-semibold tracking-wider text-white/90">
               <div className="flex items-start gap-3">
-                <Phone size={18} className="text-orange-200 mt-0.5 flex-shrink-0" />
-                <p>(35) 9921-2311</p>
+                <Phone size={18} className="text-white mt-0.5 flex-shrink-0" />
+                <p>{settings.contactPhone}</p>
               </div>
 
               <div className="flex items-start gap-3">
-                <Clock size={18} className="text-orange-200 mt-0.5 flex-shrink-0" />
+                <Clock size={18} className="text-white mt-0.5 flex-shrink-0" />
                 <div>
-                  <p>Ter - Sex: 17h45 às 23h45</p>
-                  <p className="mt-1">Sáb & Dom: 15h às 00h</p>
+                  {settings.contactHours.split("\n").map((line, idx) => (
+                    <p key={idx} className={idx > 0 ? "mt-1" : ""}>
+                      {line}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>
@@ -281,38 +304,39 @@ export default function Home() {
           <form onSubmit={handleContactSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-orange-200 tracking-wider uppercase">Seu Nome</label>
+                <label className="text-[10px] font-bold text-white tracking-wider uppercase">Seu Nome</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-orange-200/20 hover:border-orange-200/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
+                  className="w-full border border-white/20 hover:border-white/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-orange-200 tracking-wider uppercase">E-mail</label>
+                <label className="text-[10px] font-bold text-white tracking-wider uppercase">E-mail</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-orange-200/20 hover:border-orange-200/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
+                  className="w-full border border-white/20 hover:border-white/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-orange-200 tracking-wider uppercase">Mensagem</label>
+              <label className="text-[10px] font-bold text-white tracking-wider uppercase">Mensagem</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                className="w-full border border-orange-200/20 hover:border-orange-200/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300 resize-none"
+                className="w-full border border-white/20 hover:border-white/40 focus:border-white bg-white/5 rounded-lg p-3 text-xs outline-none text-white transition-all duration-300 resize-none"
               />
             </div>
 
             <button
               type="submit"
-              className="px-8 py-3 bg-white text-[#7c2d12] font-black text-xs tracking-widest uppercase rounded hover:bg-orange-500 hover:text-white hover:scale-102 transition-all duration-300 shadow-md cursor-pointer"
+              className="px-8 py-3 bg-white font-black text-xs tracking-widest uppercase rounded hover:bg-black/10 hover:text-white hover:scale-102 transition-all duration-300 shadow-md cursor-pointer"
+              style={{ color: "var(--primary-hover)" }}
             >
               ENVIAR
             </button>
@@ -321,27 +345,30 @@ export default function Home() {
       </section>
 
       {/* Rodapé */}
-      <footer className="bg-[#1c1918] text-stone-400 py-10">
+      <footer
+        className="text-stone-400 py-10"
+        style={{ backgroundColor: "var(--dark-bg-color)" }}
+      >
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           
           <div className="flex items-center gap-1 font-bold text-xs tracking-[0.2em] text-white">
-            <span>CHEF NAIR</span>
+            <span>{settings.heroTitle.toUpperCase()}</span>
             <span className="flex items-center text-white">
               DELIVERY
-              <span className="relative inline-flex items-center justify-center w-4.5 h-4.5 bg-[#ea580c] rounded-full mx-0.5">
+              <span className="relative inline-flex items-center justify-center w-4.5 h-4.5 bg-primary rounded-full mx-0.5">
                 <span className="text-[8px] text-white">🔥</span>
               </span>
             </span>
           </div>
 
           <p className="text-[9px] font-bold tracking-widest uppercase text-stone-500">
-            © {new Date().getFullYear()} CHEF NAIR. TODOS OS DIREITOS RESERVADOS.
+            {settings.footerCopy}
           </p>
 
           {/* Scroll to Top */}
           <button 
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="w-8 h-8 rounded-full border border-stone-850 hover:border-orange-500 hover:text-[#ea580c] flex items-center justify-center text-stone-500 transition-colors duration-300 cursor-pointer text-xs"
+            className="w-8 h-8 rounded-full border border-stone-850 hover:border-primary hover:text-primary flex items-center justify-center text-stone-500 transition-colors duration-300 cursor-pointer text-xs"
           >
             ▲
           </button>
