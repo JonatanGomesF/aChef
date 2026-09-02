@@ -31,7 +31,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }: Pro
 
         {/* Promo badge */}
         {product.promotionActive && (
-          <div className="absolute top-3 left-3 bg-[#e25c24] text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md">
+          <div className="absolute top-3 left-3 bg-primary text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md">
             PROMOÇÃO
           </div>
         )}
@@ -45,7 +45,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }: Pro
       {/* Content */}
       <div className="flex-1 p-3 sm:p-4 flex flex-col justify-between gap-3">
         <div>
-          <h3 className="font-extrabold text-[15px] text-gray-900 leading-snug group-hover:text-[#e25c24] transition-colors duration-200">
+          <h3 className="font-extrabold text-[15px] text-gray-900 leading-snug group-hover:text-primary transition-colors duration-200">
             {product.name}
           </h3>
           <p className="text-gray-400 text-[12px] mt-1 leading-relaxed line-clamp-2">
@@ -61,7 +61,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }: Pro
                 <span className="text-[11px] text-gray-400 line-through block">
                   R$ {product.price.toFixed(2)}
                 </span>
-                <span className="text-base font-black text-[#e25c24]">
+                <span className="text-base font-black text-primary">
                   R$ {product.promotionalPrice?.toFixed(2)}
                 </span>
               </div>
@@ -101,7 +101,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }: Pro
             disabled={!isAvailable}
             className={`w-9 h-9 rounded-xl text-white flex items-center justify-center transition-all duration-150 shadow-md shadow-orange-950/10 ${
               isAvailable
-                ? "bg-[#e25c24] hover:bg-[#c2410c] hover:shadow-orange-950/20 hover:-translate-y-0.5 cursor-pointer"
+                ? "bg-primary hover:bg-primary-hover hover:shadow-orange-950/20 hover:-translate-y-0.5 cursor-pointer"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >

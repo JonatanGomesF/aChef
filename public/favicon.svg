@@ -1,42 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Gradiente de fundo super premium -->
-    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1a0000" />
-      <stop offset="100%" stop-color="#3d0300" />
+    <!-- Gradiente do anel exterior -->
+    <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FA6400" />
+      <stop offset="100%" stop-color="#FF9500" />
     </linearGradient>
-    <!-- Gradiente para o bowl de Yakisoba -->
-    <linearGradient id="red-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#e53e3e" />
-      <stop offset="100%" stop-color="#9b2c2c" />
-    </linearGradient>
-    <!-- Gradiente para os noodles/detalhes de ouro -->
-    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f6e05e" />
-      <stop offset="100%" stop-color="#dd6b20" />
+    <!-- Gradiente da chama -->
+    <linearGradient id="flame-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#E04B00" />
+      <stop offset="60%" stop-color="#FA6400" />
+      <stop offset="100%" stop-color="#FFB300" />
     </linearGradient>
   </defs>
 
-  <!-- Fundo Circular Premium -->
-  <circle cx="256" cy="256" r="240" fill="url(#bg-grad)" stroke="#dd6b20" stroke-width="8" />
+  <!-- Fundo branco suave -->
+  <circle cx="256" cy="256" r="248" fill="#FFFDFB" />
 
-  <!-- Tigela de Yakisoba (Bowl) -->
-  <path d="M120 280h272c0 80-60 120-136 120s-136-40-136-120z" fill="url(#red-grad)" stroke="#ffffff" stroke-width="6" stroke-linejoin="round" />
-  <!-- Base da tigela -->
-  <path d="M210 400h92v16h-92z" fill="#ffffff" rx="4" />
+  <!-- Anel externo em gradiente laranja -->
+  <circle cx="256" cy="256" r="228" fill="none" stroke="url(#ring-grad)" stroke-width="26" stroke-linecap="round" stroke-dasharray="1350" stroke-dashoffset="50" />
 
-  <!-- Vapor saindo do Yakisoba (fumaça quente) -->
-  <path d="M200 170c-5-15 5-25 0-40M256 160c-5-20 5-30 0-50M312 170c-5-15 5-25 0-40" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.3" />
+  <!-- Chama estilizada ao fundo -->
+  <path d="M230 110 C210 160 170 190 170 235 C170 270 195 295 230 295 C220 270 225 240 245 220 C250 240 265 255 270 270 C285 245 285 210 270 180 C260 160 255 140 230 110 Z" fill="url(#flame-grad)" />
 
-  <!-- Macarrão / Noodles (Yakisoba) saindo da tigela -->
-  <path d="M136 280c20-20 40-10 60-20s30-25 60-15s45-20 70-15s30 15 50 10s20-25 10-30" stroke="url(#gold-grad)" stroke-width="14" fill="none" stroke-linecap="round" />
-  <path d="M150 290c25-15 35-5 55-25s40-10 65-15s35 15 60 5s25-25 15-35" stroke="url(#gold-grad)" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.9" />
-
-  <!-- Hashis (Chopsticks) atravessando o prato -->
-  <g transform="rotate(-25 256 256)">
-    <!-- Hashi 1 -->
-    <path d="M80 200 L440 220" stroke="#fbd38d" stroke-width="14" stroke-linecap="round" />
-    <!-- Hashi 2 -->
-    <path d="M80 225 L440 235" stroke="#d69e2e" stroke-width="12" stroke-linecap="round" />
+  <!-- Faca (Knife) cruzada -->
+  <g transform="rotate(38 256 256)">
+    <!-- Cabo -->
+    <rect x="242" y="270" width="28" height="130" rx="14" fill="#231614" />
+    <!-- Lâmina -->
+    <path d="M242 120 C242 120 270 170 270 260 L242 260 Z" fill="#231614" />
   </g>
+
+  <!-- Garfo (Fork) cruzado -->
+  <g transform="rotate(-38 256 256)">
+    <!-- Cabo -->
+    <rect x="242" y="270" width="28" height="130" rx="14" fill="#231614" />
+    <!-- Dentes do Garfo -->
+    <path d="M234 160 L234 230 C234 250 242 260 256 260 C270 260 278 250 278 230 L278 160 M248 160 L248 220 M264 160 L264 220" stroke="#231614" stroke-width="10" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Ondas da chapa quente -->
+  <path d="M190 380 Q225 360 260 380 T330 380" stroke="#FA6400" stroke-width="12" fill="none" stroke-linecap="round" />
+  <path d="M210 405 Q245 385 280 405 T310 405" stroke="#231614" stroke-width="10" fill="none" stroke-linecap="round" />
 </svg>

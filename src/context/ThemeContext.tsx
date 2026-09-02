@@ -53,40 +53,40 @@ export interface ThemeSettings {
 }
 
 export const defaultThemeSettings: ThemeSettings = {
-  primaryColor: "#e25c24",
-  primaryHover: "#c2410c",
-  bgColor: "#faf6f0",
-  darkBgColor: "#2c2520",
-  titleColor: "#1c1918",
-  subtitleColor: "#e25c24",
-  bodyTextColor: "#57534e", // stone-500
-  lightTextColor: "#f5f5f4", // stone-100
+  primaryColor: "#FA6400",
+  primaryHover: "#DC4C00",
+  bgColor: "#FFFDFB",
+  darkBgColor: "#1C1210",
+  titleColor: "#231614",
+  subtitleColor: "#FA6400",
+  bodyTextColor: "#5C4D49",
+  lightTextColor: "#FDFBF9",
   fontFamily: "'Montserrat', sans-serif",
-  heroTitle: "Chef Nair",
-  heroBadge: "Marmitaria & Yakissobaria",
-  heroTagline: "Sabor que você sente, como em casa!",
+  heroTitle: "Sabor & Porção",
+  heroBadge: "O Sabor Que Você Volta",
+  heroTagline: "O sabor que você volta! Pratos suculentos e porções artesanais preparadas na hora com o melhor tempero.",
   heroButtonText: "Ver Cardápio",
-  heroButtonWhatsappText: "Pedir Agora",
+  heroButtonWhatsappText: "Pedir no WhatsApp",
   heroWhatsappLink: "https://wa.me/553599212311",
   heroBgImage: "",
-  aboutTitle: "Sobre Nós",
+  aboutTitle: "Sobre o Sabor & Porção",
   aboutText:
-    "Chef Nair é especializada em marmitas deliciosas e yakisoba artesanal feito na chapa, tudo preparado com ingredientes frescos e selecionados. Nossa receita especial, aperfeiçoada ao longo dos anos, garante um sabor único e autêntico de comida caseira que você não encontra em outro lugar. Venha nos visitar e experimente nossas delícias!",
-  aboutLeftTitle: "A APRESENTAÇÃO",
-  aboutLeftDesc: "Preparado pelo nosso Chef na chapa, é algo que você precisa experimentar.",
-  aboutRightTitle: "NOSSO ORGULHO",
-  aboutRightDesc: "Servimos o yakisoba mais fresco, saboroso e irresistível da cidade.",
+    "O Sabor & Porção nasceu da paixão pela boa gastronomia e pelo prazer de servir pratos marcantes e porções generosas. Aqui, cada receita é preparada na hora, com ingredientes frescos e selecionados, trazendo aquele sabor inesquecível que faz você sempre querer voltar!",
+  aboutLeftTitle: "PREPARO ARTESANAL",
+  aboutLeftDesc: "Feito com carinho e técnica na chapa quente para garantir o ponto perfeito.",
+  aboutRightTitle: "QUALIDADE & SABOR",
+  aboutRightDesc: "Ingredientes selecionados do dia para uma explosão de sabor a cada mordida.",
   aboutImages: [],
-  middleTitle: "O MELHOR YAKISOBA DA CIDADE. GARANTIDO!",
+  middleTitle: "O SABOR QUE VOCÊ VOLTA. GARANTIDO!",
   middleSubtitle:
-    "Nosso cardápio conta com deliciosas marmitas caseiras e uma grande variedade de yakisobas artesanais preparados na chapa, com ingredientes selecionados e muito carinho. Venha experimentar e descubra por que somos referência na região.",
+    "Nosso cardápio traz pratos suculentos, yakisobas artesanais e porções especiais preparadas com os melhores ingredientes. Experimente e comprove a qualidade!",
   middleButtonText: "VER NOSSO CARDÁPIO",
   middleBgImage: "",
   contactTitle: "CONTATO",
-  contactSubtitle: "Marmitaria & Yakissobaria • Chef Nair",
+  contactSubtitle: "Sabor & Porção • Delivery & Retirada",
   contactPhone: "(35) 9921-2311",
   contactHours: "Ter - Sex: 17h45 às 23h45\nSáb & Dom: 15h às 00h",
-  footerCopy: "© 2026 CHEF NAIR. TODOS OS DIREITOS RESERVADOS.",
+  footerCopy: "© 2026 SABOR & PORÇÃO. TODOS OS DIREITOS RESERVADOS.",
   customCss: "",
 };
 
@@ -101,7 +101,7 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<ThemeSettings>(() => {
-    const saved = localStorage.getItem("yakinhome-theme-settings");
+    const saved = localStorage.getItem("sabor-porcao-theme-settings") || localStorage.getItem("yakinhome-theme-settings");
     if (saved) {
       try {
         return { ...defaultThemeSettings, ...JSON.parse(saved) };
@@ -163,7 +163,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (!error && data?.theme_data) {
         const mergedSettings = { ...defaultThemeSettings, ...data.theme_data };
         setSettings(mergedSettings);
-        localStorage.setItem("yakinhome-theme-settings", JSON.stringify(mergedSettings));
+        localStorage.setItem("sabor-porcao-theme-settings", JSON.stringify(mergedSettings));
         applyStyles(mergedSettings);
       } else {
         // Fallback local se não achar no supabase (por exemplo, se a tabela ainda não existir)
@@ -189,7 +189,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updateSettings = async (newSettings: Partial<ThemeSettings>) => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
-    localStorage.setItem("yakinhome-theme-settings", JSON.stringify(updated));
+    localStorage.setItem("sabor-porcao-theme-settings", JSON.stringify(updated));
     applyStyles(updated);
 
     try {

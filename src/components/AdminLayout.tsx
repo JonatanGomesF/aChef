@@ -44,12 +44,12 @@ export default function AdminLayout({ children }: Props) {
     <>
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-6 py-5 border-b border-white/[0.06]">
-        <div className="w-8 h-8 rounded-lg bg-[#c0261a] flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-md shadow-orange-950/30">
           <ChefHat size={16} className="text-white" />
         </div>
         <div>
-          <span className="text-white font-black text-sm tracking-tight">Chef Nair</span>
-          <span className="text-[#c0261a] font-black text-sm tracking-tight ml-1">Delivery</span>
+          <span className="text-white font-black text-sm tracking-tight">Sabor</span>
+          <span className="text-primary font-black text-sm tracking-tight ml-1">& Porção</span>
           <div className="text-white/25 text-[9px] font-bold tracking-[0.2em] uppercase leading-none mt-0.5">
             Painel Admin
           </div>
@@ -67,7 +67,7 @@ export default function AdminLayout({ children }: Props) {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
                 isActive
-                  ? "bg-[#c0261a] text-white shadow-lg shadow-red-900/30"
+                  ? "bg-primary text-white shadow-lg shadow-orange-950/40"
                   : "text-white/50 hover:text-white hover:bg-white/[0.07]"
               }`
             }
@@ -138,8 +138,8 @@ export default function AdminLayout({ children }: Props) {
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-1.5">
-            <span className="text-white font-black text-sm">Chef Nair</span>
-            <span className="text-[#c0261a] font-black text-sm ml-1">Delivery</span>
+            <span className="text-white font-black text-sm">Sabor</span>
+            <span className="text-primary font-black text-sm ml-1">& Porção</span>
           </div>
           <div className="w-5" />
         </header>

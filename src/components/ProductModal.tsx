@@ -126,7 +126,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
               {product.size}
             </span>
             {product.promotionActive && (
-              <span className="bg-[#e25c24] text-white text-[10px] font-black px-3 py-1 rounded-full">
+              <span className="bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full shadow-md">
                 PROMOÇÃO
               </span>
             )}
@@ -144,7 +144,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                 {product.promotionActive ? (
                   <>
                     <p className="text-xs text-gray-400 line-through">R$ {product.price.toFixed(2)}</p>
-                    <p className="text-lg font-black text-[#e25c24]">R$ {product.promotionalPrice?.toFixed(2)}</p>
+                    <p className="text-lg font-black text-primary">R$ {product.promotionalPrice?.toFixed(2)}</p>
                   </>
                 ) : (
                   <p className="text-lg font-black text-gray-900">R$ {product.price.toFixed(2)}</p>
@@ -170,7 +170,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                   key={i}
                   className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-600 text-[11px] font-semibold px-3 py-1.5 rounded-full"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4e8a45] flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                   {ing}
                 </span>
               ))}
@@ -200,7 +200,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                     key={category}
                     onClick={() => setActiveExtraCategory(category)}
                     className={`px-3 py-2 rounded-full text-[12px] font-semibold transition-all ${activeExtraCategory === category
-                        ? "bg-[#e25c24] text-white"
+                        ? "bg-primary text-white shadow-md shadow-orange-950/20"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                   >
@@ -231,13 +231,13 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                       key={extra.id}
                       onClick={() => toggleExtra(extra.id)}
                       className={`flex items-center justify-between rounded-xl p-3.5 cursor-pointer select-none transition-all duration-200 border ${isChecked
-                          ? "border-[#e25c24] bg-orange-50/60"
+                          ? "border-primary bg-orange-50/60"
                           : "border-gray-100 bg-gray-50/50 hover:border-gray-200"
                         }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 shrink-0 ${isChecked ? "bg-[#e25c24]" : "border border-gray-300 bg-white"
+                          className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 shrink-0 ${isChecked ? "bg-primary" : "border border-gray-300 bg-white"
                             }`}
                         >
                           {isChecked && <Check size={12} className="text-white stroke-3" />}
@@ -262,7 +262,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
               value={observation}
               onChange={(e) => setObservation(e.target.value)}
               placeholder="Ex: sem cebola, pouco molho, bem temperado..."
-              className="w-full border border-gray-200 bg-gray-50 rounded-xl p-3 text-[13px] outline-none focus:border-[#e25c24] focus:ring-2 focus:ring-[#e25c24]/10 placeholder-gray-400 transition-all duration-200 resize-none"
+              className="w-full border border-gray-200 bg-gray-50 rounded-xl p-3 text-[13px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 placeholder-gray-400 transition-all duration-200 resize-none"
               rows={2}
             />
           </div>
@@ -284,7 +284,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-8 h-8 rounded-lg bg-[#e25c24] hover:bg-[#c2410c] flex items-center justify-center transition-all duration-200 text-white cursor-pointer active:scale-90"
+              className="w-8 h-8 rounded-lg bg-primary hover:bg-primary-hover flex items-center justify-center transition-all duration-200 text-white cursor-pointer active:scale-90"
             >
               <Plus size={14} />
             </button>
@@ -307,7 +307,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
               });
               handleClose();
             }}
-            className="flex-1 bg-[#e25c24] hover:bg-[#c2410c] text-white py-3.5 px-5 rounded-xl font-black text-sm flex items-center justify-between shadow-lg shadow-orange-950/10 hover:shadow-orange-950/25 transition-all duration-300 hover:-translate-y-0.5 active:scale-98 cursor-pointer group"
+            className="flex-1 bg-primary hover:bg-primary-hover text-white py-3.5 px-5 rounded-xl font-black text-sm flex items-center justify-between shadow-lg shadow-orange-950/10 hover:shadow-orange-950/25 transition-all duration-300 hover:-translate-y-0.5 active:scale-98 cursor-pointer group"
           >
             <span>Adicionar ao carrinho</span>
             <span className="flex items-center gap-1.5">

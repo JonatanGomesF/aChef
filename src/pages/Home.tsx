@@ -149,7 +149,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center items-center gap-5 mt-10 select-none pointer-events-none max-w-4xl mx-auto">
             {yakiRow.map((img, i) => (
               <div key={i} className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden hover:scale-108 transition-transform duration-300 shadow-lg border border-gray-100/50 bg-gray-50">
-                <img src={img} alt="Prato Chef Nair" className="w-full h-full object-cover" />
+                <img src={img} alt="Prato Sabor & Porção" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -162,16 +162,16 @@ export default function Home() {
         className="max-w-6xl mx-auto px-6 py-20"
       >
         <div className="text-center mb-14 space-y-2">
-          <span className="text-[10px] font-black text-primary tracking-[0.25em] uppercase bg-orange-50 border border-orange-100/30 px-3 py-1 rounded-full">
-            Cardápio
+          <span className="text-[10px] font-black text-primary tracking-[0.25em] uppercase bg-orange-50 border border-orange-200/50 px-3.5 py-1 rounded-full">
+            Nosso Cardápio
           </span>
 
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">
-            Escolha seu Yakisoba
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+            Cardápio Especial
           </h2>
 
-          <p className="text-gray-400 text-xs md:text-sm max-w-md mx-auto leading-relaxed">
-            Nossos pratos acompanham ingredientes selecionados na chapa e o molho especial clássico da casa.
+          <p className="text-gray-500 text-xs md:text-sm max-w-md mx-auto leading-relaxed">
+            Pratos preparados na hora, porções generosas e tempero artesanal inconfundível.
           </p>
         </div>
 

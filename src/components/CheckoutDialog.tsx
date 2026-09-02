@@ -184,7 +184,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       console.error("Erro ao salvar pedido:", error);
     }
 
-    let msg = `*NOVO PEDIDO - CHEF NAIR*\n\n`;
+    let msg = `*NOVO PEDIDO - SABOR & PORÇÃO*\n\n`;
 
     msg += `*Nome:* ${name}\n`;
     msg += `*WhatsApp:* ${phone}\n`;
@@ -307,7 +307,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                 placeholder="Seu nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
               />
             </div>
 
@@ -318,7 +318,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
               />
             </div>
 
@@ -329,10 +329,10 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                   placeholder="Digite o CEP"
                   value={cep}
                   onChange={(e) => handleCepChange(e.target.value)}
-                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 pr-10 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                  className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 pr-10 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
                 {cepLoading && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e25c24] text-[10px] font-black uppercase">Buscando...</div>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary text-[10px] font-black uppercase">Buscando...</div>
                 )}
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                 placeholder="Nome da Rua / Avenida"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
               />
             </div>
 
@@ -354,7 +354,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                   placeholder="Nº"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
-                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                  className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
               </div>
 
@@ -364,7 +364,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                   placeholder="Seu bairro"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                  className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
               <select
                 value={payment}
                 onChange={(e) => setPayment(e.target.value)}
-                className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-850 text-sm outline-none transition-all duration-300 font-semibold cursor-pointer"
+                className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-850 text-sm outline-none transition-all duration-300 font-semibold cursor-pointer"
               >
                 <option value="PIX">PIX</option>
                 <option value="Crédito">Cartão de Crédito</option>
@@ -390,7 +390,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
                   placeholder="Ex: R$ 100,00"
                   value={troco}
                   onChange={(e) => setTroco(e.target.value)}
-                  className="w-full bg-white border border-stone-200 focus:border-[#e25c24]/60 focus:ring-1 focus:ring-[#e25c24]/20 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
+                  className="w-full bg-white border border-stone-200 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl p-3 text-stone-800 text-sm outline-none transition-all duration-300 placeholder:text-stone-300"
                 />
               </div>
             )}
@@ -406,21 +406,21 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
               <span>{deliveryFee > 0 ? `R$ ${deliveryFee.toFixed(2)}` : "Grátis"}</span>
             </div>
             {distanceKm !== null && (
-              <div className="flex items-center gap-2 text-[10px] text-[#e25c24] font-semibold">
+              <div className="flex items-center gap-2 text-[10px] text-primary font-semibold">
                 <MapPin size={12} />
                 <span>Distância estimada: {distanceKm.toFixed(1)} km</span>
               </div>
             )}
             <div className="flex items-center justify-between pt-2 border-t border-stone-200/60">
               <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Total do Pedido</span>
-              <span className="text-lg font-black text-[#e25c24]">R$ {totalWithDelivery.toFixed(2)}</span>
+              <span className="text-lg font-black text-primary">R$ {totalWithDelivery.toFixed(2)}</span>
             </div>
           </div>
 
           <button
             onClick={send}
             disabled={isSending}
-            className="w-full bg-gradient-to-r from-[#e25c24] to-[#c2410c] hover:from-[#f97316] hover:to-[#e25c24] disabled:opacity-50 text-white py-3 rounded-lg font-bold transition-all duration-300 shadow-lg shadow-orange-950/20 flex items-center justify-center gap-2 cursor-pointer text-sm font-sans"
+            className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white py-3.5 rounded-xl font-black transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 flex items-center justify-center gap-2 cursor-pointer text-sm font-sans active:scale-98"
           >
             <MessageSquare size={16} />
             <span>{isSending ? "Processando..." : "Enviar pedido no WhatsApp"}</span>

@@ -27,7 +27,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-[#090909] flex items-center justify-center px-4 font-sans-montserrat">
       {/* Glow de fundo */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_60%,rgba(130,14,14,0.22)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_60%,rgba(250,100,0,0.15)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="relative w-full max-w-sm">
         {/* Card */}
@@ -37,12 +37,12 @@ export default function AdminLogin() {
         >
           {/* Header */}
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-[#c0261a] flex items-center justify-center shadow-lg shadow-red-900/40">
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-orange-950/40">
               <ChefHat size={28} className="text-white" />
             </div>
             <div>
               <h1 className="text-white font-black text-xl tracking-tight">
-                Chef Nair<span className="text-[#c0261a] ml-1">Delivery</span>
+                Sabor<span className="text-primary ml-1">& Porção</span>
               </h1>
               <p className="text-white/30 text-xs font-semibold tracking-wider mt-0.5 uppercase">Painel Administrativo</p>
             </div>
@@ -63,8 +63,8 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@chefnair.com"
-                  className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl pl-9 pr-4 py-3 text-white text-sm outline-none transition-all duration-200 placeholder:text-white/20"
+                  placeholder="admin@saborporcao.com"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary/60 focus:ring-1 focus:ring-primary/20 rounded-xl pl-9 pr-4 py-3 text-white text-sm outline-none transition-all duration-200 placeholder:text-white/20"
                 />
               </div>
             </div>
@@ -80,7 +80,7 @@ export default function AdminLogin() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#c0261a]/60 focus:ring-1 focus:ring-[#c0261a]/20 rounded-xl pl-9 pr-10 py-3 text-white text-sm outline-none transition-all duration-200 placeholder:text-white/20"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary/60 focus:ring-1 focus:ring-primary/20 rounded-xl pl-9 pr-10 py-3 text-white text-sm outline-none transition-all duration-200 placeholder:text-white/20"
                 />
                 <button
                   type="button"
@@ -103,7 +103,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="group w-full flex items-center justify-center gap-2 bg-[#c0261a] hover:bg-[#a31d12] disabled:opacity-60 text-white font-black text-sm tracking-wider uppercase rounded-xl py-3.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-900/30 cursor-pointer overflow-hidden relative"
+              className="group w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover disabled:opacity-60 text-white font-black text-sm tracking-wider uppercase rounded-xl py-3.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-orange-950/30 cursor-pointer overflow-hidden relative"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <LogIn size={16} className="relative z-10" />
@@ -114,7 +114,7 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <p className="text-center text-white/15 text-[10px] font-medium mt-4">
-          © {new Date().getFullYear()} Chef Nair Delivery — Acesso restrito
+          © {new Date().getFullYear()} Sabor & Porção Delivery — Acesso restrito
         </p>
       </div>
     </div>

@@ -76,7 +76,7 @@ function App() {
       flyer.style.height = "44px";
       flyer.style.borderRadius = "50%";
       flyer.style.overflow = "hidden";
-      flyer.style.boxShadow = "0 6px 24px rgba(192,38,26,0.45), 0 0 0 2px #c0261a";
+      flyer.style.boxShadow = "0 6px 24px rgba(250,100,0,0.45), 0 0 0 2px var(--primary-color)";
       flyer.style.backgroundColor = "#111";
       flyer.style.willChange = "transform, opacity, filter";
 

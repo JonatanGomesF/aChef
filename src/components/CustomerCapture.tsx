@@ -31,7 +31,7 @@ export default function CustomerCapture() {
       }
 
       alert(
-        "Cadastro realizado! Você receberá promoções da Chef Nair Delivery 🍜"
+        "Cadastro realizado! Você receberá promoções do Sabor & Porção Delivery 🍽️"
       );
 
       setName("");
@@ -45,7 +45,7 @@ export default function CustomerCapture() {
   };
 
   return (
-    <section className="bg-orange-600 text-white py-12">
+    <section className="bg-primary text-white py-12">
       <div className="max-w-2xl mx-auto px-6 text-center">
         <h2 className="text-3xl font-extrabold">
           🎁 Receba Promoções Exclusivas
@@ -53,7 +53,7 @@ export default function CustomerCapture() {
 
         <p className="mt-3">
           Cadastre seu WhatsApp e receba cupons,
-          descontos e novidades da Chef Nair Delivery.
+          descontos e novidades do Sabor & Porção Delivery.
         </p>
 
         <div className="mt-6 flex flex-col gap-3">

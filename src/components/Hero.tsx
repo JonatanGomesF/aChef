@@ -1,5 +1,6 @@
-import { UtensilsCrossed, Leaf, Bike } from "lucide-react";
+import { UtensilsCrossed, Leaf, Bike, Flame } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import logoImg from "../assets/logo.png";
 
 export default function Hero() {
   const { settings } = useTheme();
@@ -38,14 +39,14 @@ export default function Hero() {
         className="absolute inset-0 z-0"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse 70% 55% at 50% 65%, color-mix(in srgb, var(--primary-color) 8%, transparent) 0%, transparent 70%)",
+            "radial-gradient(ellipse 70% 55% at 50% 55%, color-mix(in srgb, var(--primary-color) 10%, transparent) 0%, transparent 70%)",
         }}
       />
       {/* Vignette escura nas bordas */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `radial-gradient(ellipse 100% 100% at 50% 50%, transparent 60%, color-mix(in srgb, var(--bg-color) 50%, transparent) 100%)`,
+          backgroundImage: `radial-gradient(ellipse 100% 100% at 50% 50%, transparent 60%, color-mix(in srgb, var(--bg-color) 40%, transparent) 100%)`,
         }}
       />
       {/* Textura de ruído sutil */}
@@ -57,53 +58,41 @@ export default function Hero() {
         }}
       />
 
-      {/* ── Kanji decorativos (ocultos se houver imagem customizada para não quebrar o layout visual) ── */}
-      {!settings.heroBgImage && (
-        <>
-          <div
-            className="absolute left-6 top-1/2 -translate-y-1/2 font-black pointer-events-none hidden xl:block z-0"
-            style={{
-              fontSize: "7rem",
-              writingMode: "vertical-rl",
-              lineHeight: 1,
-              letterSpacing: "0.1em",
-              color: "color-mix(in srgb, var(--primary-color) 4%, transparent)",
-            }}
-          >
-            焼きそば
-          </div>
-          <div
-            className="absolute right-6 top-1/2 -translate-y-1/2 font-black pointer-events-none hidden xl:block z-0"
-            style={{
-              fontSize: "7rem",
-              writingMode: "vertical-rl",
-              lineHeight: 1,
-              letterSpacing: "0.1em",
-              color: "color-mix(in srgb, var(--primary-color) 4%, transparent)",
-            }}
-          >
-            家の味
-          </div>
-        </>
-      )}
-
       {/* ── Conteúdo principal ── */}
       <div
         className="relative z-10 flex flex-col items-center justify-center text-center px-6"
-        style={{ minHeight: "100svh", paddingTop: "88px", paddingBottom: "28px" }}
+        style={{ minHeight: "100svh", paddingTop: "80px", paddingBottom: "32px" }}
       >
+        {/* Logo Emblem Circular */}
+        <div className="relative mb-4 group cursor-pointer animate-fade-in">
+          <div
+            className="absolute inset-0 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: "var(--primary-color)" }}
+          />
+          <div
+            className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden shadow-2xl border-2 p-1 bg-white transform group-hover:scale-105 transition-all duration-300"
+            style={{ borderColor: "var(--primary-color)" }}
+          >
+            <img
+              src={logoImg}
+              alt={settings.heroTitle}
+              className="w-full h-full object-contain rounded-full"
+            />
+          </div>
+        </div>
+
         {/* Badge topo */}
         <div
-          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-5 backdrop-blur-sm border"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-4 backdrop-blur-sm border shadow-sm"
           style={{
-            backgroundColor: "color-mix(in srgb, var(--primary-color) 5%, transparent)",
-            borderColor: "color-mix(in srgb, var(--primary-color) 20%, transparent)",
+            backgroundColor: "color-mix(in srgb, var(--primary-color) 8%, transparent)",
+            borderColor: "color-mix(in srgb, var(--primary-color) 25%, transparent)",
           }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          <Flame size={13} className="text-primary animate-pulse" />
           <span
-            className="text-[10px] font-bold tracking-[0.35em] uppercase"
-            style={{ color: settings.heroBgImage ? "var(--light-text-color)" : "color-mix(in srgb, var(--title-color) 80%, transparent)" }}
+            className="text-[10px] sm:text-[11px] font-black tracking-[0.25em] uppercase"
+            style={{ color: settings.heroBgImage ? "var(--light-text-color)" : "var(--primary-color)" }}
           >
             {settings.heroBadge}
           </span>
@@ -111,9 +100,8 @@ export default function Hero() {
 
         {/* Tagline */}
         <p
-          className="text-[16px] md:text-[18px] leading-snug mb-3 italic"
+          className="text-[15px] md:text-[17px] leading-snug mb-2 font-medium max-w-xl"
           style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
             color: settings.heroBgImage ? "var(--light-text-color)" : "var(--body-text-color)",
           }}
         >
@@ -121,54 +109,84 @@ export default function Hero() {
         </p>
 
         {/* Nome da marca */}
-        <div className="relative mb-2">
+        <div className="relative mb-3">
           {/* Glow atrás do nome */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
               className="rounded-full"
               style={{
-                width: "500px",
-                height: "80px",
-                background: "color-mix(in srgb, var(--primary-color) 8%, transparent)",
+                width: "550px",
+                height: "90px",
+                background: "color-mix(in srgb, var(--primary-color) 14%, transparent)",
                 filter: "blur(60px)",
               }}
             />
           </div>
           <h1
-            className="relative font-black leading-none tracking-tight flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
-            style={{ fontSize: "clamp(3rem, 9vw, 5.5rem)" }}
+            className="relative font-black leading-none tracking-tight flex flex-wrap items-center justify-center gap-1 sm:gap-2.5"
+            style={{ fontSize: "clamp(2.5rem, 8vw, 4.75rem)" }}
           >
-            <span
-              style={{
-                color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
-                textShadow: "0 4px 40px rgba(0,0,0,0.08)",
-              }}
-            >
-              {settings.heroTitle}
-            </span>
+            {settings.heroTitle.includes("&") ? (
+              <>
+                <span
+                  style={{
+                    color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
+                    textShadow: "0 4px 30px rgba(0,0,0,0.06)",
+                  }}
+                >
+                  {settings.heroTitle.split("&")[0].trim()}
+                </span>
+                <span
+                  className="font-black"
+                  style={{
+                    color: "var(--primary-color)",
+                    textShadow: "0 4px 20px color-mix(in srgb, var(--primary-color) 40%, transparent)",
+                  }}
+                >
+                  &
+                </span>
+                <span
+                  style={{
+                    color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
+                    textShadow: "0 4px 30px rgba(0,0,0,0.06)",
+                  }}
+                >
+                  {settings.heroTitle.split("&").slice(1).join("&").trim()}
+                </span>
+              </>
+            ) : (
+              <span
+                style={{
+                  color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
+                  textShadow: "0 4px 30px rgba(0,0,0,0.06)",
+                }}
+              >
+                {settings.heroTitle}
+              </span>
+            )}
           </h1>
         </div>
 
         {/* Separador */}
         <div className="flex items-center gap-3 mb-6">
           <div
-            className="h-px w-16"
+            className="h-[2px] w-14 sm:w-20"
             style={{
-              background: "linear-gradient(to right, transparent, color-mix(in srgb, var(--primary-color) 50%, transparent))",
+              background: "linear-gradient(to right, transparent, var(--primary-color))",
             }}
           />
           <span
-            className="text-[9px] font-black tracking-[0.2em] uppercase"
+            className="text-[9px] sm:text-[10px] font-black tracking-[0.25em] uppercase"
             style={{
-              color: settings.heroBgImage ? "var(--light-text-color)" : "color-mix(in srgb, var(--primary-color) 85%, transparent)",
+              color: settings.heroBgImage ? "var(--light-text-color)" : "var(--primary-color)",
             }}
           >
-            {settings.heroBadge}
+            O SABOR QUE VOCÊ VOLTA
           </span>
           <div
-            className="h-px w-16"
+            className="h-[2px] w-14 sm:w-20"
             style={{
-              background: "linear-gradient(to left, transparent, color-mix(in srgb, var(--primary-color) 50%, transparent))",
+              background: "linear-gradient(to left, transparent, var(--primary-color))",
             }}
           />
         </div>
