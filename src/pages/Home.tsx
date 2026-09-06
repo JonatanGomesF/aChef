@@ -18,11 +18,10 @@ import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 
 // Assets locais
-import frangoImg from "../assets/yaki-frango.png";
-import carneImg from "../assets/yaki-carne.png";
-import camaraoImg from "../assets/yaki-camarao.png";
-import mistoImg from "../assets/yaki-misto.png";
-import vegImg from "../assets/yaki-veg.png";
+import espetinhoImg from "../assets/espetinho.jpg";
+import parmegianaImg from "../assets/parmegiana.jpg";
+import yakisobaImg from "../assets/yakisoba.jpg";
+import marmitaImg from "../assets/marmita.jpg";
 import heroBg from "../assets/hero.png";
 
 export default function Home() {
@@ -93,10 +92,12 @@ export default function Home() {
     setMessage("");
   };
 
-  const localAboutImages = [frangoImg, carneImg, camaraoImg, mistoImg, vegImg];
-  const yakiRow = localAboutImages.map((localImg, idx) => {
-    return (settings.aboutImages && settings.aboutImages[idx]) || localImg;
-  });
+  const specialtyDishes = [
+    { name: "Espetinhos", img: (settings.aboutImages && settings.aboutImages[0]) || espetinhoImg },
+    { name: "À Parmegianas", img: (settings.aboutImages && settings.aboutImages[1]) || parmegianaImg },
+    { name: "Yakisobas", img: (settings.aboutImages && settings.aboutImages[2]) || yakisobaImg },
+    { name: "Marmitas", img: (settings.aboutImages && settings.aboutImages[3]) || marmitaImg },
+  ];
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans-montserrat">
@@ -248,11 +249,23 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Fotos circulares dos pratos */}
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mt-10 select-none max-w-4xl mx-auto">
-            {yakiRow.map((img, i) => (
-              <div key={i} className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden hover:scale-110 transition-transform duration-300 shadow-lg border-2 border-orange-200 bg-white p-1">
-                <img src={img} alt="Prato Sabor da Praia" className="w-full h-full object-cover rounded-full" />
+          {/* Fotos dos pratos (Espetinhos, Parmegianas, Yakisoba e Marmitas) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-10 select-none max-w-4xl mx-auto">
+            {specialtyDishes.map((dish, i) => (
+              <div
+                key={i}
+                className="group relative overflow-hidden rounded-2xl shadow-lg border-2 border-orange-100/80 bg-white aspect-square hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5"
+              >
+                <img
+                  src={dish.img}
+                  alt={dish.name}
+                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0C2340]/90 via-[#0C2340]/20 to-transparent flex items-end p-3.5 sm:p-4">
+                  <span className="text-white font-black text-xs sm:text-sm tracking-wider uppercase drop-shadow-md">
+                    {dish.name}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -270,7 +283,7 @@ export default function Home() {
           </span>
 
           <h2 className="text-3xl md:text-5xl font-black text-[#0C2340] tracking-tight">
-            Cardápio Especial
+            Cardápio
           </h2>
 
           <p className="text-slate-600 text-sm md:text-base max-w-lg mx-auto font-medium leading-relaxed">
