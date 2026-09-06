@@ -15,13 +15,51 @@ export default function AdminLogin() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      setError("E-mail ou senha incorretos.");
-      return;
+    try {
+      const cleanEmail = email.trim();
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+
+      if (authError) {
+        if (authError.message?.toLowerCase().includes("invalid login credentials")) {
+          setError("E-mail ou senha incorretos.");
+        } else if (authError.message?.toLowerCase().includes("email not confirmed")) {
+          setError("E-mail ainda não confirmado no Supabase.");
+        } else {
+          setError(authError.message || "Erro ao realizar login.");
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (!authData?.session) {
+        setError("Não foi possível iniciar a sessão.");
+        setLoading(false);
+        return;
+      }
+
+      // Verifica se o usuário autenticado está na tabela admins
+      const { data: adminData } = await supabase
+        .from("admins")
+        .select("email")
+        .limit(1);
+
+      if (!adminData || adminData.length === 0) {
+        await supabase.auth.signOut();
+        setError("Acesso restrito: Seu e-mail não possui permissão de administrador na tabela public.admins.");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(false);
+      navigate("/admin");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro inesperado ao realizar login.";
+      setError(message);
+      setLoading(false);
     }
-    navigate("/admin");
   };
 
   return (

@@ -195,6 +195,10 @@ CREATE TABLE IF NOT EXISTS public.admins (
 
 -- Inserir email do admin padrão
 INSERT INTO public.admins (email)
+VALUES ('admin@saborporcao.com')
+ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO public.admins (email)
 VALUES ('admin@chefnair.com')
 ON CONFLICT (email) DO NOTHING;
 
