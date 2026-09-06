@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { Menu, X, ShoppingCart, UtensilsCrossed, Heart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
@@ -29,21 +29,21 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
         color: "var(--body-text-color)",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 h-[64px] flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between">
 
         {/* ── Logo ── */}
         <a
           href="/"
-          className="flex items-center gap-2.5 transition-all duration-300 hover:opacity-90 active:scale-95 group"
+          className="flex items-center gap-2.5 sm:gap-3 transition-all duration-300 hover:opacity-90 active:scale-95 group"
         >
           <img
             src={logoImg}
             alt={settings.heroTitle}
-            className="w-11 h-11 object-contain rounded-xl shadow-sm border border-orange-500/30 bg-white p-0.5"
+            className="w-11 h-11 sm:w-12 sm:h-12 object-contain rounded-xl shadow-sm border border-orange-500/30 bg-white p-0.5 flex-shrink-0"
           />
 
-          {/* Nome e Slogan */}
-          <span className="flex flex-col leading-tight">
+          {/* Nome e Slogan Pill */}
+          <span className="flex flex-col items-start gap-1 leading-none">
             <span
               className="font-black text-base sm:text-lg tracking-tight"
               style={{
@@ -66,20 +66,32 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
                 settings.heroTitle
               )}
             </span>
-            <span
-              className="text-[8px] sm:text-[9px] font-extrabold tracking-[0.16em] uppercase -mt-0.5 text-[#FF7A00]"
-            >
-              {settings.heroBadge || "SABOR • QUALIDADE • BOM ATENDIMENTO"}
+
+            {/* Badge Pill idêntica à logo oficial */}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#0A1A2F] border border-white/10 shadow-xs select-none">
+              <UtensilsCrossed size={9} className="text-[#FF7A00] flex-shrink-0" strokeWidth={2.5} />
+              <span className="text-[6.5px] sm:text-[7.5px] font-black tracking-[0.12em] uppercase text-white leading-none">
+                SABOR
+              </span>
+              <span className="w-1 h-1 rounded-full bg-[#FF7A00] flex-shrink-0" />
+              <span className="text-[6.5px] sm:text-[7.5px] font-black tracking-[0.12em] uppercase text-white leading-none">
+                QUALIDADE
+              </span>
+              <span className="w-1 h-1 rounded-full bg-[#FF7A00] flex-shrink-0" />
+              <span className="text-[6.5px] sm:text-[7.5px] font-black tracking-[0.12em] uppercase text-white leading-none">
+                BOM ATENDIMENTO
+              </span>
+              <Heart size={8} className="text-[#FF7A00] fill-[#FF7A00] flex-shrink-0" />
             </span>
           </span>
         </a>
 
         {/* ── Desktop nav ── */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-8 lg:gap-10 ml-6">
           {[
-            { href: "#sobre", label: "Sobre Nós" },
             { href: "#cardapio", label: "Cardápio" },
             { href: "#contato", label: "Contato" },
+            { href: "#sobre", label: "Sobre Nós" },
           ].map((link) => (
             <a
               key={link.href}
@@ -137,9 +149,9 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
       >
         <nav className="flex flex-col px-6 gap-5">
           {[
-            { href: "#sobre", label: "Sobre Nós" },
             { href: "#cardapio", label: "Cardápio" },
             { href: "#contato", label: "Contato" },
+            { href: "#sobre", label: "Sobre Nós" },
           ].map((link) => (
             <a
               key={link.href}

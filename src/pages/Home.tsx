@@ -13,7 +13,7 @@ import {
 } from "../lib/productAvailability";
 import { getMenuCatalog } from "../lib/menuCatalog";
 import type { Product } from "../data/products";
-import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Utensils } from "lucide-react";
+import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Utensils, Navigation, ExternalLink } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 
@@ -99,7 +99,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans-montserrat">
+    <div className="min-h-screen bg-white text-slate-800 font-sans-montserrat">
       
       {/* Hero section */}
       <section id="inicio">
@@ -127,24 +127,124 @@ export default function Home() {
           {/* Separador */}
           <div className="w-16 h-1 bg-gradient-to-r from-[#00A8E8] via-[#FF7A00] to-[#FFB703] rounded-full mx-auto" />
 
-          <p className="mt-4 text-sm md:text-base text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 text-sm md:text-base text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed whitespace-pre-line">
             {settings.aboutText}
           </p>
 
-          {/* Badges de destaque */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 py-8 max-w-3xl mx-auto">
-            <div className="text-center sm:text-right flex-1 p-4 rounded-2xl bg-slate-50 border border-slate-100 shadow-xs">
-              <h4 className="text-xs font-black text-[#FF7A00] tracking-widest uppercase">{settings.aboutLeftTitle}</h4>
-              <p className="text-xs text-slate-500 mt-1 font-medium">{settings.aboutLeftDesc}</p>
-            </div>
+          {/* ── CARD DE LOCALIZAÇÃO & ATENDIMENTO (ESTILO GOOGLE MAPS) ── */}
+          <div className="w-full max-w-4xl mx-auto mt-10 p-5 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xl text-left grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             
-            <div className="w-14 h-14 bg-gradient-to-br from-[#FF7A00] to-[#FF9E00] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/30 flex-shrink-0">
-              <Utensils size={24} className="stroke-[2.5]" />
-            </div>
+            {/* Coluna 1: Mapa com Pin & Card do Google Maps */}
+            <a
+              href="https://maps.app.goo.gl/5JeLEy8rPsa16EqM6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative block rounded-2xl overflow-hidden border border-slate-200/90 shadow-md group hover:shadow-xl transition-all duration-300 cursor-pointer bg-slate-100"
+            >
+              {/* Imagem do mapa com pin Sabor da Praia */}
+              <img
+                src="/mapa-sabor-da-praia.png"
+                alt="Mapa Sabor da Praia"
+                className="w-full h-64 sm:h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
 
-            <div className="text-center sm:text-left flex-1 p-4 rounded-2xl bg-slate-50 border border-slate-100 shadow-xs">
-              <h4 className="text-xs font-black text-[#00A8E8] tracking-widest uppercase">{settings.aboutRightTitle}</h4>
-              <p className="text-xs text-slate-500 mt-1 font-medium">{settings.aboutRightDesc}</p>
+              {/* Card Flutuante Superior Esquerdo estilo Google Maps */}
+              <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-xl shadow-lg border border-slate-200/80 max-w-[210px] sm:max-w-[230px] flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-200 flex items-center justify-center flex-shrink-0 text-[#FF7A00]">
+                  <MapPin size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-black text-xs text-[#0C2340] leading-tight truncate">
+                    Sabor da Praia
+                  </h4>
+                  <p className="text-[10px] text-slate-500 truncate mt-0.5">
+                    Mongaguá — SP, Brasil
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-bold text-[#FF7A00] mt-1 hover:underline">
+                    <span>Ver no Maps</span>
+                    <ExternalLink size={10} />
+                  </span>
+                </div>
+              </div>
+
+              {/* Botão flutuante inferior no mapa */}
+              <div className="absolute bottom-3 right-3 bg-[#0C2340] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 group-hover:bg-[#FF7A00] transition-colors">
+                <Navigation size={12} />
+                <span>Abrir Rota</span>
+              </div>
+            </a>
+
+            {/* Coluna 2: Informações da Empresa (Estilo o exemplo enviado) */}
+            <div className="space-y-4">
+              <div>
+                <span className="text-[10px] font-black tracking-[0.2em] uppercase text-[#FF7A00] bg-orange-50 border border-orange-200/60 px-2.5 py-1 rounded-full inline-block mb-1.5">
+                  Localização &amp; Contato
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-[#0C2340] tracking-tight">
+                  Sabor da Praia
+                </h3>
+              </div>
+
+              {/* Endereço */}
+              <div className="space-y-1 text-xs text-slate-600 font-medium">
+                <div className="flex items-start gap-2">
+                  <MapPin size={16} className="text-[#FF7A00] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-slate-800 font-bold">Av. Marina / Av. São Paulo</p>
+                    <p className="text-slate-500">Mongaguá — SP, 11730-000</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contatos */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                <p className="text-[11px] font-black uppercase tracking-wider text-[#0C2340]">Contatos</p>
+                <div className="space-y-1 text-xs text-slate-600">
+                  <p className="flex items-center gap-2 font-bold text-slate-800">
+                    <Phone size={14} className="text-[#00A8E8]" />
+                    {settings.contactPhone} <span className="text-[10px] text-slate-400 font-normal">(WhatsApp &amp; Pedidos)</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Horário de Atendimento */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                <p className="text-[11px] font-black uppercase tracking-wider text-[#0C2340]">Horário de Atendimento</p>
+                <div className="space-y-1 text-xs text-slate-600 font-medium">
+                  <p className="flex items-center gap-2">
+                    <Clock size={14} className="text-[#FF7A00]" />
+                    <span>Terça a Sexta: <strong className="text-slate-800">17h45 às 23h45</strong></span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Clock size={14} className="text-[#00A8E8]" />
+                    <span>Sábados e Domingos: <strong className="text-slate-800">15h00 às 00h00</strong></span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="pt-3 flex flex-col sm:flex-row items-center gap-3">
+                <a
+                  href={settings.heroWhatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0C2340] hover:bg-[#FF7A00] text-white font-black text-xs tracking-wider uppercase shadow-md transition-all duration-300 hover:scale-102 cursor-pointer"
+                >
+                  <MessageCircle size={16} className="text-green-400" />
+                  <span>Pedir no WhatsApp</span>
+                </a>
+
+                <a
+                  href="https://maps.app.goo.gl/5JeLEy8rPsa16EqM6"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-[#FF7A00] hover:text-[#FF7A00] text-slate-700 font-black text-xs tracking-wider uppercase transition-all duration-300 cursor-pointer"
+                >
+                  <Navigation size={14} />
+                  <span>Como Chegar</span>
+                </a>
+              </div>
+
             </div>
           </div>
 
@@ -410,18 +510,18 @@ export default function Home() {
                   </a>
                 </li>
                 <li>
-                  <a href="#sobre" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
-                    › Sobre Nós
-                  </a>
-                </li>
-                <li>
                   <a href="#cardapio" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
                     › Cardápio Especial
                   </a>
                 </li>
                 <li>
                   <a href="#contato" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
-                    › Fale Conosco
+                    › Contato
+                  </a>
+                </li>
+                <li>
+                  <a href="#sobre" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
+                    › Sobre Nós
                   </a>
                 </li>
                 <li>

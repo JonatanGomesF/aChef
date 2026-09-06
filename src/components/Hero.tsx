@@ -1,4 +1,4 @@
-import { UtensilsCrossed, Leaf, Bike, Sparkles, MessageCircle } from "lucide-react";
+import { UtensilsCrossed, Leaf, Motorbike, Sparkles, MessageCircle, Heart } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 
@@ -20,18 +20,10 @@ export default function Hero() {
         }}
       />
 
-      {/* ── BANNER TELA INTEIRA (ESQUERDA À DIREITA) ── */}
-      <div className="relative w-full bg-gradient-to-b from-white via-[#FFFBF6] to-white flex items-center justify-center overflow-hidden">
-        {/* Ambient glow sutil de fundo */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-40"
-          style={{
-            backgroundImage: "radial-gradient(ellipse 90% 70% at 50% 50%, rgba(255, 122, 0, 0.15) 0%, rgba(0, 168, 232, 0.06) 60%, transparent 80%)",
-          }}
-        />
-
+      {/* ── BANNER TELA INTEIRA (ESQUERDA À DIREITA - FUNDO BRANCO) ── */}
+      <div className="relative w-full bg-white flex items-center justify-center overflow-hidden">
         {/* Imagem em tela inteira sem bordas ou caixas */}
-        <div className="w-full relative flex items-center justify-center">
+        <div className="w-full relative flex items-center justify-center bg-white">
           <img
             src={logoImg}
             alt={settings.heroTitle}
@@ -46,16 +38,8 @@ export default function Hero() {
       {/* ── SEÇÃO DE AÇÃO & APRESENTAÇÃO (DESKTOP & MOBILE) ── */}
       <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 pb-12 pt-2 text-center flex flex-col items-center">
         
-        {/* Badge do Slogan */}
-        <div className="inline-flex items-center gap-2 rounded-full px-4 sm:px-6 py-2 mb-4 bg-orange-50/90 border border-orange-200/80 shadow-xs hover:scale-105 transition-transform">
-          <Sparkles size={15} className="text-[#FF7A00] animate-pulse" />
-          <span className="text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-[#0C2340]">
-            {settings.heroBadge || "SABOR • QUALIDADE • BOM ATENDIMENTO"}
-          </span>
-        </div>
-
         {/* Tagline */}
-        <p className="text-sm sm:text-base md:text-lg leading-relaxed mb-6 font-semibold max-w-2xl text-slate-700">
+        <p className="text-sm sm:text-base md:text-lg leading-relaxed mb-6 font-semibold max-w-2xl text-slate-700 whitespace-pre-line">
           {settings.heroTagline}
         </p>
 
@@ -86,7 +70,7 @@ export default function Hero() {
             {([
               { Icon: UtensilsCrossed, label: "Feito na hora", sub: "Chapa & Sabor Quente" },
               { Icon: Leaf, label: "100% Fresco", sub: "Ingredientes do dia" },
-              { Icon: Bike, label: "Entrega Rápida", sub: "Quentinho até Você" },
+              { Icon: Motorbike, label: "Entrega Rápida", sub: "Quentinho até Você" },
             ] as const).map(({ Icon, label, sub }, i) => (
               <div
                 key={i}
