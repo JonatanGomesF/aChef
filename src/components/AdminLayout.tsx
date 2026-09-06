@@ -10,7 +10,6 @@ import {
   LogOut,
   Menu,
   X,
-  ChefHat,
   MapPin,
   Printer,
   Utensils,

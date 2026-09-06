@@ -13,7 +13,7 @@ import {
 } from "../lib/productAvailability";
 import { getMenuCatalog } from "../lib/menuCatalog";
 import type { Product } from "../data/products";
-import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Utensils, Navigation, ExternalLink } from "lucide-react";
+import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Navigation, ExternalLink } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 

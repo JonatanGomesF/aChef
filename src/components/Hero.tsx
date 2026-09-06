@@ -1,4 +1,4 @@
-import { UtensilsCrossed, Leaf, Motorbike, Sparkles, MessageCircle, Heart } from "lucide-react";
+import { UtensilsCrossed, Leaf, Motorbike, MessageCircle } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 

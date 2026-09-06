@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabase";
-import { ChefHat, Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLogin() {
   const [email, setEmail]       = useState("");
