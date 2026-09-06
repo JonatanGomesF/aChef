@@ -1,4 +1,4 @@
-import { UtensilsCrossed, Leaf, Bike, Flame } from "lucide-react";
+import { UtensilsCrossed, Leaf, Bike, Sparkles, MessageCircle } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 
@@ -11,257 +11,108 @@ export default function Hero() {
   };
 
   return (
-    <section
-      className="relative overflow-hidden font-sans-montserrat select-none"
-      style={{
-        minHeight: "100svh",
-        backgroundColor: "var(--bg-color)",
-        backgroundImage: settings.heroBgImage ? `url(${settings.heroBgImage})` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* ── Overlay caso exista imagem de fundo customizada ── */}
-      {settings.heroBgImage && (
-        <div className="absolute inset-0 bg-black/40 z-[1] pointer-events-none" />
-      )}
-
-      {/* ── Linha topo ── */}
+    <section className="relative w-full bg-white select-none overflow-hidden font-sans-montserrat">
+      {/* Linha de topo tropical */}
       <div
-        className="absolute top-0 left-0 w-full h-[2px] z-20"
+        className="w-full h-[3px]"
         style={{
-          background: "linear-gradient(to right, transparent, var(--primary-color), transparent)",
+          background: "linear-gradient(to right, #00A8E8, #FF7A00, #FFB703, #FF7A00, #00A8E8)",
         }}
       />
 
-      {/* ── Fundo: gradiente radial vivo ── */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 70% 55% at 50% 55%, color-mix(in srgb, var(--primary-color) 10%, transparent) 0%, transparent 70%)",
-        }}
-      />
-      {/* Vignette escura nas bordas */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `radial-gradient(ellipse 100% 100% at 50% 50%, transparent 60%, color-mix(in srgb, var(--bg-color) 40%, transparent) 100%)`,
-        }}
-      />
-      {/* Textura de ruído sutil */}
-      <div
-        className="absolute inset-0 opacity-[0.015] pointer-events-none z-0"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
-        }}
-      />
-
-      {/* ── Conteúdo principal ── */}
-      <div
-        className="relative z-10 flex flex-col items-center justify-center text-center px-6"
-        style={{ minHeight: "100svh", paddingTop: "80px", paddingBottom: "32px" }}
-      >
-        {/* Logo Emblem Circular */}
-        <div className="relative mb-4 group cursor-pointer animate-fade-in">
-          <div
-            className="absolute inset-0 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "var(--primary-color)" }}
-          />
-          <div
-            className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden shadow-2xl border-2 p-1 bg-white transform group-hover:scale-105 transition-all duration-300"
-            style={{ borderColor: "var(--primary-color)" }}
-          >
-            <img
-              src={logoImg}
-              alt={settings.heroTitle}
-              className="w-full h-full object-contain rounded-full"
-            />
-          </div>
-        </div>
-
-        {/* Badge topo */}
+      {/* ── BANNER TELA INTEIRA (ESQUERDA À DIREITA) ── */}
+      <div className="relative w-full bg-gradient-to-b from-white via-[#FFFBF6] to-white flex items-center justify-center overflow-hidden">
+        {/* Ambient glow sutil de fundo */}
         <div
-          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-4 backdrop-blur-sm border shadow-sm"
+          className="absolute inset-0 pointer-events-none opacity-40"
           style={{
-            backgroundColor: "color-mix(in srgb, var(--primary-color) 8%, transparent)",
-            borderColor: "color-mix(in srgb, var(--primary-color) 25%, transparent)",
+            backgroundImage: "radial-gradient(ellipse 90% 70% at 50% 50%, rgba(255, 122, 0, 0.15) 0%, rgba(0, 168, 232, 0.06) 60%, transparent 80%)",
           }}
-        >
-          <Flame size={13} className="text-primary animate-pulse" />
-          <span
-            className="text-[10px] sm:text-[11px] font-black tracking-[0.25em] uppercase"
-            style={{ color: settings.heroBgImage ? "var(--light-text-color)" : "var(--primary-color)" }}
-          >
-            {settings.heroBadge}
+        />
+
+        {/* Imagem em tela inteira sem bordas ou caixas */}
+        <div className="w-full relative flex items-center justify-center">
+          <img
+            src={logoImg}
+            alt={settings.heroTitle}
+            className="w-full h-auto max-h-[55vh] sm:max-h-[65vh] md:max-h-[75vh] lg:max-h-[82vh] object-contain sm:object-cover md:object-contain object-center transition-all duration-300"
+            style={{
+              maxHeight: "clamp(300px, 75vh, 850px)",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* ── SEÇÃO DE AÇÃO & APRESENTAÇÃO (DESKTOP & MOBILE) ── */}
+      <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 pb-12 pt-2 text-center flex flex-col items-center">
+        
+        {/* Badge do Slogan */}
+        <div className="inline-flex items-center gap-2 rounded-full px-4 sm:px-6 py-2 mb-4 bg-orange-50/90 border border-orange-200/80 shadow-xs hover:scale-105 transition-transform">
+          <Sparkles size={15} className="text-[#FF7A00] animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-[#0C2340]">
+            {settings.heroBadge || "SABOR • QUALIDADE • BOM ATENDIMENTO"}
           </span>
         </div>
 
         {/* Tagline */}
-        <p
-          className="text-[15px] md:text-[17px] leading-snug mb-2 font-medium max-w-xl"
-          style={{
-            color: settings.heroBgImage ? "var(--light-text-color)" : "var(--body-text-color)",
-          }}
-        >
+        <p className="text-sm sm:text-base md:text-lg leading-relaxed mb-6 font-semibold max-w-2xl text-slate-700">
           {settings.heroTagline}
         </p>
 
-        {/* Nome da marca */}
-        <div className="relative mb-3">
-          {/* Glow atrás do nome */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div
-              className="rounded-full"
-              style={{
-                width: "550px",
-                height: "90px",
-                background: "color-mix(in srgb, var(--primary-color) 14%, transparent)",
-                filter: "blur(60px)",
-              }}
-            />
-          </div>
-          <h1
-            className="relative font-black leading-none tracking-tight flex flex-wrap items-center justify-center gap-1 sm:gap-2.5"
-            style={{ fontSize: "clamp(2.5rem, 8vw, 4.75rem)" }}
-          >
-            {settings.heroTitle.includes("&") ? (
-              <>
-                <span
-                  style={{
-                    color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
-                    textShadow: "0 4px 30px rgba(0,0,0,0.06)",
-                  }}
-                >
-                  {settings.heroTitle.split("&")[0].trim()}
-                </span>
-                <span
-                  className="font-black"
-                  style={{
-                    color: "var(--primary-color)",
-                    textShadow: "0 4px 20px color-mix(in srgb, var(--primary-color) 40%, transparent)",
-                  }}
-                >
-                  &
-                </span>
-                <span
-                  style={{
-                    color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
-                    textShadow: "0 4px 30px rgba(0,0,0,0.06)",
-                  }}
-                >
-                  {settings.heroTitle.split("&").slice(1).join("&").trim()}
-                </span>
-              </>
-            ) : (
-              <span
-                style={{
-                  color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
-                  textShadow: "0 4px 30px rgba(0,0,0,0.06)",
-                }}
-              >
-                {settings.heroTitle}
-              </span>
-            )}
-          </h1>
-        </div>
-
-        {/* Separador */}
-        <div className="flex items-center gap-3 mb-6">
-          <div
-            className="h-[2px] w-14 sm:w-20"
-            style={{
-              background: "linear-gradient(to right, transparent, var(--primary-color))",
-            }}
-          />
-          <span
-            className="text-[9px] sm:text-[10px] font-black tracking-[0.25em] uppercase"
-            style={{
-              color: settings.heroBgImage ? "var(--light-text-color)" : "var(--primary-color)",
-            }}
-          >
-            O SABOR QUE VOCÊ VOLTA
-          </span>
-          <div
-            className="h-[2px] w-14 sm:w-20"
-            style={{
-              background: "linear-gradient(to left, transparent, var(--primary-color))",
-            }}
-          />
-        </div>
-
-        {/* ── CTAs ── */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 mb-10">
+        {/* Botões de Ação (CTAs) */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto mb-10">
           <button
             onClick={scrollToMenu}
-            className="group relative px-10 py-3.5 bg-primary hover:bg-primary-hover text-white font-black text-[11px] tracking-[0.3em] uppercase rounded-full shadow-lg shadow-orange-950/15 hover:shadow-orange-950/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
+            className="group relative w-full sm:w-auto px-8 sm:px-12 py-3.5 sm:py-4 bg-gradient-to-r from-[#FF7A00] to-[#FF9E00] hover:from-[#E05A00] hover:to-[#FF7A00] text-white font-black text-xs sm:text-sm tracking-[0.2em] uppercase rounded-full shadow-lg shadow-orange-600/30 hover:shadow-orange-600/50 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
           >
             <span className="relative z-10">{settings.heroButtonText}</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/12 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+            <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
           </button>
 
           <a
             href={settings.heroWhatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-10 py-3.5 border font-bold text-[11px] tracking-[0.25em] uppercase rounded-full transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
-            style={{
-              color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)",
-              borderColor: settings.heroBgImage ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-            }}
+            className="inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-8 sm:px-12 py-3.5 sm:py-4 bg-white hover:bg-slate-50 text-[#0C2340] hover:text-[#FF7A00] font-black text-xs sm:text-sm tracking-[0.18em] uppercase rounded-full border-2 border-orange-500/30 hover:border-orange-500 transition-all duration-300 hover:scale-105 shadow-md cursor-pointer"
           >
-            <Bike size={14} />
+            <MessageCircle size={18} className="text-green-600" />
             {settings.heroButtonWhatsappText}
           </a>
         </div>
 
-        {/* ── Diferenciais ── */}
-        <div
-          className="w-full max-w-xl border-t pt-7"
-          style={{
-            borderColor: settings.heroBgImage ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)",
-          }}
-        >
-          <div className="grid grid-cols-3 gap-4">
+        {/* Selos de Qualidade */}
+        <div className="w-full max-w-3xl border-t border-orange-100 pt-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             {([
-              { Icon: UtensilsCrossed, label: "Feito na hora", sub: "Chapa quente" },
+              { Icon: UtensilsCrossed, label: "Feito na hora", sub: "Chapa & Sabor Quente" },
               { Icon: Leaf, label: "100% Fresco", sub: "Ingredientes do dia" },
-              { Icon: Bike, label: "Entrega rápida", sub: "Quentinho até você" },
+              { Icon: Bike, label: "Entrega Rápida", sub: "Quentinho até Você" },
             ] as const).map(({ Icon, label, sub }, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center border"
-                  style={{
-                    backgroundColor: "color-mix(in srgb, var(--primary-color) 5%, transparent)",
-                    borderColor: "color-mix(in srgb, var(--primary-color) 20%, transparent)",
-                  }}
-                >
-                  <Icon size={18} className="text-primary" />
+              <div
+                key={i}
+                className="flex flex-col items-center gap-1.5 p-2.5 sm:p-3.5 rounded-2xl bg-slate-50/80 border border-slate-100 shadow-xs hover:border-orange-200 transition-colors"
+              >
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-white border border-orange-200/60 text-[#FF7A00] shadow-xs">
+                  <Icon size={18} />
                 </div>
-                <p
-                  className="text-[10px] font-black uppercase tracking-wide leading-none"
-                  style={{ color: settings.heroBgImage ? "var(--light-text-color)" : "var(--title-color)" }}
-                >
+                <p className="text-[10px] sm:text-xs font-black uppercase tracking-wide text-[#0C2340] leading-tight text-center">
                   {label}
                 </p>
-                <p
-                  className="text-[9px] font-semibold"
-                  style={{ color: settings.heroBgImage ? "rgba(255,255,255,0.5)" : "color-mix(in srgb, var(--title-color) 50%, transparent)" }}
-                >
+                <p className="text-[9px] font-semibold text-slate-400 hidden sm:block">
                   {sub}
                 </p>
               </div>
             ))}
           </div>
         </div>
+
       </div>
 
-      {/* ── Linha vermelha rodapé ── */}
+      {/* Linha divisória inferior */}
       <div
-        className="absolute bottom-0 left-0 w-full h-[2px] z-20"
+        className="w-full h-[2px]"
         style={{
-          background: "linear-gradient(to right, var(--primary-color), var(--primary-hover), var(--primary-color))",
+          background: "linear-gradient(to right, #FF7A00, #00A8E8, #FF7A00)",
         }}
       />
     </section>

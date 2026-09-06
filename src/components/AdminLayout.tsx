@@ -43,14 +43,14 @@ export default function AdminLayout({ children }: Props) {
   const NavContent = () => (
     <>
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-6 py-5 border-b border-white/[0.06]">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-md shadow-orange-950/30">
-          <ChefHat size={16} className="text-white" />
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/[0.06]">
+        <div className="w-10 h-10 rounded-xl bg-white p-0.5 flex items-center justify-center flex-shrink-0 shadow-md shadow-orange-950/30 border border-orange-500/30">
+          <img src="/logo.png" alt="Sabor da Praia" className="w-full h-full object-contain rounded-lg" />
         </div>
         <div>
           <span className="text-white font-black text-sm tracking-tight">Sabor</span>
-          <span className="text-primary font-black text-sm tracking-tight ml-1">& Porção</span>
-          <div className="text-white/25 text-[9px] font-bold tracking-[0.2em] uppercase leading-none mt-0.5">
+          <span className="text-[#FF7A00] font-black text-sm tracking-tight ml-1">da Praia</span>
+          <div className="text-[#FFB703] text-[9px] font-black tracking-[0.2em] uppercase leading-none mt-0.5">
             Painel Admin
           </div>
         </div>
@@ -137,9 +137,10 @@ export default function AdminLayout({ children }: Props) {
           >
             <Menu size={20} />
           </button>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="Sabor da Praia" className="w-7 h-7 object-contain rounded-md bg-white p-0.5" />
             <span className="text-white font-black text-sm">Sabor</span>
-            <span className="text-primary font-black text-sm ml-1">& Porção</span>
+            <span className="text-[#FF7A00] font-black text-sm">da Praia</span>
           </div>
           <div className="w-5" />
         </header>

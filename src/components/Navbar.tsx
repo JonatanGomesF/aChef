@@ -39,20 +39,24 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
           <img
             src={logoImg}
             alt={settings.heroTitle}
-            className="w-10 h-10 object-contain rounded-full shadow-sm border border-orange-500/20 bg-white"
+            className="w-11 h-11 object-contain rounded-xl shadow-sm border border-orange-500/30 bg-white p-0.5"
           />
 
           {/* Nome e Slogan */}
           <span className="flex flex-col leading-tight">
             <span
-              className="font-black text-base sm:text-lg"
+              className="font-black text-base sm:text-lg tracking-tight"
               style={{
                 fontFamily: "var(--font-family)",
                 color: "var(--title-color)",
-                letterSpacing: "-0.02em",
               }}
             >
-              {settings.heroTitle.includes("&") ? (
+              {settings.heroTitle.toLowerCase().includes("sabor da praia") ? (
+                <>
+                  <span className="text-[#0C2340]">Sabor</span>{" "}
+                  <span className="text-[#FF7A00]">da Praia</span>
+                </>
+              ) : settings.heroTitle.includes("&") ? (
                 <>
                   <span>{settings.heroTitle.split("&")[0].trim()}</span>{" "}
                   <span style={{ color: "var(--primary-color)" }}>&</span>{" "}
@@ -63,10 +67,9 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
               )}
             </span>
             <span
-              className="text-[8px] sm:text-[9px] font-extrabold tracking-[0.18em] uppercase -mt-0.5"
-              style={{ color: "var(--primary-color)" }}
+              className="text-[8px] sm:text-[9px] font-extrabold tracking-[0.16em] uppercase -mt-0.5 text-[#FF7A00]"
             >
-              {settings.heroBadge || "O SABOR QUE VOCÊ VOLTA"}
+              {settings.heroBadge || "SABOR • QUALIDADE • BOM ATENDIMENTO"}
             </span>
           </span>
         </a>

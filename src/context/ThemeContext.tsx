@@ -53,40 +53,40 @@ export interface ThemeSettings {
 }
 
 export const defaultThemeSettings: ThemeSettings = {
-  primaryColor: "#FA6400",
-  primaryHover: "#DC4C00",
-  bgColor: "#FFFDFB",
-  darkBgColor: "#1C1210",
-  titleColor: "#231614",
-  subtitleColor: "#FA6400",
-  bodyTextColor: "#5C4D49",
-  lightTextColor: "#FDFBF9",
+  primaryColor: "#FF7A00",
+  primaryHover: "#E85D04",
+  bgColor: "#F8FAFC",
+  darkBgColor: "#0B192C",
+  titleColor: "#0C2340",
+  subtitleColor: "#FF7A00",
+  bodyTextColor: "#334155",
+  lightTextColor: "#FFFFFF",
   fontFamily: "'Montserrat', sans-serif",
-  heroTitle: "Sabor & Porção",
-  heroBadge: "O Sabor Que Você Volta",
-  heroTagline: "O sabor que você volta! Pratos suculentos e porções artesanais preparadas na hora com o melhor tempero.",
+  heroTitle: "Sabor da Praia",
+  heroBadge: "SABOR • QUALIDADE • BOM ATENDIMENTO",
+  heroTagline: "O autêntico sabor do litoral! Pratos deliciosos, porções artesanais e receitas preparadas na hora com ingredientes frescos e selecionados.",
   heroButtonText: "Ver Cardápio",
   heroButtonWhatsappText: "Pedir no WhatsApp",
   heroWhatsappLink: "https://wa.me/553599212311",
   heroBgImage: "",
-  aboutTitle: "Sobre o Sabor & Porção",
+  aboutTitle: "Sobre o Sabor da Praia",
   aboutText:
-    "O Sabor & Porção nasceu da paixão pela boa gastronomia e pelo prazer de servir pratos marcantes e porções generosas. Aqui, cada receita é preparada na hora, com ingredientes frescos e selecionados, trazendo aquele sabor inesquecível que faz você sempre querer voltar!",
+    "O Sabor da Praia nasceu com a paixão de levar a melhor gastronomia, pratos saborosos e porções generosas até a sua mesa. Cada receita é preparada na hora com muito capricho, ingredientes frescos e aquele tempero especial que faz você sempre querer voltar!",
   aboutLeftTitle: "PREPARO ARTESANAL",
-  aboutLeftDesc: "Feito com carinho e técnica na chapa quente para garantir o ponto perfeito.",
+  aboutLeftDesc: "Feito na hora com técnica e ingredientes frescos para o ponto e sabor perfeitos.",
   aboutRightTitle: "QUALIDADE & SABOR",
-  aboutRightDesc: "Ingredientes selecionados do dia para uma explosão de sabor a cada mordida.",
+  aboutRightDesc: "Receitas saborosas e selecionadas para encantar seu paladar em cada porção.",
   aboutImages: [],
-  middleTitle: "O SABOR QUE VOCÊ VOLTA. GARANTIDO!",
+  middleTitle: "SABOR, QUALIDADE E BOM ATENDIMENTO",
   middleSubtitle:
-    "Nosso cardápio traz pratos suculentos, yakisobas artesanais e porções especiais preparadas com os melhores ingredientes. Experimente e comprove a qualidade!",
-  middleButtonText: "VER NOSSO CARDÁPIO",
+    "Nossas porções, pratos especiais e opções do cardápio são preparadas com ingredientes selecionados e muito carinho. Peça agora e surpreenda-se!",
+  middleButtonText: "CONHEÇA NOSSO CARDÁPIO",
   middleBgImage: "",
-  contactTitle: "CONTATO",
-  contactSubtitle: "Sabor & Porção • Delivery & Retirada",
+  contactTitle: "CONTATO & ATENDIMENTO",
+  contactSubtitle: "Sabor da Praia • Delivery & Retirada",
   contactPhone: "(35) 9921-2311",
   contactHours: "Ter - Sex: 17h45 às 23h45\nSáb & Dom: 15h às 00h",
-  footerCopy: "© 2026 SABOR & PORÇÃO. TODOS OS DIREITOS RESERVADOS.",
+  footerCopy: "© 2026 SABOR DA PRAIA. TODOS OS DIREITOS RESERVADOS.",
   customCss: "",
 };
 
@@ -101,7 +101,7 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<ThemeSettings>(() => {
-    const saved = localStorage.getItem("sabor-porcao-theme-settings") || localStorage.getItem("yakinhome-theme-settings");
+    const saved = localStorage.getItem("sabor-praia-theme-settings") || localStorage.getItem("sabor-porcao-theme-settings") || localStorage.getItem("yakinhome-theme-settings");
     if (saved) {
       try {
         return { ...defaultThemeSettings, ...JSON.parse(saved) };
@@ -163,7 +163,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (!error && data?.theme_data) {
         const mergedSettings = { ...defaultThemeSettings, ...data.theme_data };
         setSettings(mergedSettings);
-        localStorage.setItem("sabor-porcao-theme-settings", JSON.stringify(mergedSettings));
+        localStorage.setItem("sabor-praia-theme-settings", JSON.stringify(mergedSettings));
         applyStyles(mergedSettings);
       } else {
         // Fallback local se não achar no supabase (por exemplo, se a tabela ainda não existir)
@@ -189,7 +189,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updateSettings = async (newSettings: Partial<ThemeSettings>) => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
-    localStorage.setItem("sabor-porcao-theme-settings", JSON.stringify(updated));
+    localStorage.setItem("sabor-praia-theme-settings", JSON.stringify(updated));
     applyStyles(updated);
 
     try {

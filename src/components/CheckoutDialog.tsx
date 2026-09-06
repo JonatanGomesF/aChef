@@ -184,7 +184,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       console.error("Erro ao salvar pedido:", error);
     }
 
-    let msg = `*NOVO PEDIDO - SABOR & PORÇÃO*\n\n`;
+    let msg = `*NOVO PEDIDO - SABOR DA PRAIA*\n\n`;
 
     msg += `*Nome:* ${name}\n`;
     msg += `*WhatsApp:* ${phone}\n`;

@@ -104,7 +104,7 @@ const speakAlert = () => {
   try {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance("Novo pedido Chef Nair Delivery");
+      const utterance = new SpeechSynthesisUtterance("Novo pedido Sabor da Praia Delivery");
       utterance.lang = "pt-BR";
       utterance.rate = 1.0;
       utterance.pitch = 1.1;
@@ -130,7 +130,7 @@ function money(value: number) {
 function formatOrderReceipt(order: Order) {
   const createdAt = order.created_at ? new Date(order.created_at) : new Date();
   const lines = [
-    "CHEF NAIR DELIVERY",
+    "SABOR DA PRAIA DELIVERY",
     "NOVO PEDIDO",
     "------------------------------",
     `Pedido: #${order.id}`,

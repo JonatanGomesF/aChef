@@ -31,7 +31,7 @@ export default function CustomerCapture() {
       }
 
       alert(
-        "Cadastro realizado! Você receberá promoções do Sabor & Porção Delivery 🍽️"
+        "Cadastro realizado! Você receberá promoções do Sabor da Praia Delivery 🍽️"
       );
 
       setName("");
@@ -53,7 +53,7 @@ export default function CustomerCapture() {
 
         <p className="mt-3">
           Cadastre seu WhatsApp e receba cupons,
-          descontos e novidades do Sabor & Porção Delivery.
+          descontos e novidades do Sabor da Praia Delivery.
         </p>
 
         <div className="mt-6 flex flex-col gap-3">

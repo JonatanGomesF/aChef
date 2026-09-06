@@ -75,14 +75,14 @@ export default function AdminLogin() {
         >
           {/* Header */}
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-orange-950/40">
-              <ChefHat size={28} className="text-white" />
+            <div className="w-16 h-16 rounded-2xl bg-white p-1 flex items-center justify-center shadow-lg shadow-orange-950/40 border border-orange-500/30">
+              <img src="/logo.png" alt="Sabor da Praia" className="w-full h-full object-contain rounded-xl" />
             </div>
             <div>
               <h1 className="text-white font-black text-xl tracking-tight">
-                Sabor<span className="text-primary ml-1">& Porção</span>
+                Sabor<span className="text-[#FF7A00] ml-1">da Praia</span>
               </h1>
-              <p className="text-white/30 text-xs font-semibold tracking-wider mt-0.5 uppercase">Painel Administrativo</p>
+              <p className="text-[#FFB703] text-[10px] font-black tracking-[0.2em] mt-0.5 uppercase">Painel Administrativo</p>
             </div>
           </div>
 
@@ -151,8 +151,8 @@ export default function AdminLogin() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-white/15 text-[10px] font-medium mt-4">
-          © {new Date().getFullYear()} Sabor & Porção Delivery — Acesso restrito
+        <p className="text-center text-white/30 text-[10px] font-semibold mt-4">
+          © {new Date().getFullYear()} Sabor da Praia Delivery — Acesso restrito
         </p>
       </div>
     </div>
