@@ -16,6 +16,7 @@ import type { Product } from "../data/products";
 import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Navigation, ExternalLink } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
+import { smoothScrollTo } from "../lib/smoothScroll";
 
 // Assets locais
 import espetinhoImg from "../assets/espetinho.jpg";
@@ -66,12 +67,7 @@ export default function Home() {
   const [message, setMessage] = useState("");
 
   const scrollToMenu = () => {
-    const section = document.getElementById("cardapio");
-    if (section) {
-      section.scrollIntoView({
-        behavior: "smooth",
-      });
-    }
+    smoothScrollTo("cardapio", { duration: 1200, offset: -70 });
   };
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -191,7 +187,7 @@ export default function Home() {
                 <div className="flex items-start gap-2">
                   <MapPin size={16} className="text-[#FF7A00] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-slate-800 font-bold">Av. Marina / Av. São Paulo</p>
+                    <p className="text-slate-800 font-bold">Av. Marina 1775 / Av. São Paulo</p>
                     <p className="text-slate-500">Mongaguá — SP, 11730-000</p>
                   </div>
                 </div>
@@ -482,117 +478,30 @@ export default function Home() {
       <footer className="bg-[#0B192C] text-white pt-16 pb-10 border-t-4 border-[#FF7A00]">
         <div className="max-w-6xl mx-auto px-6">
           
-          {/* Grid Principal de 4 Colunas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/15">
-            
-            {/* Coluna 1: Marca & Logo */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-white p-1 shadow-lg border-2 border-orange-500/50 flex items-center justify-center">
-                  <img src={logoImg} alt="Sabor da Praia" className="w-full h-full object-contain rounded-xl" />
-                </div>
-                <div>
-                  <h3 className="font-black text-xl text-white tracking-tight leading-none">
-                    Sabor <span className="text-[#FF7A00]">da Praia</span>
-                  </h3>
-                  <p className="text-[10px] font-black text-[#FFB703] tracking-[0.15em] uppercase mt-1">
-                    DELIVERY & RETIRADA
-                  </p>
-                </div>
+          {/* Seção Centralizada: Marca & Logo */}
+          <div className="flex flex-col items-center text-center max-w-xl mx-auto space-y-4 pb-12 border-b border-white/15">
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-14 h-14 rounded-2xl bg-white p-1 shadow-lg border-2 border-orange-500/50 flex items-center justify-center">
+                <img src={logoImg} alt="Sabor da Praia" className="w-full h-full object-contain rounded-xl" />
               </div>
-
-              <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                O sabor autêntico do litoral na sua mesa! Ingredientes selecionados, porções caprichadas e atendimento nota 10.
-              </p>
-
-              <div className="flex items-center gap-2 text-xs font-bold text-[#FFB703] bg-white/5 py-1.5 px-3 rounded-lg border border-white/10 w-fit">
-                <Heart size={14} className="text-red-400 fill-red-400" />
-                Feito com carinho e qualidade
+              <div className="text-left">
+                <h3 className="font-black text-2xl text-white tracking-tight leading-none">
+                  Sabor <span className="text-[#FF7A00]">da Praia</span>
+                </h3>
+                <p className="text-[10px] font-black text-[#FFB703] tracking-[0.15em] uppercase mt-1">
+                  OBRIGADO PELA PREFERÊNCIA!
+                </p>
               </div>
             </div>
 
-            {/* Coluna 2: Links Rápidos */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-black text-white uppercase tracking-wider border-l-2 border-[#FF7A00] pl-2.5">
-                Navegação
-              </h4>
-              <ul className="space-y-2 text-xs font-semibold text-slate-300">
-                <li>
-                  <a href="#inicio" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
-                    › Início
-                  </a>
-                </li>
-                <li>
-                  <a href="#cardapio" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
-                    › Cardápio Especial
-                  </a>
-                </li>
-                <li>
-                  <a href="#contato" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
-                    › Contato
-                  </a>
-                </li>
-                <li>
-                  <a href="#sobre" className="hover:text-[#FF7A00] hover:translate-x-1 transition-all inline-block">
-                    › Sobre Nós
-                  </a>
-                </li>
-                <li>
-                  <a href="/admin/login" className="hover:text-[#00A8E8] text-slate-400 hover:translate-x-1 transition-all inline-block">
-                    › Painel Administrativo
-                  </a>
-                </li>
-              </ul>
+            <p className="text-xs text-slate-300 leading-relaxed font-medium max-w-md">
+              O sabor autêntico do litoral na sua mesa! Ingredientes selecionados, porções caprichadas e atendimento nota 10.
+            </p>
+
+            <div className="flex items-center gap-2 text-xs font-bold text-[#FFB703] bg-white/5 py-1.5 px-3 rounded-lg border border-white/10 w-fit">
+              <Heart size={14} className="text-red-400 fill-red-400" />
+              Feito com carinho e qualidade
             </div>
-
-            {/* Coluna 3: Horários de Atendimento */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-black text-white uppercase tracking-wider border-l-2 border-[#FF7A00] pl-2.5">
-                Horário de Funcionamento
-              </h4>
-              
-              <div className="space-y-2.5 text-xs text-slate-300">
-                <div className="bg-white/5 p-3 rounded-xl border border-white/10">
-                  <div className="flex items-center gap-2 text-[#FFB703] font-black text-[11px] uppercase tracking-wider mb-1">
-                    <Clock size={14} /> Terça a Sexta
-                  </div>
-                  <p className="font-bold text-white text-xs">17h45 às 23h45</p>
-                </div>
-
-                <div className="bg-white/5 p-3 rounded-xl border border-white/10">
-                  <div className="flex items-center gap-2 text-[#00A8E8] font-black text-[11px] uppercase tracking-wider mb-1">
-                    <Clock size={14} /> Sábado e Domingo
-                  </div>
-                  <p className="font-bold text-white text-xs">15h00 às 00h00</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Coluna 4: Pedidos & WhatsApp */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-black text-white uppercase tracking-wider border-l-2 border-[#FF7A00] pl-2.5">
-                Faça Seu Pedido
-              </h4>
-              
-              <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                Peça direto pelo site ou pelo WhatsApp oficial para entrega rápida em sua casa.
-              </p>
-
-              <a
-                href={settings.heroWhatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black text-xs tracking-wider uppercase rounded-xl shadow-lg shadow-green-950/30 hover:scale-102 transition-all duration-200"
-              >
-                <MessageCircle size={17} />
-                Pedir no WhatsApp
-              </a>
-
-              <div className="text-center">
-                <p className="text-[11px] text-slate-400 font-semibold">{settings.contactPhone}</p>
-              </div>
-            </div>
-
           </div>
 
           {/* Bottom Bar / Copyright */}
@@ -608,7 +517,7 @@ export default function Home() {
 
             {/* Botão de Voltar ao Topo */}
             <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              onClick={() => smoothScrollTo(0, { duration: 1300 })}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-[#FF7A00] text-white text-xs font-black tracking-wider transition-all duration-300 cursor-pointer border border-white/10 hover:border-transparent hover:scale-105"
             >
               <span>Voltar ao Topo</span>

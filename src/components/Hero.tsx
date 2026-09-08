@@ -1,13 +1,13 @@
 import { UtensilsCrossed, Leaf, Motorbike, MessageCircle } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
+import { smoothScrollTo } from "../lib/smoothScroll";
 
 export default function Hero() {
   const { settings } = useTheme();
 
   const scrollToMenu = () => {
-    const section = document.getElementById("cardapio");
-    if (section) section.scrollIntoView({ behavior: "smooth" });
+    smoothScrollTo("cardapio", { duration: 1200, offset: -70 });
   };
 
   return (

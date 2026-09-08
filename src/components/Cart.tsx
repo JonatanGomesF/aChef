@@ -1,4 +1,5 @@
 import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft } from "lucide-react";
+import { smoothScrollTo } from "../lib/smoothScroll";
 
 type CartItem = {
   id: number;
@@ -75,7 +76,10 @@ export default function Cart({
               </p>
             </div>
             <button
-              onClick={onClose}
+              onClick={() => {
+                onClose();
+                smoothScrollTo("cardapio", { duration: 1200, offset: -70 });
+              }}
               className="px-6 py-2.5 bg-orange-50 text-primary rounded-xl text-xs font-black hover:bg-orange-100 transition-colors duration-300 cursor-pointer"
             >
               Ver Cardápio
