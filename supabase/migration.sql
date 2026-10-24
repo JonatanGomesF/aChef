@@ -389,6 +389,46 @@ BEGIN
   END IF;
 END $$;
 
+-- ─────────────────────────────────────────────
+-- 12. MENU_CATALOG — Cardápio completo com categorias e produtos
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.menu_catalog (
+  id           INTEGER PRIMARY KEY DEFAULT 1,
+  catalog_data JSONB NOT NULL DEFAULT '{"categories":[],"products":[]}'::jsonb,
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.menu_catalog ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS menu_catalog_read_anon ON public.menu_catalog;
+CREATE POLICY menu_catalog_read_anon ON public.menu_catalog
+  FOR SELECT TO anon USING (true);
+
+DROP POLICY IF EXISTS menu_catalog_write_admin ON public.menu_catalog;
+CREATE POLICY menu_catalog_write_admin ON public.menu_catalog
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+INSERT INTO public.menu_catalog (id, catalog_data)
+VALUES (1, '{"categories":[],"products":[]}'::jsonb)
+ON CONFLICT (id) DO NOTHING;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_rel pr
+    JOIN pg_class c ON c.oid = pr.prrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_publication p ON p.oid = pr.prpubid
+    WHERE p.pubname = 'supabase_realtime'
+      AND n.nspname = 'public'
+      AND c.relname = 'menu_catalog'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.menu_catalog;
+  END IF;
+END $$;
+
 -- ============================================================
 -- FIM DA MIGRATION
 -- ============================================================

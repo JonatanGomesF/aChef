@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import type { Product } from "../data/products";
-import { getMenuCatalog } from "../lib/menuCatalog";
+import { fetchMenuCatalog, getMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
 import {
   fetchProductAvailability,
   getProductAvailability,
@@ -20,9 +20,12 @@ export default function AdminProdutos() {
     setAvailability(getProductAvailability());
     fetchProductAvailability().then(setAvailability);
 
+    fetchMenuCatalog().then((cat) => setProducts(cat.products));
+
     const updateProducts = () => setProducts(getMenuCatalog().products);
     const updateAvailability = () => setAvailability(getProductAvailability());
     const unsubscribeAvailability = subscribeProductAvailability(updateAvailability);
+    const unsubscribeCatalog = subscribeMenuCatalog((cat) => setProducts(cat.products));
 
     window.addEventListener("storage", updateProducts);
     window.addEventListener("storage", updateAvailability);
@@ -35,6 +38,7 @@ export default function AdminProdutos() {
       window.removeEventListener("yakinhome-menu-catalog-updated", updateProducts);
       window.removeEventListener(PRODUCT_AVAILABILITY_EVENT, updateAvailability);
       unsubscribeAvailability();
+      unsubscribeCatalog();
     };
   }, []);
 

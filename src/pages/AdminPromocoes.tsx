@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabase";
-import { products } from "../data/products";
+import { fetchMenuCatalog, getMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
+import type { Product } from "../data/products";
 import AdminLayout from "../components/AdminLayout";
 import { RefreshCw, Plus, Trash2, ToggleLeft, ToggleRight, Tag, X } from "lucide-react";
 
@@ -17,6 +18,7 @@ type Promotion = {
 
 export default function AdminPromocoes() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [products, setProducts] = useState<Product[]>(() => getMenuCatalog().products);
   const [loading, setLoading]       = useState(true);
   const [showForm, setShowForm]     = useState(false);
 
@@ -36,7 +38,14 @@ export default function AdminPromocoes() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    fetchMenuCatalog().then((cat) => setProducts(cat.products));
+    const unsubscribeCatalog = subscribeMenuCatalog((cat) => setProducts(cat.products));
+    return () => {
+      unsubscribeCatalog();
+    };
+  }, []);
 
   const selectedProduct = products.find((p) => p.id === Number(productId));
 

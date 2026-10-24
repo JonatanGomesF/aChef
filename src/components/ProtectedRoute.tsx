@@ -6,6 +6,11 @@ type Props = {
   children: React.ReactNode;
 };
 
+// Tempo máximo (ms) que a verificação de acesso pode levar antes de liberar a
+// tela. Sem isso, um backend indisponível (ex.: projeto Supabase pausado, que
+// deixa de resolver o domínio) pode travar a tela em "Verificando Acesso...".
+const AUTH_CHECK_TIMEOUT = 10000;
+
 export default function ProtectedRoute({
   children,
 }: Props) {
@@ -13,41 +18,74 @@ export default function ProtectedRoute({
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
+    let active = true;
+    let settled = false;
+
+    const finish = (isAuthenticated: boolean) => {
+      if (!active || settled) return;
+      settled = true;
+      clearTimeout(timer);
+      setAuthenticated(isAuthenticated);
+      setLoading(false);
+    };
+
+    const timer = setTimeout(() => {
+      console.warn(
+        "Verificação de acesso excedeu o tempo limite. " +
+          "Verifique sua conexão e se o projeto Supabase está ativo (não pausado)."
+      );
+      finish(false);
+    }, AUTH_CHECK_TIMEOUT);
+
     async function checkAuth() {
       try {
         const {
           data: { session },
+          error: sessionError,
         } = await supabase.auth.getSession();
 
+        if (sessionError) {
+          console.error("Erro ao obter sessão:", sessionError);
+        }
+
         if (!session) {
-          setAuthenticated(false);
-          setLoading(false);
+          finish(false);
           return;
         }
 
         // Verifica se o usuário existe na tabela admins (com RLS restrito)
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("admins")
           .select("email")
+          .eq("email", session.user.email ?? "")
           .limit(1);
 
-        const isAdmin = data && data.length > 0;
+        if (error) {
+          console.error("Erro ao verificar permissão de admin:", error);
+          finish(false);
+          return;
+        }
+
+        const isAdmin = !!data && data.length > 0;
+        finish(isAdmin);
 
         if (!isAdmin) {
-          await supabase.auth.signOut();
-          setAuthenticated(false);
-        } else {
-          setAuthenticated(true);
+          // Encerra a sessão sem bloquear a navegação (pode falhar se o
+          // backend estiver fora do ar, o que não deve travar a tela)
+          supabase.auth.signOut().catch(() => {});
         }
       } catch (error) {
         console.error("Erro na verificação de autenticação:", error);
-        setAuthenticated(false);
-      } finally {
-        setLoading(false);
+        finish(false);
       }
     }
 
     checkAuth();
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   if (loading) {

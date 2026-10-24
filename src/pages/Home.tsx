@@ -11,7 +11,7 @@ import {
   PRODUCT_AVAILABILITY_EVENT,
   subscribeProductAvailability,
 } from "../lib/productAvailability";
-import { getMenuCatalog } from "../lib/menuCatalog";
+import { fetchMenuCatalog, getMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
 import type { Product } from "../data/products";
 import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Navigation, ExternalLink } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
@@ -44,7 +44,10 @@ export default function Home() {
     const updateCatalog = () => setCatalog(getMenuCatalog());
     const updateAvailability = () => setAvailability(getProductAvailability());
     const unsubscribeAvailability = subscribeProductAvailability(updateAvailability);
+    const unsubscribeCatalog = subscribeMenuCatalog((latest) => setCatalog(latest));
 
+    // Busca o cardápio atualizado e estoque do Supabase
+    fetchMenuCatalog().then((latest) => setCatalog(latest));
     fetchProductAvailability().then(setAvailability);
 
     window.addEventListener("storage", updateCatalog);
@@ -58,6 +61,7 @@ export default function Home() {
       window.removeEventListener("yakinhome-menu-catalog-updated", updateCatalog);
       window.removeEventListener(PRODUCT_AVAILABILITY_EVENT, updateAvailability);
       unsubscribeAvailability();
+      unsubscribeCatalog();
     };
   }, []);
 

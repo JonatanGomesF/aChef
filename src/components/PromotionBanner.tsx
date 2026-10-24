@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabase";
-import { getMenuCatalog } from "../lib/menuCatalog";
+import { fetchMenuCatalog, getMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
 
 type Promotion = {
   id: number;
@@ -17,12 +17,17 @@ export default function PromotionBanner() {
 
   useEffect(() => {
     loadPromotions();
+    fetchMenuCatalog().then((cat) => setProducts(cat.products));
+
     const updateProducts = () => setProducts(getMenuCatalog().products);
+    const unsubscribeCatalog = subscribeMenuCatalog((cat) => setProducts(cat.products));
+
     window.addEventListener("storage", updateProducts);
     window.addEventListener("yakinhome-menu-catalog-updated", updateProducts);
     return () => {
       window.removeEventListener("storage", updateProducts);
       window.removeEventListener("yakinhome-menu-catalog-updated", updateProducts);
+      unsubscribeCatalog();
     };
   }, []);
 

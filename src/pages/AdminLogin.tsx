@@ -3,6 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
+// Detecta falhas de rede/conexão (backend fora do ar, projeto Supabase
+// pausado, sem internet, etc.) para exibir uma mensagem útil ao invés do
+// erro técnico original.
+function isConnectionError(message?: string) {
+  if (!message) return false;
+  const m = message.toLowerCase();
+  return (
+    m.includes("failed to fetch") ||
+    m.includes("load failed") ||
+    m.includes("fetch failed") ||
+    m.includes("networkerror") ||
+    m.includes("network error") ||
+    m.includes("timeout") ||
+    m.includes("timed out") ||
+    m.includes("could not resolve") ||
+    m.includes("enotfound") ||
+    m.includes("econnrefused")
+  );
+}
+
+const CONNECTION_ERROR_MESSAGE =
+  "Não foi possível conectar ao servidor. Verifique sua internet e se o projeto do Supabase está ativo (não pausado).";
+
 export default function AdminLogin() {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +50,8 @@ export default function AdminLogin() {
           setError("E-mail ou senha incorretos.");
         } else if (authError.message?.toLowerCase().includes("email not confirmed")) {
           setError("E-mail ainda não confirmado no Supabase.");
+        } else if (isConnectionError(authError.message)) {
+          setError(CONNECTION_ERROR_MESSAGE);
         } else {
           setError(authError.message || "Erro ao realizar login.");
         }
@@ -41,13 +66,25 @@ export default function AdminLogin() {
       }
 
       // Verifica se o usuário autenticado está na tabela admins
-      const { data: adminData } = await supabase
+      const { data: adminData, error: adminError } = await supabase
         .from("admins")
         .select("email")
+        .eq("email", cleanEmail)
         .limit(1);
 
+      if (adminError) {
+        setError(
+          isConnectionError(adminError.message)
+            ? CONNECTION_ERROR_MESSAGE
+            : "Erro ao verificar permissão de administrador. Tente novamente."
+        );
+        setLoading(false);
+        return;
+      }
+
       if (!adminData || adminData.length === 0) {
-        await supabase.auth.signOut();
+        // Não bloqueia a tela aguardando o signOut caso o backend esteja fora do ar
+        supabase.auth.signOut().catch(() => {});
         setError("Acesso restrito: Seu e-mail não possui permissão de administrador na tabela public.admins.");
         setLoading(false);
         return;
