@@ -23,8 +23,8 @@ const DEFAULT_CATEGORY_ID = "yakissobas";
 
 export function normalizeCatalog(catalog: MenuCatalog): MenuCatalog {
   return {
-    categories: [...catalog.categories].sort((a, b) => a.order - b.order),
-    products: [...catalog.products].sort((a, b) => a.order - b.order),
+    categories: [...(catalog.categories || [])].sort((a, b) => a.order - b.order),
+    products: [...(catalog.products || [])].sort((a, b) => a.order - b.order),
   };
 }
 
@@ -91,39 +91,24 @@ export function saveLocalMenuCatalog(catalog: MenuCatalog): MenuCatalog {
 
 /**
  * Busca o cardápio mais recente do Supabase (nuvem) e atualiza o cache local.
- * Prioriza tabela dedicada 'menu_catalog' se existir, ou 'site_theme' (id: 2).
+ * Utiliza a tabela 'site_theme' (linha id: 2), que possui leitura pública (anon)
+ * e escrita autenticada para administrador.
  */
 export async function fetchMenuCatalog(): Promise<MenuCatalog> {
   try {
-    // 1. Tenta tabela dedicada menu_catalog se existir
-    const { data: menuTableData, error: menuTableError } = await supabase
-      .from("menu_catalog")
-      .select("catalog_data")
-      .eq("id", 1)
-      .maybeSingle();
-
-    if (!menuTableError && menuTableData?.catalog_data) {
-      const parsed = menuTableData.catalog_data as MenuCatalog;
-      if (Array.isArray(parsed?.categories) && Array.isArray(parsed?.products)) {
-        return saveLocalMenuCatalog(parsed);
-      }
-    }
-
-    // 2. Tenta site_theme linha id: 2 (já existente com RLS público de leitura)
-    const { data: themeRowData, error: themeRowError } = await supabase
+    const { data, error } = await supabase
       .from("site_theme")
       .select("theme_data")
       .eq("id", 2)
       .maybeSingle();
 
-    if (!themeRowError && themeRowData?.theme_data) {
-      const parsed = (themeRowData.theme_data.catalog || themeRowData.theme_data) as MenuCatalog;
+    if (!error && data?.theme_data) {
+      const parsed = (data.theme_data.catalog || data.theme_data) as MenuCatalog;
       if (Array.isArray(parsed?.categories) && Array.isArray(parsed?.products)) {
         return saveLocalMenuCatalog(parsed);
       }
     }
 
-    // 3. Fallback: retorna o que estiver salvo localmente ou o padrão
     return getMenuCatalog();
   } catch (error) {
     console.warn("Não foi possível carregar cardápio do Supabase:", error);
@@ -142,7 +127,6 @@ export async function saveMenuCatalog(
   let savedToRemote = false;
   let remoteError: string | undefined;
 
-  // 1. Tenta salvar na tabela site_theme (linha id: 2)
   try {
     const { error: themeError } = await supabase.from("site_theme").upsert({
       id: 2,
@@ -163,21 +147,6 @@ export async function saveMenuCatalog(
     remoteError = err?.message || String(err);
   }
 
-  // 2. Tenta também na tabela menu_catalog se existir
-  try {
-    const { error: menuTableError } = await supabase.from("menu_catalog").upsert({
-      id: 1,
-      catalog_data: normalized,
-      updated_at: new Date().toISOString(),
-    });
-
-    if (!menuTableError) {
-      savedToRemote = true;
-    }
-  } catch {
-    // Tabela menu_catalog opcional
-  }
-
   return {
     success: savedToRemote,
     catalog: normalized,
@@ -185,32 +154,53 @@ export async function saveMenuCatalog(
   };
 }
 
+// ── GERENCIADOR SINGLETON DE REALTIME PARA EVITAR ERRO DE CANAL DUPLICADO ──
+const subscribers = new Set<(catalog: MenuCatalog) => void>();
+let globalRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+
+function ensureRealtimeSubscription() {
+  if (typeof window === "undefined" || globalRealtimeChannel) return;
+
+  try {
+    globalRealtimeChannel = supabase
+      .channel("menu-catalog-realtime-singleton")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "site_theme", filter: "id=eq.2" },
+        async () => {
+          const latest = await fetchMenuCatalog();
+          subscribers.forEach((callback) => {
+            try {
+              callback(latest);
+            } catch (e) {
+              console.error("Erro no callback do realtime de cardápio:", e);
+            }
+          });
+        }
+      )
+      .subscribe();
+  } catch (err) {
+    console.warn("Não foi possível iniciar canal realtime do cardápio:", err);
+  }
+}
+
 /**
- * Escuta alterações no Supabase em tempo real para refletir mudanças no cardápio
+ * Registra um callback para ouvir alterações em tempo real do cardápio via Supabase
  */
 export function subscribeMenuCatalog(onChange: (catalog: MenuCatalog) => void) {
-  const channel = supabase
-    .channel("menu-catalog-realtime")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "site_theme", filter: "id=eq.2" },
-      async () => {
-        const latest = await fetchMenuCatalog();
-        onChange(latest);
-      }
-    )
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "menu_catalog" },
-      async () => {
-        const latest = await fetchMenuCatalog();
-        onChange(latest);
-      }
-    )
-    .subscribe();
+  subscribers.add(onChange);
+  ensureRealtimeSubscription();
 
   return () => {
-    supabase.removeChannel(channel);
+    subscribers.delete(onChange);
+    if (subscribers.size === 0 && globalRealtimeChannel) {
+      try {
+        supabase.removeChannel(globalRealtimeChannel);
+      } catch (err) {
+        console.warn("Erro ao remover canal de realtime:", err);
+      }
+      globalRealtimeChannel = null;
+    }
   };
 }
 
@@ -235,6 +225,9 @@ export function createCategoryId(name: string) {
 }
 
 export function createProductId(catalog: MenuCatalog) {
-  const highestId = catalog.products.reduce((max, product) => Math.max(max, product.id), 0);
+  const highestId = (catalog.products || []).reduce(
+    (max, product) => Math.max(max, product.id),
+    0
+  );
   return highestId + 1;
 }
