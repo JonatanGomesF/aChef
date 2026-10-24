@@ -13,7 +13,7 @@ import {
 } from "../lib/productAvailability";
 import { fetchMenuCatalog, getMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
 import type { Product } from "../data/products";
-import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Navigation, ExternalLink } from "lucide-react";
+import { Phone, Clock, MapPin, Sparkles, MessageCircle, ChevronUp, ShieldCheck, Heart, Navigation, ExternalLink, PauseCircle } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import logoImg from "../assets/logo.png";
 import { smoothScrollTo } from "../lib/smoothScroll";
@@ -35,10 +35,15 @@ export default function Home() {
   const [availability, setAvailability] = useState(() => getProductAvailability());
   const [modalOpen, setModalOpen] = useState(false);
 
-  const availableProducts = catalog.products.map((product) => ({
-    ...product,
-    available: availability[product.id] !== false,
-  }));
+  const availableProducts = catalog.products.map((product) => {
+    const category = catalog.categories.find((c) => c.id === product.categoryId);
+    const categoryAvailable = category?.available !== false;
+    const productAvailable = product.available !== false && availability[product.id] !== false;
+    return {
+      ...product,
+      available: categoryAvailable && productAvailable,
+    };
+  });
 
   useEffect(() => {
     const updateCatalog = () => setCatalog(getMenuCatalog());
@@ -296,11 +301,18 @@ export default function Home() {
             const categoryProducts = availableProducts.filter((product) => product.categoryId === category.id);
             if (categoryProducts.length === 0) return null;
 
+            const isCategoryPaused = category.available === false;
             return (
               <div key={category.id} className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-[#FF7A00]" />
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${isCategoryPaused ? "bg-amber-500" : "bg-[#FF7A00]"}`} />
                   <h3 className="text-xl md:text-2xl font-black text-[#0C2340] tracking-tight">{category.name}</h3>
+                  {isCategoryPaused && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 text-xs font-black uppercase tracking-wider">
+                      <PauseCircle size={13} />
+                      Categoria Pausada
+                    </span>
+                  )}
                   <div className="h-0.5 flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
                 </div>
 

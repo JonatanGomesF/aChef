@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import type { Product } from "../data/products";
-import { fetchMenuCatalog, getMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
+import { fetchMenuCatalog, getMenuCatalog, saveMenuCatalog, subscribeMenuCatalog } from "../lib/menuCatalog";
 import {
   fetchProductAvailability,
   getProductAvailability,
@@ -43,10 +43,19 @@ export default function AdminProdutos() {
   }, []);
 
   const toggleAvailability = async (product: Product) => {
-    const nextState = !(availability[product.id] !== false);
+    const isCurrentlyAvailable = availability[product.id] !== false && product.available !== false;
+    const nextState = !isCurrentlyAvailable;
+
     setSavingProductId(product.id);
     const nextAvailability = await setProductAvailability(product.id, nextState);
     setAvailability(nextAvailability);
+
+    // Também atualiza no menuCatalog para sincronização perfeita em tempo real na nuvem
+    const currentCatalog = getMenuCatalog();
+    const updatedProducts = currentCatalog.products.map((p) =>
+      p.id === product.id ? { ...p, available: nextState } : p
+    );
+    await saveMenuCatalog({ ...currentCatalog, products: updatedProducts });
     setSavingProductId(null);
   };
 
@@ -66,7 +75,7 @@ export default function AdminProdutos() {
 
         <div className="grid gap-4">
           {products.map((product) => {
-            const isAvailable = availability[product.id] !== false;
+            const isAvailable = availability[product.id] !== false && product.available !== false;
             return (
               <div
                 key={product.id}

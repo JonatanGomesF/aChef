@@ -5,11 +5,13 @@ export type MenuCategory = {
   id: string;
   name: string;
   order: number;
+  available?: boolean;
 };
 
 export type MenuProduct = Product & {
   categoryId: string;
   order: number;
+  available?: boolean;
 };
 
 export type MenuCatalog = {

@@ -24,7 +24,9 @@ import {
   ImagePlus,
   Link as LinkIcon,
   Loader2,
+  PauseCircle,
   Pencil,
+  PlayCircle,
   Plus,
   RotateCcw,
   Save,
@@ -284,6 +286,23 @@ export default function AdminCardapio() {
     await persist({ ...catalog, categories: reordered });
   };
 
+  const toggleCategoryPause = async (categoryId: string) => {
+    const cat = catalog.categories.find((c) => c.id === categoryId);
+    if (!cat) return;
+    const willBePaused = cat.available !== false;
+
+    const nextCategories = catalog.categories.map((c) =>
+      c.id === categoryId ? { ...c, available: !willBePaused } : c
+    );
+
+    await persist(
+      { ...catalog, categories: nextCategories },
+      willBePaused
+        ? `Categoria "${cat.name}" pausada no cardápio!`
+        : `Categoria "${cat.name}" ativada no cardápio!`
+    );
+  };
+
   // ── PRODUTOS ──
   const saveProduct = async () => {
     const price = Number(form.price.replace(",", "."));
@@ -382,6 +401,23 @@ export default function AdminCardapio() {
     }));
 
     await persist({ ...catalog, products: [...otherProducts, ...reordered] });
+  };
+
+  const toggleProductPause = async (productId: number) => {
+    const prod = catalog.products.find((p) => p.id === productId);
+    if (!prod) return;
+    const willBePaused = prod.available !== false;
+
+    const nextProducts = catalog.products.map((p) =>
+      p.id === productId ? { ...p, available: !willBePaused } : p
+    );
+
+    await persist(
+      { ...catalog, products: nextProducts },
+      willBePaused
+        ? `Item "${prod.name}" pausado no cardápio!`
+        : `Item "${prod.name}" liberado no cardápio!`
+    );
   };
 
   const handleImageFile = async (file?: File) => {
@@ -848,6 +884,12 @@ export default function AdminCardapio() {
                               <h2 className="text-white font-black text-lg tracking-tight">
                                 {category.name}
                               </h2>
+                              {category.available === false && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black uppercase tracking-wider">
+                                  <PauseCircle size={11} />
+                                  Pausada
+                                </span>
+                              )}
                               <button
                                 onClick={() => startRenameCategory(category)}
                                 className="p-1 rounded-md text-white/25 hover:text-white hover:bg-white/5 transition-all"
@@ -864,8 +906,32 @@ export default function AdminCardapio() {
                         )}
                       </div>
 
-                      {/* Controles da Categoria (Mover Cima/Baixo e Excluir) */}
-                      <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                      {/* Controles da Categoria (Pausar, Mover Cima/Baixo e Excluir) */}
+                      <div className="flex items-center gap-1.5 self-end sm:self-auto flex-wrap">
+                        {/* Botão Pausar / Ativar Categoria */}
+                        <button
+                          type="button"
+                          onClick={() => toggleCategoryPause(category.id)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer ${
+                            category.available === false
+                              ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 shadow-sm"
+                              : "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+                          }`}
+                          title={category.available === false ? "Liberar categoria" : "Pausar categoria inteira no cardápio"}
+                        >
+                          {category.available === false ? (
+                            <>
+                              <PlayCircle size={14} className="text-emerald-400" />
+                              <span>Ativar Categoria</span>
+                            </>
+                          ) : (
+                            <>
+                              <PauseCircle size={14} className="text-amber-400" />
+                              <span>Pausar Categoria</span>
+                            </>
+                          )}
+                        </button>
+
                         <button
                           onClick={() => moveCategoryOrder(category.id, "up")}
                           disabled={catIndex === 0}
@@ -926,12 +992,21 @@ export default function AdminCardapio() {
                               </span>
 
                               {/* Imagem do Produto */}
-                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-black/40 border border-white/[0.08] flex-shrink-0">
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-black/40 border border-white/[0.08] flex-shrink-0 relative">
                                 <img
                                   src={product.image}
                                   alt={product.name}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
+                                    product.available === false || category.available === false
+                                      ? "grayscale opacity-50"
+                                      : ""
+                                  }`}
                                 />
+                                {(product.available === false || category.available === false) && (
+                                  <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center text-amber-400">
+                                    <PauseCircle size={22} />
+                                  </div>
+                                )}
                               </div>
 
                               {/* Detalhes do Produto */}
@@ -949,7 +1024,7 @@ export default function AdminCardapio() {
                                   {product.description}
                                 </p>
 
-                                <div className="mt-2.5 flex items-center gap-3">
+                                <div className="mt-2.5 flex items-center gap-3 flex-wrap">
                                   <span className="text-sm font-black text-emerald-400">
                                     R$ {product.price.toFixed(2)}
                                   </span>
@@ -958,11 +1033,40 @@ export default function AdminCardapio() {
                                       Em edição
                                     </span>
                                   )}
+                                  {(product.available === false || category.available === false) && (
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-300 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                                      <PauseCircle size={11} />
+                                      {category.available === false ? "Pausado (Categoria)" : "Pausado"}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
 
-                              {/* Ações do Produto (Editar, Mover, Excluir com lixeira) */}
-                              <div className="flex items-center gap-1.5 self-end sm:self-center flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/[0.06] w-full sm:w-auto justify-end">
+                              {/* Ações do Produto (Pausar, Editar, Mover, Excluir) */}
+                              <div className="flex items-center gap-1.5 self-end sm:self-center flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/[0.06] w-full sm:w-auto justify-end flex-wrap">
+                                {/* Botão Pausar / Liberar Prato */}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleProductPause(product.id)}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer ${
+                                    product.available === false
+                                      ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 shadow-sm"
+                                      : "border-amber-500/20 bg-amber-500/10 text-amber-300/80 hover:text-amber-200 hover:bg-amber-500/20"
+                                  }`}
+                                  title={product.available === false ? "Liberar item no cardápio" : "Pausar item no cardápio"}
+                                >
+                                  {product.available === false ? (
+                                    <>
+                                      <PlayCircle size={13} className="text-emerald-400" />
+                                      <span>Liberar</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <PauseCircle size={13} className="text-amber-400" />
+                                      <span>Pausar</span>
+                                    </>
+                                  )}
+                                </button>
                                 {/* Botões mover cima / baixo */}
                                 <button
                                   onClick={() => moveProductOrder(product.id, category.id, "up")}

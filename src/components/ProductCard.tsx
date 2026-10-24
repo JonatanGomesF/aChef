@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, PauseCircle, Ban } from "lucide-react";
 import type { Product } from "../data/products";
 
 type ProductCardProps = {
@@ -31,8 +31,16 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }: Pro
 
         {/* Promo badge */}
         {product.promotionActive && (
-          <div className="absolute top-3 left-3 bg-primary text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md">
+          <div className="absolute top-3 left-3 bg-primary text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md z-10">
             PROMOÇÃO
+          </div>
+        )}
+
+        {/* Pausado badge */}
+        {!isAvailable && (
+          <div className="absolute top-3 right-3 bg-red-600/95 backdrop-blur-xs text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg uppercase tracking-wider flex items-center gap-1 z-10">
+            <PauseCircle size={11} />
+            <span>Pausado</span>
           </div>
         )}
 
@@ -99,13 +107,18 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }: Pro
               onAddToCart(product);
             }}
             disabled={!isAvailable}
+            title={isAvailable ? "Adicionar ao carrinho" : "Item pausado / indisponível"}
             className={`w-9 h-9 rounded-xl text-white flex items-center justify-center transition-all duration-150 shadow-md shadow-orange-950/10 ${
               isAvailable
                 ? "bg-primary hover:bg-primary-hover hover:shadow-orange-950/20 hover:-translate-y-0.5 cursor-pointer"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
-            <Plus size={16} strokeWidth={2.5} />
+            {isAvailable ? (
+              <Plus size={16} strokeWidth={2.5} />
+            ) : (
+              <Ban size={15} strokeWidth={2.5} />
+            )}
           </button>
         </div>
       </div>

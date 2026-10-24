@@ -293,6 +293,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
           {/* Add to cart button */}
           <button
             onClick={() => {
+              if (!isAvailable) return;
               window.dispatchEvent(
                 new CustomEvent("add-to-cart-animation", {
                   detail: { x: window.innerWidth / 2, y: window.innerHeight - 80, image: product.image },
@@ -307,14 +308,21 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
               });
               handleClose();
             }}
-            className="flex-1 bg-primary hover:bg-primary-hover text-white py-3.5 px-5 rounded-xl font-black text-sm flex items-center justify-between shadow-lg shadow-orange-950/10 hover:shadow-orange-950/25 transition-all duration-300 hover:-translate-y-0.5 active:scale-98 cursor-pointer group"
+            disabled={!isAvailable}
+            className={`flex-1 py-3.5 px-5 rounded-xl font-black text-sm flex items-center justify-between transition-all duration-300 ${
+              isAvailable
+                ? "bg-primary hover:bg-primary-hover text-white shadow-lg shadow-orange-950/10 hover:shadow-orange-950/25 hover:-translate-y-0.5 active:scale-98 cursor-pointer group"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
-            <span>Adicionar ao carrinho</span>
-            <span className="flex items-center gap-1.5">
-              <span className="opacity-60 text-xs">•</span>
-              <span>R$ {finalPrice.toFixed(2)}</span>
-              <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-            </span>
+            <span>{isAvailable ? "Adicionar ao carrinho" : "Item pausado no momento"}</span>
+            {isAvailable && (
+              <span className="flex items-center gap-1.5">
+                <span className="opacity-60 text-xs">•</span>
+                <span>R$ {finalPrice.toFixed(2)}</span>
+                <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+              </span>
+            )}
           </button>
         </div>
       </div>
