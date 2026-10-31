@@ -10,32 +10,6 @@ type Props = {
   onAddToCart: (product: any) => void;
 };
 
-// Map ingredients per product type
-const ingredientMap: Record<string, string[]> = {
-  frango: ["Macarrão Yakisoba", "Frango grelhado", "Brócolis", "Cenoura", "Acelga", "Repolho", "Molho especial da casa"],
-  carne: ["Macarrão Yakisoba", "Carne bovina macia", "Brócolis", "Cebola", "Cenoura", "Repolho", "Molho especial da casa"],
-  camarão: ["Macarrão Yakisoba", "Camarão selecionado", "Brócolis", "Cenoura", "Acelga", "Repolho", "Molho especial da casa"],
-  camarao: ["Macarrão Yakisoba", "Camarão selecionado", "Brócolis", "Cenoura", "Acelga", "Repolho", "Molho especial da casa"],
-  misto: ["Macarrão Yakisoba", "Carne bovina", "Frango grelhado", "Brócolis", "Cenoura", "Repolho", "Molho especial da casa"],
-  especial: ["Macarrão Yakisoba", "Carne bovina", "Frango", "Camarão", "Brócolis", "Cebola", "Cenoura", "Repolho", "Molho especial da casa"],
-  vegetariano: ["Macarrão Yakisoba", "Brócolis", "Cenoura", "Acelga", "Cebola", "Pimentão", "Repolho", "Molho shoyu especial"],
-  // Sushi / Hot items
-  temaky: ["Arroz japonês", "Alga nori", "Recheio (salmão/atum/seleção)", "Cebolinha", "Molho especial"],
-  "hot temaky": ["Arroz japonês", "Alga nori", "Recheio quente", "Cebolinha", "Molho especial"],
-  "hot roll": ["Arroz japonês", "Nori", "Recheio cremoso (cream cheese/salmão)", "Empanado e frito", "Molho tarê"],
-  hotroll: ["Arroz japonês", "Nori", "Recheio cremoso (cream cheese/salmão)", "Empanado e frito", "Molho tarê"],
-  filadelfia: ["Arroz japonês", "Nori", "Cream cheese", "Salmão", "Cebolinha"],
-  filadélfia: ["Arroz japonês", "Nori", "Cream cheese", "Salmão", "Cebolinha"],
-};
-
-function getIngredients(name: string): string[] {
-  const lower = name.toLowerCase();
-  for (const key of Object.keys(ingredientMap)) {
-    if (lower.includes(key)) return ingredientMap[key];
-  }
-  return ["Macarrão Yakisoba", "Ingredientes frescos", "Molho especial da casa"];
-}
-
 export default function ProductModal({ open, product, onClose, onAddToCart }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [observation, setObservation] = useState("");
@@ -95,10 +69,6 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
     setVisible(false);
     setTimeout(onClose, 250);
   };
-
-  const ingredients = getIngredients(product.name);
-
-  
 
   return (
     <div
@@ -168,24 +138,6 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                 ESGOTADO
               </div>
             )}
-          </div>
-
-          {/* ── Ingredients section ── */}
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">
-              Ingredientes
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {ingredients.map((ing, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-600 text-[11px] font-semibold px-3 py-1.5 rounded-full"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                  {ing}
-                </span>
-              ))}
-            </div>
           </div>
 
           {/* ── Extras section ── */}
