@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import type { Product } from "../data/products";
-import { extras } from "../data/extras";
+import { useState, useEffect, useMemo } from "react";
+import type { Product, ProductExtra } from "../data/products";
+import { getDefaultExtrasForProduct } from "../data/extras";
 import { X, Plus, Minus, Check, ChevronRight } from "lucide-react";
 
 type Props = {
@@ -39,23 +39,34 @@ function getIngredients(name: string): string[] {
 export default function ProductModal({ open, product, onClose, onAddToCart }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [observation, setObservation] = useState("");
-  const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<(string | number)[]>([]);
   const [activeExtraCategory, setActiveExtraCategory] = useState("Adicionais");
   const [visible, setVisible] = useState(false);
 
+  const productExtras: ProductExtra[] = useMemo(() => {
+    if (!product) return [];
+    if (product.extras !== undefined) {
+      return product.extras.filter((e) => e.available !== false);
+    }
+    return getDefaultExtrasForProduct(product.name).filter((e) => e.available !== false);
+  }, [product]);
+
+  const extraCategories = useMemo(() => {
+    return Array.from(new Set(productExtras.map((e) => e.category?.trim() || "Adicionais")));
+  }, [productExtras]);
+
   useEffect(() => {
-    if (open) {
+    if (open && product) {
       setQuantity(1);
       setObservation("");
       setSelectedExtras([]);
-      // choose sensible default extras category depending on product type
-      const lowerName = product?.name?.toLowerCase() ?? "";
-      const isSushi = /hot|temaky|filad/i.test(lowerName);
-      const allCategories = Array.from(new Set(extras.map((e) => e.category)));
-      const allowedCategories = isSushi
-        ? allCategories.filter((c) => c.toLowerCase() === "sushi")
-        : allCategories;
-      setActiveExtraCategory(allowedCategories[0] ?? "Adicionais");
+
+      const initialExtras = product.extras !== undefined
+        ? product.extras.filter((e) => e.available !== false)
+        : getDefaultExtrasForProduct(product.name).filter((e) => e.available !== false);
+
+      const cats = Array.from(new Set(initialExtras.map((e) => e.category?.trim() || "Adicionais")));
+      setActiveExtraCategory(cats[0] ?? "Adicionais");
       // Small delay so CSS transition plays
       requestAnimationFrame(() => setVisible(true));
     } else {
@@ -65,7 +76,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
 
   if (!open || !product) return null;
 
-  function toggleExtra(id: number) {
+  function toggleExtra(id: string | number) {
     setSelectedExtras((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
@@ -73,9 +84,9 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
 
   const isAvailable = product.available !== false;
 
-  const extrasPrice = extras
+  const extrasPrice = productExtras
     .filter((e) => selectedExtras.includes(e.id))
-    .reduce((t, e) => t + e.price, 0);
+    .reduce((t, e) => t + Number(e.price || 0), 0);
 
   const basePrice = product.promotionalPrice ?? product.price;
   const finalPrice = (basePrice + extrasPrice) * quantity;
@@ -178,80 +189,75 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
           </div>
 
           {/* ── Extras section ── */}
-          <div className="px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between mb-3 gap-3">
-              <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                Adicionais
-              </h3>
-              <span className="text-[10px] text-gray-400 font-semibold">Opcional</span>
-            </div>
+          {productExtras.length > 0 && (
+            <div className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-3 gap-3">
+                <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                  Adicionais
+                </h3>
+                <span className="text-[10px] text-gray-400 font-semibold">Opcional</span>
+              </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
-              {(() => {
-                const lowerName = product?.name?.toLowerCase() ?? "";
-                const isSushi = /hot|temaky|filad/i.test(lowerName);
-                const categories = Array.from(new Set(extras.map((extra) => extra.category)));
-                const visibleCategories = isSushi
-                  ? categories.filter((c) => c.toLowerCase() === "sushi")
-                  : categories;
-
-                return visibleCategories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setActiveExtraCategory(category)}
-                    className={`px-3 py-2 rounded-full text-[12px] font-semibold transition-all ${activeExtraCategory === category
-                        ? "bg-primary text-white shadow-md shadow-orange-950/20"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              {extraCategories.length > 1 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {extraCategories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => setActiveExtraCategory(category)}
+                      className={`px-3 py-2 rounded-full text-[12px] font-semibold transition-all cursor-pointer ${
+                        activeExtraCategory === category
+                          ? "bg-primary text-white shadow-md shadow-orange-950/20"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
-                  >
-                    {category}
-                  </button>
-                ));
-              })()}
-            </div>
-
-            <div className="space-y-2">
-              {extras
-                .filter((extra) => {
-                  // only show extras that match the active category and are allowed for this product
-                  const lowerName = product?.name?.toLowerCase() ?? "";
-                  const isSushi = /hot|temaky|filad/i.test(lowerName);
-                  if (isSushi) {
-                    // For Hot items show only Tarê and Shoyu
-                    const n = extra.name.toLowerCase();
-                    return n.includes("tar") || n.includes("shoyu");
-                  }
-                  if (extra.category.toLowerCase() !== activeExtraCategory.toLowerCase()) return false;
-                  return extra.category === activeExtraCategory;
-                })
-                .map((extra) => {
-                  const isChecked = selectedExtras.includes(extra.id);
-                  return (
-                    <label
-                      key={extra.id}
-                      onClick={() => toggleExtra(extra.id)}
-                      className={`flex items-center justify-between rounded-xl p-3.5 cursor-pointer select-none transition-all duration-200 border ${isChecked
-                          ? "border-primary bg-orange-50/60"
-                          : "border-gray-100 bg-gray-50/50 hover:border-gray-200"
-                        }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 shrink-0 ${isChecked ? "bg-primary" : "border border-gray-300 bg-white"
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {productExtras
+                  .filter((extra) => {
+                    if (extraCategories.length <= 1) return true;
+                    return (extra.category?.trim() || "Adicionais") === activeExtraCategory;
+                  })
+                  .map((extra) => {
+                    const isChecked = selectedExtras.includes(extra.id);
+                    return (
+                      <label
+                        key={extra.id}
+                        onClick={() => toggleExtra(extra.id)}
+                        className={`flex items-center justify-between rounded-xl p-3.5 cursor-pointer select-none transition-all duration-200 border ${
+                          isChecked
+                            ? "border-primary bg-orange-50/60"
+                            : "border-gray-100 bg-gray-50/50 hover:border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 shrink-0 ${
+                              isChecked ? "bg-primary" : "border border-gray-300 bg-white"
                             }`}
-                        >
-                          {isChecked && <Check size={12} className="text-white stroke-3" />}
+                          >
+                            {isChecked && <Check size={12} className="text-white stroke-3" />}
+                          </div>
+                          <span className="text-[13px] font-semibold text-gray-700">{extra.name}</span>
                         </div>
-                        <span className="text-[13px] font-semibold text-gray-700">{extra.name}</span>
-                      </div>
-                      <span className={`text-[12px] font-bold ${extra.price > 0 ? "text-green-600" : "text-gray-400"}`}>
-                        {extra.price > 0 ? `+ R$ ${extra.price.toFixed(2)}` : "Grátis"}
-                      </span>
-                    </label>
-                  );
-                })}
+                        <span
+                          className={`text-[12px] font-bold ${
+                            Number(extra.price) > 0 ? "text-green-600" : "text-gray-400"
+                          }`}
+                        >
+                          {Number(extra.price) > 0 ? `+ R$ ${Number(extra.price).toFixed(2)}` : "Grátis"}
+                        </span>
+                      </label>
+                    );
+                  })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* ── Observation ── */}
           <div className="px-6 py-4">
@@ -303,7 +309,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                 ...product,
                 quantity,
                 observation,
-                extras: extras.filter((e) => selectedExtras.includes(e.id)),
+                extras: productExtras.filter((e) => selectedExtras.includes(e.id)),
                 price: basePrice + extrasPrice,
               });
               handleClose();

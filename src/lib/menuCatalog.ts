@@ -1,5 +1,8 @@
-import { products, type Product } from "../data/products";
+import { products, type Product, type ProductExtra } from "../data/products";
+import { getDefaultExtrasForProduct } from "../data/extras";
 import { supabase } from "../services/supabase";
+
+export type { ProductExtra };
 
 export type MenuCategory = {
   id: string;
@@ -12,6 +15,7 @@ export type MenuProduct = Product & {
   categoryId: string;
   order: number;
   available?: boolean;
+  extras?: ProductExtra[];
 };
 
 export type MenuCatalog = {
@@ -26,7 +30,12 @@ const DEFAULT_CATEGORY_ID = "yakissobas";
 export function normalizeCatalog(catalog: MenuCatalog): MenuCatalog {
   return {
     categories: [...(catalog.categories || [])].sort((a, b) => a.order - b.order),
-    products: [...(catalog.products || [])].sort((a, b) => a.order - b.order),
+    products: [...(catalog.products || [])]
+      .map((p) => ({
+        ...p,
+        extras: Array.isArray(p.extras) ? p.extras : undefined,
+      }))
+      .sort((a, b) => a.order - b.order),
   };
 }
 
@@ -42,6 +51,7 @@ export function getDefaultMenuCatalog(): MenuCatalog {
       ...product,
       categoryId: product.categoryId || DEFAULT_CATEGORY_ID,
       order: index,
+      extras: product.extras ?? getDefaultExtrasForProduct(product.name),
     })),
   });
 }

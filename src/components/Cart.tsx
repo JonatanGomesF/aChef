@@ -11,9 +11,10 @@ type CartItem = {
   observation?: string;
   promotionActive?: boolean;
   extras?: {
-    id: number;
+    id: string | number;
     name: string;
     price: number;
+    category?: string;
   }[];
 };
 

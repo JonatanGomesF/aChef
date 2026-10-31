@@ -10,6 +10,14 @@ import hotFiladelfia from "../assets/filadel.jpg";
 import parmegianaImg from "../assets/parmegiana.jpg";
 import yakisobaGourmetImg from "../assets/yakisoba_gourmet.jpg";
 
+export type ProductExtra = {
+  id: string | number;
+  name: string;
+  price: number;
+  category?: string;
+  available?: boolean;
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -21,6 +29,7 @@ export type Product = {
   promotionActive?: boolean;
   available?: boolean;
   categoryId?: string;
+  extras?: ProductExtra[];
 };
 
 export const products: Product[] = [

@@ -20,9 +20,10 @@ export type Product = {
   observation?: string;
 
   extras?: {
-    id: number;
+    id: number | string;
     name: string;
     price: number;
+    category?: string;
   }[];
 
   promotionalPrice?: number;
@@ -78,11 +79,15 @@ export function CartProvider({ children }: ProviderProps) {
 
   const addToCart = (product: Product) => {
     setCartItems((currentItems) => {
+      const serializeExtras = (exts?: { id: number | string }[]) =>
+        (exts || []).map((e) => String(e.id)).sort().join(",");
+
       const existingItem = currentItems.find(
         (item) =>
           item.id === product.id &&
           item.size === product.size &&
-          item.observation === product.observation
+          (item.observation || "") === (product.observation || "") &&
+          serializeExtras(item.extras) === serializeExtras(product.extras)
       );
 
       if (existingItem) {

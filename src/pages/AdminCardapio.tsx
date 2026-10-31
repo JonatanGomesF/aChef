@@ -11,7 +11,9 @@ import {
   type MenuCatalog,
   type MenuCategory,
   type MenuProduct,
+  type ProductExtra,
 } from "../lib/menuCatalog";
+import { getDefaultExtrasForProduct } from "../data/extras";
 import {
   AlertTriangle,
   ArrowDown,
@@ -22,12 +24,14 @@ import {
   CloudCheck,
   GripVertical,
   ImagePlus,
+  Layers,
   Link as LinkIcon,
   Loader2,
   PauseCircle,
   Pencil,
   PlayCircle,
   Plus,
+  PlusCircle,
   RotateCcw,
   Save,
   Search,
@@ -44,6 +48,7 @@ type ProductForm = {
   size: string;
   image: string;
   categoryId: string;
+  extras: ProductExtra[];
 };
 
 const emptyForm: ProductForm = {
@@ -54,9 +59,14 @@ const emptyForm: ProductForm = {
   size: "",
   image: "",
   categoryId: "yakissobas",
+  extras: [],
 };
 
 function toForm(product: MenuProduct): ProductForm {
+  const extras = product.extras !== undefined
+    ? [...product.extras]
+    : [...getDefaultExtrasForProduct(product.name)];
+
   return {
     id: product.id,
     name: product.name,
@@ -65,6 +75,7 @@ function toForm(product: MenuProduct): ProductForm {
     size: product.size,
     image: product.image,
     categoryId: product.categoryId,
+    extras,
   };
 }
 
@@ -137,6 +148,15 @@ export default function AdminCardapio() {
   const [productToDelete, setProductToDelete] = useState<MenuProduct | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(null);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+
+  // Modal de gerenciamento de adicionais (por item)
+  const [extrasModalProduct, setExtrasModalProduct] = useState<MenuProduct | null>(null);
+  const [modalExtras, setModalExtras] = useState<ProductExtra[]>([]);
+  const [editingExtraId, setEditingExtraId] = useState<string | number | null>(null);
+  const [extraName, setExtraName] = useState("");
+  const [extraPrice, setExtraPrice] = useState("");
+  const [extraCategory, setExtraCategory] = useState("Adicionais");
+  const [extrasFilterCategory, setExtrasFilterCategory] = useState("all");
 
   const showToast = (type: "success" | "error" | "info", message: string) => {
     setToast({ type, message });
@@ -340,6 +360,7 @@ export default function AdminCardapio() {
               size: form.size.trim(),
               image: form.image.trim(),
               categoryId: form.categoryId,
+              extras: form.extras ?? p.extras ?? [],
             }
           : p
       );
@@ -361,6 +382,7 @@ export default function AdminCardapio() {
       image: form.image.trim(),
       categoryId: form.categoryId,
       order: productsInCategory.length,
+      extras: form.extras ?? [],
     };
 
     const nextProducts = [...catalog.products, newProduct];
@@ -418,6 +440,169 @@ export default function AdminCardapio() {
         ? `Item "${prod.name}" pausado no cardápio!`
         : `Item "${prod.name}" liberado no cardápio!`
     );
+  };
+
+  // ── GERENCIAMENTO DE ADICIONAIS POR ITEM (CRIAR, DELETAR, ATUALIZAR) ──
+  const openExtrasModal = (product: MenuProduct) => {
+    setExtrasModalProduct(product);
+    const existing = product.extras !== undefined
+      ? product.extras.map((e) => ({ ...e }))
+      : getDefaultExtrasForProduct(product.name).map((e) => ({ ...e }));
+    setModalExtras(existing);
+    setEditingExtraId(null);
+    setExtraName("");
+    setExtraPrice("");
+    setExtraCategory("Adicionais");
+    setExtrasFilterCategory("all");
+  };
+
+  const closeExtrasModal = () => {
+    setExtrasModalProduct(null);
+    setModalExtras([]);
+    setEditingExtraId(null);
+    setExtraName("");
+    setExtraPrice("");
+  };
+
+  const openFormExtrasModal = () => {
+    const dummyProduct: MenuProduct = {
+      id: form.id ?? 0,
+      name: form.name.trim() || "Item em Cadastro",
+      description: form.description,
+      price: Number(form.price.replace(",", ".")) || 0,
+      size: form.size || "1 un",
+      image: form.image,
+      categoryId: form.categoryId,
+      order: 0,
+      extras: [...(form.extras || [])],
+    };
+    setExtrasModalProduct(dummyProduct);
+    setModalExtras([...(form.extras || [])]);
+    setEditingExtraId(null);
+    setExtraName("");
+    setExtraPrice("");
+    setExtraCategory("Adicionais");
+    setExtrasFilterCategory("all");
+  };
+
+  const handleSaveOrAddExtra = () => {
+    const trimmedName = extraName.trim();
+    if (!trimmedName) {
+      showToast("error", "Informe o nome do adicional.");
+      return;
+    }
+
+    const priceNum = Number(extraPrice.replace(",", "."));
+    if (isNaN(priceNum) || priceNum < 0) {
+      showToast("error", "Informe um preço válido maior ou igual a zero (0 = Grátis).");
+      return;
+    }
+
+    const categoryTrimmed = extraCategory.trim() || "Adicionais";
+
+    if (editingExtraId !== null) {
+      // Atualização de adicional existente (Update)
+      setModalExtras((prev) =>
+        prev.map((extra) =>
+          extra.id === editingExtraId
+            ? {
+                ...extra,
+                name: trimmedName,
+                price: priceNum,
+                category: categoryTrimmed,
+              }
+            : extra
+        )
+      );
+      setEditingExtraId(null);
+      setExtraName("");
+      setExtraPrice("");
+      showToast("info", `Adicional "${trimmedName}" atualizado!`);
+    } else {
+      // Criação de novo adicional (Create)
+      const newExtra: ProductExtra = {
+        id: `ext-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name: trimmedName,
+        price: priceNum,
+        category: categoryTrimmed,
+        available: true,
+      };
+      setModalExtras((prev) => [...prev, newExtra]);
+      setExtraName("");
+      setExtraPrice("");
+      showToast("info", `Adicional "${trimmedName}" adicionado à lista!`);
+    }
+  };
+
+  const handleStartEditExtra = (extra: ProductExtra) => {
+    setEditingExtraId(extra.id);
+    setExtraName(extra.name);
+    setExtraPrice(String(extra.price));
+    setExtraCategory(extra.category || "Adicionais");
+  };
+
+  const handleCancelEditExtra = () => {
+    setEditingExtraId(null);
+    setExtraName("");
+    setExtraPrice("");
+    setExtraCategory("Adicionais");
+  };
+
+  const handleDeleteExtra = (extraId: string | number) => {
+    setModalExtras((prev) => prev.filter((e) => e.id !== extraId));
+    if (editingExtraId === extraId) {
+      handleCancelEditExtra();
+    }
+  };
+
+  const handleToggleExtraAvailability = (extraId: string | number) => {
+    setModalExtras((prev) =>
+      prev.map((e) => (e.id === extraId ? { ...e, available: e.available === false ? true : false } : e))
+    );
+  };
+
+  const handleMoveExtraOrder = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= modalExtras.length) return;
+    setModalExtras((prev) => moveItem(prev, index, targetIndex));
+  };
+
+  const handleResetExtrasToDefault = () => {
+    if (!extrasModalProduct) return;
+    const defaults = getDefaultExtrasForProduct(extrasModalProduct.name);
+    setModalExtras(defaults.map((e) => ({ ...e })));
+    handleCancelEditExtra();
+    showToast("info", "Adicionais padrão restaurados nesta janela.");
+  };
+
+  const handleClearAllExtras = () => {
+    setModalExtras([]);
+    handleCancelEditExtra();
+    showToast("info", "Todos os adicionais foram removidos desta lista.");
+  };
+
+  const handleSaveModalExtrasToProduct = async () => {
+    if (!extrasModalProduct) return;
+
+    // Se o modal veio do formulário de cadastro/edição na barra lateral:
+    if (extrasModalProduct.id === 0 || form.id === extrasModalProduct.id) {
+      setForm((prev) => ({ ...prev, extras: [...modalExtras] }));
+    }
+
+    if (extrasModalProduct.id !== 0) {
+      // Salva direto no produto do catálogo e sincroniza na nuvem
+      const nextProducts = catalog.products.map((p) =>
+        p.id === extrasModalProduct.id ? { ...p, extras: [...modalExtras] } : p
+      );
+      await persist(
+        { ...catalog, products: nextProducts },
+        `Adicionais de "${extrasModalProduct.name}" atualizados com sucesso!`
+      );
+    } else {
+      showToast("success", "Adicionais vinculados ao formulário do prato!");
+    }
+
+    closeExtrasModal();
   };
 
   const handleImageFile = async (file?: File) => {
@@ -784,6 +969,70 @@ export default function AdminCardapio() {
                 </select>
               </div>
 
+              {/* Adicionais do Item */}
+              <div className="pt-3 border-t border-white/[0.06] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                      Adicionais do Item
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/[0.06] text-white/60 text-[10px] font-black">
+                      {form.extras?.length || 0}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openFormExtrasModal}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-[#e06900] hover:underline cursor-pointer"
+                  >
+                    <PlusCircle size={12} />
+                    <span>Gerenciar Adicionais</span>
+                  </button>
+                </div>
+
+                {form.extras && form.extras.length > 0 ? (
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                    {form.extras.map((extra) => (
+                      <div
+                        key={extra.id}
+                        className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <span className="text-white/80 font-medium truncate">{extra.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/[0.05] text-white/40 border border-white/[0.06]">
+                            {extra.category || "Adicionais"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-[11px] font-bold ${Number(extra.price) > 0 ? "text-emerald-400" : "text-white/40"}`}>
+                            {Number(extra.price) > 0 ? `+ R$ ${Number(extra.price).toFixed(2)}` : "Grátis"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setForm((prev) => ({ ...prev, extras: prev.extras.filter((e) => e.id !== extra.id) }))}
+                            className="p-1 rounded text-white/30 hover:text-red-400 cursor-pointer"
+                            title="Remover adicional"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl border border-dashed border-white/[0.08] text-center text-white/30 text-xs">
+                    Nenhum adicional vinculado.{" "}
+                    <button
+                      type="button"
+                      onClick={openFormExtrasModal}
+                      className="text-primary hover:underline font-bold cursor-pointer"
+                    >
+                      Clique para adicionar
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Botões de Ação */}
               <div className="pt-2 flex flex-col gap-2">
                 <button
@@ -1028,6 +1277,21 @@ export default function AdminCardapio() {
                                   <span className="text-sm font-black text-emerald-400">
                                     R$ {product.price.toFixed(2)}
                                   </span>
+
+                                  {/* Botão Pill: Gerenciar Adicionais deste Prato */}
+                                  <button
+                                    type="button"
+                                    onClick={() => openExtrasModal(product)}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold border border-orange-500/30 bg-orange-500/10 text-orange-300 hover:bg-orange-500/20 hover:border-orange-500/50 transition-all cursor-pointer shadow-sm group/btn"
+                                    title="Gerenciar adicionais deste prato (criar, deletar ou atualizar)"
+                                  >
+                                    <PlusCircle size={12} className="text-primary group-hover/btn:scale-110 transition-transform" />
+                                    <span>
+                                      {product.extras !== undefined
+                                        ? `${product.extras.length} adicional(is)`
+                                        : `${getDefaultExtrasForProduct(product.name).length} adicional(is)`}
+                                    </span>
+                                  </button>
                                   {isBeingEdited && (
                                     <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/30">
                                       Em edição
@@ -1083,6 +1347,16 @@ export default function AdminCardapio() {
                                   className="p-2 rounded-xl border border-white/[0.08] text-white/30 hover:text-white hover:bg-white/5 disabled:opacity-15 disabled:pointer-events-none cursor-pointer"
                                 >
                                   <ArrowDown size={13} />
+                                </button>
+
+                                {/* Botão Gerenciar Adicionais (Ícone) */}
+                                <button
+                                  type="button"
+                                  onClick={() => openExtrasModal(product)}
+                                  title="Gerenciar adicionais deste prato (criar, deletar, atualizar)"
+                                  className="p-2 rounded-xl border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 hover:text-white hover:border-orange-500 transition-all cursor-pointer"
+                                >
+                                  <Layers size={14} />
                                 </button>
 
                                 {/* Botão Editar */}
@@ -1267,6 +1541,377 @@ export default function AdminCardapio() {
                 className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all shadow-lg shadow-amber-950/40 cursor-pointer"
               >
                 Sim, Restaurar Padrão
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: GERENCIAMENTO DE ADICIONAIS DO ITEM (CRIAR, DELETAR, ATUALIZAR) ── */}
+      {extrasModalProduct && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
+          onClick={closeExtrasModal}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl rounded-3xl bg-[#171717] border border-white/[0.1] p-5 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
+          >
+            {/* Header do Modal */}
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/[0.08] flex-shrink-0">
+              <div className="flex items-center gap-3.5 min-w-0">
+                {extrasModalProduct.image ? (
+                  <img
+                    src={extrasModalProduct.image}
+                    alt={extrasModalProduct.name}
+                    className="w-14 h-14 rounded-2xl object-cover bg-black/40 border border-white/[0.08] flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-primary flex-shrink-0">
+                    <Layers size={24} />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-white font-black text-lg truncate">
+                      Adicionais: {extrasModalProduct.name}
+                    </h3>
+                    <span className="px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/30 text-[10px] font-black uppercase">
+                      {extrasModalProduct.size || "Item"}
+                    </span>
+                  </div>
+                  <p className="text-white/40 text-xs mt-0.5">
+                    Crie, edite ou remova os adicionais e opções que o cliente poderá escolher para este prato.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeExtrasModal}
+                className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-all cursor-pointer flex-shrink-0"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Conteúdo com rolagem */}
+            <div className="flex-1 overflow-y-auto space-y-5 pr-1 -mr-1">
+              {/* Formulário: Criar / Editar Adicional */}
+              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-white flex items-center gap-2">
+                    {editingExtraId !== null ? (
+                      <>
+                        <Pencil size={13} className="text-primary" />
+                        <span>Editar Adicional Selecionado</span>
+                      </>
+                    ) : (
+                      <>
+                        <PlusCircle size={13} className="text-primary" />
+                        <span>Cadastrar Novo Adicional</span>
+                      </>
+                    )}
+                  </span>
+                  {editingExtraId !== null && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEditExtra}
+                      className="text-[11px] font-bold text-white/40 hover:text-white cursor-pointer"
+                    >
+                      Cancelar Edição
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_160px] gap-3">
+                  {/* Nome do adicional */}
+                  <div>
+                    <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">
+                      Nome do Adicional *
+                    </label>
+                    <input
+                      type="text"
+                      value={extraName}
+                      onChange={(e) => setExtraName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveOrAddExtra()}
+                      placeholder="Ex: Bacon Extra (80g), Molho..."
+                      className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary rounded-xl px-3.5 py-2.5 text-white text-xs outline-none placeholder:text-white/20"
+                    />
+                  </div>
+
+                  {/* Preço */}
+                  <div>
+                    <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">
+                      Preço (R$) *
+                    </label>
+                    <input
+                      type="text"
+                      value={extraPrice}
+                      onChange={(e) => setExtraPrice(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveOrAddExtra()}
+                      placeholder="0.00 (Grátis)"
+                      className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary rounded-xl px-3.5 py-2.5 text-white text-xs outline-none placeholder:text-white/20 font-bold"
+                    />
+                  </div>
+
+                  {/* Categoria / Grupo */}
+                  <div>
+                    <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">
+                      Categoria / Grupo
+                    </label>
+                    <input
+                      type="text"
+                      value={extraCategory}
+                      onChange={(e) => setExtraCategory(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveOrAddExtra()}
+                      placeholder="Ex: Adicionais, Bebidas..."
+                      className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary rounded-xl px-3.5 py-2.5 text-white text-xs outline-none placeholder:text-white/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Sugestões rápidas de categoria + Botão de Ação */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-white/30 font-semibold mr-1">Sugestões:</span>
+                    {["Adicionais", "Molhos", "Refrigerantes", "Sushi", "Bebidas", "Acompanhamentos"].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setExtraCategory(cat)}
+                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                          extraCategory.toLowerCase() === cat.toLowerCase()
+                            ? "bg-primary/20 text-primary border-primary/40 font-bold"
+                            : "bg-white/[0.03] text-white/40 border-white/[0.06] hover:text-white/70"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveOrAddExtra}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary hover:bg-[#e06900] px-4 py-2 text-xs font-black text-white shadow-md shadow-orange-950/30 transition-all cursor-pointer active:scale-98"
+                  >
+                    {editingExtraId !== null ? <Check size={14} /> : <Plus size={14} />}
+                    <span>{editingExtraId !== null ? "Salvar Alteração" : "Adicionar à Lista"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Lista de Adicionais Existentes */}
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-white/[0.06]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-bold text-xs uppercase tracking-wider">
+                      Adicionais Cadastrados
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/[0.08] text-white/80 text-[11px] font-black">
+                      {modalExtras.length}
+                    </span>
+                  </div>
+
+                  {/* Ações rápidas */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleResetExtrasToDefault}
+                      title="Restaura os adicionais padrão sugeridos para este tipo de prato"
+                      className="text-[11px] font-bold text-white/40 hover:text-white flex items-center gap-1 transition-all cursor-pointer"
+                    >
+                      <RotateCcw size={12} />
+                      <span>Restaurar Padrão</span>
+                    </button>
+                    <span className="text-white/20">•</span>
+                    <button
+                      type="button"
+                      onClick={handleClearAllExtras}
+                      title="Deixa este prato sem nenhum adicional"
+                      className="text-[11px] font-bold text-red-400/70 hover:text-red-300 flex items-center gap-1 transition-all cursor-pointer"
+                    >
+                      <Trash2 size={12} />
+                      <span>Limpar Todos</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filtro de categorias caso haja mais de uma */}
+                {(() => {
+                  const uniqueCats = Array.from(new Set(modalExtras.map((e) => e.category?.trim() || "Adicionais")));
+                  if (uniqueCats.length <= 1) return null;
+
+                  return (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] text-white/30 font-semibold mr-1">Filtrar:</span>
+                      <button
+                        type="button"
+                        onClick={() => setExtrasFilterCategory("all")}
+                        className={`text-[10px] px-2.5 py-1 rounded-lg border font-bold transition-all cursor-pointer ${
+                          extrasFilterCategory === "all"
+                            ? "bg-white/20 text-white border-white/30"
+                            : "bg-white/[0.03] text-white/40 border-white/[0.06] hover:text-white"
+                        }`}
+                      >
+                        Todos ({modalExtras.length})
+                      </button>
+                      {uniqueCats.map((cat) => {
+                        const count = modalExtras.filter((e) => (e.category?.trim() || "Adicionais") === cat).length;
+                        return (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setExtrasFilterCategory(cat)}
+                            className={`text-[10px] px-2.5 py-1 rounded-lg border font-bold transition-all cursor-pointer ${
+                              extrasFilterCategory === cat
+                                ? "bg-primary text-white border-primary"
+                                : "bg-white/[0.03] text-white/40 border-white/[0.06] hover:text-white"
+                            }`}
+                          >
+                            {cat} ({count})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* Itens */}
+                {modalExtras.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/[0.08] p-8 text-center text-white/30 text-xs space-y-1">
+                    <p className="font-semibold">Nenhum adicional vinculado a este prato.</p>
+                    <p className="text-[11px] text-white/20">
+                      O cliente fará o pedido sem opções de adicionais. Utilize o formulário acima para adicionar caso desejar!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {modalExtras
+                      .map((extra, index) => ({ extra, index }))
+                      .filter(({ extra }) => {
+                        if (extrasFilterCategory === "all") return true;
+                        return (extra.category?.trim() || "Adicionais") === extrasFilterCategory;
+                      })
+                      .map(({ extra, index }) => {
+                        const isEditingThis = editingExtraId === extra.id;
+
+                        return (
+                          <div
+                            key={extra.id}
+                            className={`rounded-xl border ${
+                              isEditingThis
+                                ? "border-primary bg-primary/[0.08]"
+                                : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                            } p-3 flex items-center justify-between gap-3 transition-all`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              {/* Reordenar */}
+                              <div className="flex flex-col gap-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveExtraOrder(index, "up")}
+                                  disabled={index === 0}
+                                  className="text-white/20 hover:text-white disabled:opacity-10 cursor-pointer disabled:pointer-events-none"
+                                >
+                                  <ArrowUp size={11} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveExtraOrder(index, "down")}
+                                  disabled={index === modalExtras.length - 1}
+                                  className="text-white/20 hover:text-white disabled:opacity-10 cursor-pointer disabled:pointer-events-none"
+                                >
+                                  <ArrowDown size={11} />
+                                </button>
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-white font-bold text-xs truncate">
+                                    {extra.name}
+                                  </span>
+                                  <span className="px-2 py-0.2 rounded-md bg-white/[0.04] text-white/50 border border-white/[0.06] text-[10px] font-semibold">
+                                    {extra.category || "Adicionais"}
+                                  </span>
+                                  {extra.available === false && (
+                                    <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black uppercase">
+                                      Pausado
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              {/* Preço */}
+                              <span
+                                className={`text-xs font-black ${
+                                  Number(extra.price) > 0 ? "text-emerald-400" : "text-white/40"
+                                }`}
+                              >
+                                {Number(extra.price) > 0 ? `+ R$ ${Number(extra.price).toFixed(2)}` : "Grátis"}
+                              </span>
+
+                              {/* Ações: Pausar/Liberar, Editar, Excluir */}
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleExtraAvailability(extra.id)}
+                                  className={`p-1.5 rounded-lg border text-xs cursor-pointer transition-all ${
+                                    extra.available === false
+                                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                                      : "border-white/[0.08] text-white/30 hover:text-white hover:bg-white/10"
+                                  }`}
+                                  title={extra.available === false ? "Liberar este adicional" : "Pausar este adicional"}
+                                >
+                                  {extra.available === false ? <PlayCircle size={13} /> : <PauseCircle size={13} />}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEditExtra(extra)}
+                                  className="p-1.5 rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:bg-white/10 cursor-pointer transition-all"
+                                  title="Editar adicional"
+                                >
+                                  <Pencil size={13} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteExtra(extra.id)}
+                                  className="p-1.5 rounded-lg border border-red-500/20 text-red-400/60 hover:text-red-300 hover:bg-red-500/10 cursor-pointer transition-all"
+                                  title="Remover adicional"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between gap-3 flex-shrink-0">
+              <button
+                type="button"
+                onClick={closeExtrasModal}
+                className="px-4 py-2.5 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-xs font-bold text-white/70 hover:text-white transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveModalExtrasToProduct}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-[#e06900] px-6 py-2.5 text-xs font-black text-white shadow-xl shadow-orange-950/40 transition-all cursor-pointer active:scale-98"
+              >
+                <Save size={15} />
+                <span>Salvar Adicionais do Prato</span>
               </button>
             </div>
           </div>
