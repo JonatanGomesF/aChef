@@ -1,5 +1,5 @@
 import Hero from "../components/Hero";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import PromotionBanner from "../components/PromotionBanner";
 import ProductModal from "../components/ProductModal";
@@ -35,32 +35,68 @@ export default function Home() {
   const [availability, setAvailability] = useState(() => getProductAvailability());
   const [modalOpen, setModalOpen] = useState(false);
 
-  const availableProducts = catalog.products.map((product) => {
-    const category = catalog.categories.find((c) => c.id === product.categoryId);
-    const categoryAvailable = category?.available !== false;
-    const productAvailable = product.available !== false && availability[product.id] !== false;
-    return {
-      ...product,
-      available: categoryAvailable && productAvailable,
-    };
-  });
+  const availableProducts = useMemo(() => {
+    return catalog.products.map((product) => {
+      const category = catalog.categories.find((c) => c.id === product.categoryId);
+      const categoryAvailable = category?.available !== false;
+      const productAvailable = product.available !== false && availability[product.id] !== false;
+      return {
+        ...product,
+        available: categoryAvailable && productAvailable,
+      };
+    });
+  }, [catalog.products, catalog.categories, availability]);
+
+  const liveSelectedProduct = useMemo(() => {
+    if (!selectedProduct) return null;
+    return availableProducts.find((p) => p.id === selectedProduct.id) ?? selectedProduct;
+  }, [selectedProduct, availableProducts]);
 
   useEffect(() => {
     const updateCatalog = () => setCatalog(getMenuCatalog());
     const updateAvailability = () => setAvailability(getProductAvailability());
     const unsubscribeAvailability = subscribeProductAvailability(updateAvailability);
-    const unsubscribeCatalog = subscribeMenuCatalog((latest) => setCatalog(latest));
+    const unsubscribeCatalog = subscribeMenuCatalog((latest) => {
+      setCatalog(latest);
+    });
 
     // Busca o cardápio atualizado e estoque do Supabase
     fetchMenuCatalog().then((latest) => setCatalog(latest));
     fetchProductAvailability().then(setAvailability);
 
+    // Heartbeat inteligente a cada 3.5 segundos para garantir atualização em tempo real
+    // em qualquer dispositivo ou aba, mesmo se houver oscilação de rede
+    const heartbeat = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      fetchMenuCatalog().then((latest) => {
+        setCatalog((prev) => {
+          if (JSON.stringify(prev) !== JSON.stringify(latest)) {
+            return latest;
+          }
+          return prev;
+        });
+      });
+      fetchProductAvailability().then(setAvailability);
+    }, 3500);
+
+    const handleFocusSync = () => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        fetchMenuCatalog().then((latest) => setCatalog(latest));
+        fetchProductAvailability().then(setAvailability);
+      }
+    };
+
+    window.addEventListener("focus", handleFocusSync);
+    document.addEventListener("visibilitychange", handleFocusSync);
     window.addEventListener("storage", updateCatalog);
     window.addEventListener("storage", updateAvailability);
     window.addEventListener("yakinhome-menu-catalog-updated", updateCatalog);
     window.addEventListener(PRODUCT_AVAILABILITY_EVENT, updateAvailability);
 
     return () => {
+      clearInterval(heartbeat);
+      window.removeEventListener("focus", handleFocusSync);
+      document.removeEventListener("visibilitychange", handleFocusSync);
       window.removeEventListener("storage", updateCatalog);
       window.removeEventListener("storage", updateAvailability);
       window.removeEventListener("yakinhome-menu-catalog-updated", updateCatalog);
@@ -349,7 +385,7 @@ export default function Home() {
 
       <ProductModal
         open={modalOpen}
-        product={selectedProduct}
+        product={liveSelectedProduct}
         onClose={() => {
           setModalOpen(false);
           setSelectedProduct(null);

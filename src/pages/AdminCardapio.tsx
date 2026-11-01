@@ -14,6 +14,7 @@ import {
   type ProductExtra,
 } from "../lib/menuCatalog";
 import { getDefaultExtrasForProduct } from "../data/extras";
+import { setProductAvailability } from "../lib/productAvailability";
 import {
   AlertTriangle,
   ArrowDown,
@@ -310,10 +311,18 @@ export default function AdminCardapio() {
     const cat = catalog.categories.find((c) => c.id === categoryId);
     if (!cat) return;
     const willBePaused = cat.available !== false;
+    const nextAvailability = !willBePaused;
 
     const nextCategories = catalog.categories.map((c) =>
-      c.id === categoryId ? { ...c, available: !willBePaused } : c
+      c.id === categoryId ? { ...c, available: nextAvailability } : c
     );
+
+    // Se estiver pausando a categoria, reflete também em product_availability
+    catalog.products
+      .filter((p) => p.categoryId === categoryId)
+      .forEach((p) => {
+        setProductAvailability(p.id, nextAvailability ? (p.available !== false) : false).catch(() => {});
+      });
 
     await persist(
       { ...catalog, categories: nextCategories },
@@ -429,10 +438,14 @@ export default function AdminCardapio() {
     const prod = catalog.products.find((p) => p.id === productId);
     if (!prod) return;
     const willBePaused = prod.available !== false;
+    const nextAvailability = !willBePaused;
 
     const nextProducts = catalog.products.map((p) =>
-      p.id === productId ? { ...p, available: !willBePaused } : p
+      p.id === productId ? { ...p, available: nextAvailability } : p
     );
+
+    // Atualiza também o estoque em product_availability para sincronismo total
+    setProductAvailability(productId, nextAvailability).catch(() => {});
 
     await persist(
       { ...catalog, products: nextProducts },

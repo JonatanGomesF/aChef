@@ -85,10 +85,33 @@ export function getMenuCatalog(): MenuCatalog {
   }
 }
 
+// ── BUS DE COMUNICAÇÃO LOCAL INSTANTÂNEA ENTRE ABAS (BROADCASTCHANNEL) ──
+const localBroadcast =
+  typeof window !== "undefined" && "BroadcastChannel" in window
+    ? new BroadcastChannel("yakinhome_menu_catalog_bus")
+    : null;
+
+if (localBroadcast) {
+  localBroadcast.onmessage = (event) => {
+    if (event.data?.catalog) {
+      const normalized = normalizeCatalog(event.data.catalog);
+      if (typeof localStorage !== "undefined") {
+        try {
+          localStorage.setItem(MENU_CATALOG_STORAGE_KEY, JSON.stringify(normalized));
+        } catch {
+          // ignore
+        }
+      }
+      notifyMenuCatalogUpdated(normalized);
+      notifySubscribers(normalized);
+    }
+  };
+}
+
 /**
  * Salva localmente no localStorage e emite evento de sincronização instantânea
  */
-export function saveLocalMenuCatalog(catalog: MenuCatalog): MenuCatalog {
+export function saveLocalMenuCatalog(catalog: MenuCatalog, broadcastAcrossTabs = true): MenuCatalog {
   const normalized = normalizeCatalog(catalog);
   if (typeof localStorage !== "undefined") {
     try {
@@ -98,6 +121,13 @@ export function saveLocalMenuCatalog(catalog: MenuCatalog): MenuCatalog {
     }
   }
   notifyMenuCatalogUpdated(normalized);
+  if (broadcastAcrossTabs && localBroadcast) {
+    try {
+      localBroadcast.postMessage({ catalog: normalized });
+    } catch {
+      // ignore
+    }
+  }
   return normalized;
 }
 
@@ -117,7 +147,7 @@ export async function fetchMenuCatalog(): Promise<MenuCatalog> {
     if (!error && data?.theme_data) {
       const parsed = (data.theme_data.catalog || data.theme_data) as MenuCatalog;
       if (Array.isArray(parsed?.categories) && Array.isArray(parsed?.products)) {
-        return saveLocalMenuCatalog(parsed);
+        return saveLocalMenuCatalog(parsed, false);
       }
     }
 
@@ -130,7 +160,8 @@ export async function fetchMenuCatalog(): Promise<MenuCatalog> {
 
 /**
  * Salva o cardápio tanto localmente quanto no Supabase.
- * Salva localmente primeiro para resposta instantânea na UI, depois sincroniza na nuvem.
+ * Salva localmente primeiro para resposta instantânea na UI, depois sincroniza na nuvem
+ * e dispara broadcast em tempo real para todos os clientes conectados.
  */
 export async function saveMenuCatalog(
   catalog: MenuCatalog
@@ -159,6 +190,23 @@ export async function saveMenuCatalog(
     remoteError = err?.message || String(err);
   }
 
+  // Notifica assinantes locais da aba
+  notifySubscribers(normalized);
+
+  // Envia broadcast em tempo real via WebSocket do Supabase para todos os clientes conectados
+  try {
+    ensureRealtimeSubscription();
+    if (globalRealtimeChannel) {
+      globalRealtimeChannel.send({
+        type: "broadcast",
+        event: "menu-catalog-updated",
+        payload: { catalog: normalized, timestamp: Date.now() },
+      });
+    }
+  } catch (e) {
+    console.warn("Aviso ao enviar broadcast realtime:", e);
+  }
+
   return {
     success: savedToRemote,
     catalog: normalized,
@@ -170,27 +218,53 @@ export async function saveMenuCatalog(
 const subscribers = new Set<(catalog: MenuCatalog) => void>();
 let globalRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
 
+function notifySubscribers(catalog: MenuCatalog) {
+  subscribers.forEach((callback) => {
+    try {
+      callback(catalog);
+    } catch (e) {
+      console.error("Erro no callback do realtime de cardápio:", e);
+    }
+  });
+}
+
 function ensureRealtimeSubscription() {
   if (typeof window === "undefined" || globalRealtimeChannel) return;
 
   try {
     globalRealtimeChannel = supabase
-      .channel("menu-catalog-realtime-singleton")
+      .channel("menu-catalog-realtime-bus", {
+        config: {
+          broadcast: { self: false },
+        },
+      })
+      // 1. Escuta Broadcast direto via WebSocket (instantâneo entre dispositivos)
+      .on("broadcast", { event: "menu-catalog-updated" }, async (payload: any) => {
+        const remoteCatalog = payload?.payload?.catalog;
+        if (remoteCatalog && Array.isArray(remoteCatalog.categories) && Array.isArray(remoteCatalog.products)) {
+          const saved = saveLocalMenuCatalog(remoteCatalog, false);
+          notifySubscribers(saved);
+        } else {
+          const latest = await fetchMenuCatalog();
+          notifySubscribers(latest);
+        }
+      })
+      // 2. Escuta alterações no banco de dados Postgres (fallback se realtime DB ativo)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "site_theme", filter: "id=eq.2" },
-        async () => {
-          const latest = await fetchMenuCatalog();
-          subscribers.forEach((callback) => {
-            try {
-              callback(latest);
-            } catch (e) {
-              console.error("Erro no callback do realtime de cardápio:", e);
-            }
-          });
+        { event: "*", schema: "public", table: "site_theme" },
+        async (payload: any) => {
+          if (!payload?.new || (payload.new as any).id === 2) {
+            const latest = await fetchMenuCatalog();
+            notifySubscribers(latest);
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("[Cardápio] Canal realtime sincronizado com sucesso.");
+        }
+      });
   } catch (err) {
     console.warn("Não foi possível iniciar canal realtime do cardápio:", err);
   }
