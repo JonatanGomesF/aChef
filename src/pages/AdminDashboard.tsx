@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "../services/supabase";
 import AdminLayout from "../components/AdminLayout";
 import RevenueGraph from "../components/RevenueGraph";
+import { printOrderReceipt, generateQrCodeDataUrl } from "../services/usbPrinter";
 import {
   ShoppingBag,
   TrendingUp,
@@ -25,6 +26,8 @@ import {
   Truck,
   Check,
   Save,
+  Printer,
+  ExternalLink,
 } from "lucide-react";
 
 export type OrderItem = {
@@ -51,6 +54,10 @@ export type Order = {
   status: string;
   notes: string;
   created_at: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_url?: string | null;
+  location_accuracy?: number | null;
 };
 
 type DayRevenue = { day: string; orders_count: number; revenue: number };
@@ -191,6 +198,25 @@ export default function AdminDashboard() {
 
   const [deletingOrder, setDeletingOrder] = useState<Order | null>(null);
   const [viewingItemsOrder, setViewingItemsOrder] = useState<Order | null>(null);
+  const [viewingQrDataUrl, setViewingQrDataUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (!viewingItemsOrder) {
+      setViewingQrDataUrl("");
+      return;
+    }
+    const mapsUrl =
+      viewingItemsOrder.location_url ||
+      (viewingItemsOrder.latitude && viewingItemsOrder.longitude
+        ? `https://www.google.com/maps?q=${viewingItemsOrder.latitude},${viewingItemsOrder.longitude}`
+        : viewingItemsOrder.notes?.match(/https:\/\/www\.google\.com\/maps[^\s,|]+/i)?.[0] ?? "");
+
+    if (mapsUrl) {
+      generateQrCodeDataUrl(mapsUrl).then((url) => setViewingQrDataUrl(url));
+    } else {
+      setViewingQrDataUrl("");
+    }
+  }, [viewingItemsOrder]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -1047,9 +1073,22 @@ export default function AdminDashboard() {
                       {/* Endereço */}
                       <td className="py-3 px-4 max-w-xs">
                         {order.street ? (
-                          <div className="text-white/80 line-clamp-1">
-                            {order.street}, {order.number}
-                            {order.district ? ` - ${order.district}` : ""}
+                          <div className="space-y-0.5">
+                            <div className="text-white/80 line-clamp-1">
+                              {order.street}, {order.number}
+                              {order.district ? ` - ${order.district}` : ""}
+                            </div>
+                            {(order.location_url || (order.latitude && order.longitude)) && (
+                              <a
+                                href={order.location_url || `https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 font-bold"
+                              >
+                                <MapPin size={10} />
+                                <span>Ver GPS no Maps ↗</span>
+                              </a>
+                            )}
                           </div>
                         ) : (
                           <span className="text-white/30 italic">Retirada no balcão</span>
@@ -1094,9 +1133,20 @@ export default function AdminDashboard() {
                         </span>
                       </td>
 
-                      {/* Botões de Ação ao Lado: EDITAR e DELETAR */}
+                      {/* Botões de Ação ao Lado: IMPRIMIR, EDITAR e DELETAR */}
                       <td className="py-3 px-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1.5">
+                          {/* Botão IMPRIMIR */}
+                          <button
+                            type="button"
+                            onClick={() => printOrderReceipt(order)}
+                            title="Imprimir cupom com QR Code GPS"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-bold text-xs border border-orange-500/30 hover:border-orange-500/50 transition-all cursor-pointer shadow-sm"
+                          >
+                            <Printer size={13} />
+                            <span>Imprimir</span>
+                          </button>
+
                           {/* Botão EDITAR */}
                           <button
                             type="button"
@@ -1536,6 +1586,59 @@ export default function AdminDashboard() {
                 <p>{viewingItemsOrder.notes}</p>
               </div>
             )}
+
+            {/* Localização GPS & QR Code */}
+            {(() => {
+              const mapsUrl =
+                viewingItemsOrder.location_url ||
+                (viewingItemsOrder.latitude && viewingItemsOrder.longitude
+                  ? `https://www.google.com/maps?q=${viewingItemsOrder.latitude},${viewingItemsOrder.longitude}`
+                  : viewingItemsOrder.notes?.match(/https:\/\/www\.google\.com\/maps[^\s,|]+/i)?.[0] ?? "");
+
+              if (!mapsUrl) return null;
+
+              return (
+                <div className="p-3.5 rounded-2xl bg-orange-500/10 border border-orange-500/20 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <MapPin size={12} /> Localização GPS (Google Maps)
+                    </span>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-black text-orange-400 hover:text-orange-300 underline flex items-center gap-1"
+                    >
+                      <span>Abrir no Maps</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  </div>
+
+                  <div className="text-[10px] font-mono text-white/80 bg-black/40 p-2 rounded-lg break-all border border-white/5 select-all">
+                    {mapsUrl}
+                  </div>
+
+                  {viewingQrDataUrl && (
+                    <div className="flex flex-col items-center justify-center p-3 bg-white rounded-xl">
+                      <img src={viewingQrDataUrl} alt="QR Code Localização GPS" className="w-28 h-28 object-contain" />
+                      <span className="text-[8px] font-black text-black uppercase tracking-tight mt-1.5 text-center">
+                        Aponte a câmera para navegar no Google Maps
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Botão de Impressão de Cupom com QR Code */}
+            <button
+              type="button"
+              onClick={() => printOrderReceipt(viewingItemsOrder)}
+              className="w-full py-2.5 px-3 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-orange-300 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Printer size={14} />
+              <span>Imprimir Cupom com QR Code GPS</span>
+            </button>
 
             <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between">
               <span className="text-white/50 text-xs">Valor Total do Pedido:</span>

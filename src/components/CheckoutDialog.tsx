@@ -29,6 +29,80 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
   const [settings, setSettings] = useState<DeliverySettings>(getDefaultDeliverySettings);
   const [cepLoading, setCepLoading] = useState(false);
 
+  // ── GPS Geolocation State ──
+  type GeoLocationData = {
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    url: string;
+  };
+
+  const [geoData, setGeoData] = useState<GeoLocationData | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+
+  const handleCaptureLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setGeoError("Seu navegador não possui suporte a geolocalização.");
+      return;
+    }
+
+    setGeoData(null);
+    setGeoLoading(true);
+    setGeoError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        if (
+          typeof lat !== "number" ||
+          isNaN(lat) ||
+          lat < -90 ||
+          lat > 90 ||
+          typeof lng !== "number" ||
+          isNaN(lng) ||
+          lng < -180 ||
+          lng > 180
+        ) {
+          setGeoLoading(false);
+          setGeoError("Coordenadas GPS inválidas retornadas pelo navegador. Tente novamente.");
+          return;
+        }
+
+        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+        setGeoData({
+          latitude: lat,
+          longitude: lng,
+          accuracy,
+          url,
+        });
+        setGeoLoading(false);
+        setGeoError(null);
+      },
+      (error) => {
+        setGeoLoading(false);
+        setGeoData(null);
+        if (error.code === error.PERMISSION_DENIED) {
+          setGeoError("Precisamos da sua localização para concluir a entrega. Habilite o acesso à localização no navegador e tente novamente.");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setGeoError("GPS desativado ou sinal indisponível. Por favor, ative a localização no seu aparelho e tente novamente.");
+        } else if (error.code === error.TIMEOUT) {
+          setGeoError("Tempo limite esgotado ao buscar o sinal GPS. Verifique sua conexão e tente novamente.");
+        } else {
+          setGeoError("Não foi possível obter sua localização GPS. Verifique as permissões do dispositivo e tente novamente.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  };
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem("yakinhome_delivery_settings");
@@ -141,6 +215,11 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       return;
     }
 
+    if (!geoData || !geoData.url) {
+      alert("Para continuar, compartilhe sua localização atual. Isso ajudará nosso motoboy a encontrar seu endereço com mais facilidade.");
+      return;
+    }
+
     setIsSending(true);
 
     // Save customer in Supabase
@@ -165,10 +244,38 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
     try {
       const trocoClean = troco ? troco.replace(/[^\d,.]/g, "").replace(",", ".") : "";
       const trocoNumber = payment === "Dinheiro" && trocoClean ? parseFloat(trocoClean) : null;
+      const baseNotes = cartItems.map((i) => i.observation).filter(Boolean).join(" | ");
 
-      await supabase
-        .from("orders")
-        .insert([
+      const primaryPayload = {
+        customer_name: name,
+        customer_phone: phone,
+        street,
+        number,
+        district: district || "",
+        items: cartItems,
+        total: totalWithDelivery,
+        payment_method: payment,
+        change_for: trocoNumber && !isNaN(trocoNumber) ? trocoNumber : null,
+        status: "pending",
+        notes: baseNotes,
+        latitude: geoData.latitude,
+        longitude: geoData.longitude,
+        location_url: geoData.url,
+        location_accuracy: geoData.accuracy,
+      };
+
+      const { error: insertErr } = await supabase.from("orders").insert([primaryPayload]);
+      if (insertErr) {
+        console.warn("Falha ao salvar colunas GPS em orders, usando fallback seguro...", insertErr);
+        // Fallback: append GPS link into notes so it's always preserved even before migration
+        const fallbackNotes = [
+          baseNotes,
+          `Localização GPS: ${geoData.url} (Precisão: ~${Math.round(geoData.accuracy)}m)`,
+        ]
+          .filter(Boolean)
+          .join(" | ");
+
+        await supabase.from("orders").insert([
           {
             customer_name: name,
             customer_phone: phone,
@@ -180,9 +287,10 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
             payment_method: payment,
             change_for: trocoNumber && !isNaN(trocoNumber) ? trocoNumber : null,
             status: "pending",
-            notes: cartItems.map(i => i.observation).filter(Boolean).join(" | ") || ""
+            notes: fallbackNotes,
           },
         ]);
+      }
     } catch (error) {
       console.error("Erro ao salvar pedido:", error);
     }
@@ -197,7 +305,16 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       msg += ` - ${district}`;
     }
 
-    msg += `\n\n*Pedido:*\n`;
+    if (cep) {
+      msg += ` (CEP: ${cep})`;
+    }
+
+    msg += `\n\n📍 *LOCALIZAÇÃO NO MAPS:*\n${geoData.url}\n`;
+    if (geoData.accuracy) {
+      msg += `🎯 *Precisão GPS:* aprox. ${Math.round(geoData.accuracy)}m\n`;
+    }
+
+    msg += `\n*Pedido:*\n`;
 
     cartItems.forEach((item) => {
       msg += `• ${item.quantity}x ${item.name}`;
@@ -259,6 +376,9 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       setDeliveryFee(0);
       setPhone("");
       setTroco("");
+      setGeoData(null);
+      setGeoError(null);
+      setGeoLoading(false);
     }, 2000);
   };
 
@@ -372,6 +492,103 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
               </div>
             </div>
 
+            {/* ── CAMPO OBRIGATÓRIO: LOCALIZAÇÃO NO MAPS ── */}
+            <div
+              className="sm:col-span-2 space-y-2 rounded-xl p-3 sm:p-3.5 border transition-all duration-300 bg-white"
+              style={{
+                borderColor: geoData
+                  ? "rgba(34, 197, 94, 0.5)"
+                  : geoError
+                  ? "rgba(239, 68, 68, 0.4)"
+                  : "rgba(234, 88, 12, 0.35)",
+                boxShadow: geoData ? "0 0 10px rgba(34, 197, 94, 0.1)" : "none",
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black text-stone-700 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="text-primary text-xs">📍</span>
+                  <span>LOCALIZAÇÃO NO MAPS *</span>
+                </label>
+                {geoData ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                    <CheckCircle size={11} className="text-green-600" />
+                    GPS Confirmado (~{Math.round(geoData.accuracy)}m)
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-black uppercase text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                    Obrigatório
+                  </span>
+                )}
+              </div>
+
+              {!geoData ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleCaptureLocation}
+                    disabled={geoLoading}
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-[0.99] text-white py-3 px-4 rounded-xl font-black text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                  >
+                    {geoLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Obtendo localização GPS...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-base">📍</span>
+                        <span className="tracking-wide">COMPARTILHAR MINHA LOCALIZAÇÃO</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[11px] text-stone-500 font-medium">
+                    Compartilhe sua localização atual para facilitar a entrega do seu pedido.
+                  </p>
+                </>
+              ) : (
+                <div className="space-y-2 pt-0.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-green-700 font-bold flex items-center gap-1">
+                      <CheckCircle size={13} className="text-green-600" />
+                      Localização capturada com sucesso!
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCaptureLocation}
+                      disabled={geoLoading}
+                      className="text-[10px] text-stone-500 hover:text-stone-800 underline font-bold cursor-pointer"
+                    >
+                      Atualizar localização
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    value={geoData.url}
+                    className="w-full bg-stone-50 border border-green-300 text-stone-700 text-xs rounded-lg p-2.5 font-mono select-all cursor-text outline-none"
+                    title="Link do Google Maps gerado com suas coordenadas reais"
+                  />
+                  <p className="text-[10px] text-stone-500">
+                    O motoboy receberá este link e o QR Code impresso para navegar até sua porta.
+                  </p>
+                </div>
+              )}
+
+              {geoError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl space-y-2 text-left mt-2 animate-scale-up">
+                  <p className="text-xs text-red-700 font-semibold leading-relaxed">{geoError}</p>
+                  <button
+                    type="button"
+                    onClick={handleCaptureLocation}
+                    disabled={geoLoading}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <span>🔄 TENTAR NOVAMENTE</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Método de Pagamento</label>
               <select
@@ -420,10 +637,23 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
             </div>
           </div>
 
+          {!geoData && (
+            <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2">
+              <span className="text-base flex-shrink-0">⚠️</span>
+              <p className="text-[11px] text-amber-800 font-semibold leading-tight">
+                Para continuar, compartilhe sua localização atual. Isso ajudará nosso motoboy a encontrar seu endereço com mais facilidade.
+              </p>
+            </div>
+          )}
+
           <button
             onClick={send}
-            disabled={isSending}
-            className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white py-3.5 rounded-xl font-black transition-all duration-300 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 flex items-center justify-center gap-2 cursor-pointer text-sm font-sans active:scale-98"
+            disabled={isSending || !geoData}
+            className={`w-full py-3.5 rounded-xl font-black transition-all duration-300 flex items-center justify-center gap-2 text-sm font-sans active:scale-98 ${
+              !geoData
+                ? "bg-stone-300 text-stone-500 cursor-not-allowed shadow-none"
+                : "bg-primary hover:bg-primary-hover text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 cursor-pointer"
+            }`}
           >
             <MessageSquare size={16} />
             <span>{isSending ? "Processando..." : "Enviar pedido no WhatsApp"}</span>

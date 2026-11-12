@@ -429,6 +429,16 @@ BEGIN
   END IF;
 END $$;
 
+-- ─────────────────────────────────────────────
+-- 13. ORDERS GPS LOCATION & QR CODE SUPPORT
+-- ─────────────────────────────────────────────
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 7);
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 7);
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS location_url TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS location_accuracy NUMERIC(10, 2);
+
+CREATE INDEX IF NOT EXISTS idx_orders_location ON public.orders(latitude, longitude);
+
 -- ============================================================
 -- FIM DA MIGRATION
 -- ============================================================

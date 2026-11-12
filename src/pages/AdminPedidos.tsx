@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "../services/supabase";
-import { printUsbText } from "../services/usbPrinter";
+import { printOrderReceipt, generateQrCodeDataUrl } from "../services/usbPrinter";
 import AdminLayout from "../components/AdminLayout";
 import {
   RefreshCw,
@@ -20,6 +20,8 @@ import {
   Truck,
   CheckCircle,
   XCircle,
+  Printer,
+  ExternalLink,
 } from "lucide-react";
 
 type OrderItem = {
@@ -37,6 +39,7 @@ type Order = {
   street: string;
   number: string;
   district: string;
+  cep?: string;
   items: OrderItem[];
   total: number;
   payment_method: string;
@@ -44,6 +47,10 @@ type Order = {
   status: string;
   notes: string;
   created_at: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_url?: string | null;
+  location_accuracy?: number | null;
 };
 
 const STATUSES = [
@@ -127,7 +134,7 @@ function money(value: number) {
   return `R$ ${Number(value || 0).toFixed(2)}`;
 }
 
-function formatOrderReceipt(order: Order) {
+export function formatOrderReceipt(order: Order) {
   const createdAt = order.created_at ? new Date(order.created_at) : new Date();
   const lines = [
     "SABOR DA PRAIA DELIVERY",
@@ -142,6 +149,14 @@ function formatOrderReceipt(order: Order) {
   ];
 
   if (order.district) lines.push(`Bairro: ${order.district}`);
+  if (order.cep) lines.push(`CEP: ${order.cep}`);
+
+  const mapsUrl =
+    order.location_url ||
+    (order.latitude && order.longitude ? `https://www.google.com/maps?q=${order.latitude},${order.longitude}` : "");
+  if (mapsUrl) {
+    lines.push(`Localizacao GPS: ${mapsUrl}`);
+  }
 
   lines.push("", "ITENS", "------------------------------");
 
@@ -174,10 +189,29 @@ export default function AdminPedidos() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selected, setSelected] = useState<Order | null>(null);
+  const [selectedQrDataUrl, setSelectedQrDataUrl] = useState<string>("");
   const [updating, setUpdating] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
   const printedOrderIdsRef = useRef<Set<number>>(new Set());
   const hasLoadedInitialOrdersRef = useRef(false);
+
+  useEffect(() => {
+    if (!selected) {
+      setSelectedQrDataUrl("");
+      return;
+    }
+    const mapsUrl =
+      selected.location_url ||
+      (selected.latitude && selected.longitude
+        ? `https://www.google.com/maps?q=${selected.latitude},${selected.longitude}`
+        : selected.notes?.match(/https:\/\/www\.google\.com\/maps[^\s,|]+/i)?.[0] ?? "");
+
+    if (mapsUrl) {
+      generateQrCodeDataUrl(mapsUrl).then((url) => setSelectedQrDataUrl(url));
+    } else {
+      setSelectedQrDataUrl("");
+    }
+  }, [selected]);
 
   const notifyNewOrder = (order: Order) => {
     if (printedOrderIdsRef.current.has(order.id)) return;
@@ -185,7 +219,7 @@ export default function AdminPedidos() {
     printedOrderIdsRef.current.add(order.id);
     playBeep();
     speakAlert();
-    printUsbText(formatOrderReceipt(order)).catch((error) => {
+    printOrderReceipt(order).catch((error) => {
       console.error("Erro ao imprimir pedido:", error);
     });
   };
@@ -512,6 +546,14 @@ export default function AdminPedidos() {
                               <Eye size={12} />
                             </button>
 
+                            <button
+                              onClick={() => printOrderReceipt(order)}
+                              className="p-1.5 rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all cursor-pointer flex items-center justify-center flex-shrink-0"
+                              title="Imprimir cupom com QR Code GPS"
+                            >
+                              <Printer size={12} />
+                            </button>
+
                             {/* Botão único para avançar etapa (Preparar → Entrega → Entregue) */}
                             <div className="flex-1">
                               {STAGE_DURATIONS[order.status] ? (
@@ -603,8 +645,16 @@ export default function AdminPedidos() {
                           <button
                             onClick={() => setSelected(order)}
                             className="p-1.5 rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all cursor-pointer"
+                            title="Ver detalhes"
                           >
                             <Eye size={13} />
+                          </button>
+                          <button
+                            onClick={() => printOrderReceipt(order)}
+                            className="p-1.5 rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all cursor-pointer"
+                            title="Imprimir cupom com QR Code GPS"
+                          >
+                            <Printer size={13} />
                           </button>
                           {meta.next && (
                             <button
@@ -667,6 +717,59 @@ export default function AdminPedidos() {
               <InfoRow icon={<CreditCard size={13} />} label={selected.payment_method + (selected.change_for ? ` (troco p/ R$${selected.change_for})` : "")} />
               <InfoRow icon={<Clock size={13} />} label={new Date(selected.created_at).toLocaleString("pt-BR")} />
             </div>
+
+            {/* Localização GPS & QR Code */}
+            {(() => {
+              const mapsUrl =
+                selected.location_url ||
+                (selected.latitude && selected.longitude
+                  ? `https://www.google.com/maps?q=${selected.latitude},${selected.longitude}`
+                  : selected.notes?.match(/https:\/\/www\.google\.com\/maps[^\s,|]+/i)?.[0] ?? "");
+
+              if (!mapsUrl) return null;
+
+              return (
+                <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <MapPin size={12} /> Localização GPS (Google Maps)
+                    </span>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] font-black text-orange-400 hover:text-orange-300 underline flex items-center gap-1"
+                    >
+                      <span>Abrir no Maps</span>
+                      <ExternalLink size={11} />
+                    </a>
+                  </div>
+
+                  <div className="text-[10px] font-mono text-white/80 bg-black/40 p-2 rounded-lg break-all border border-white/5 select-all">
+                    {mapsUrl}
+                  </div>
+
+                  {selectedQrDataUrl && (
+                    <div className="flex flex-col items-center justify-center p-3 bg-white rounded-xl shadow-inner">
+                      <img src={selectedQrDataUrl} alt="QR Code Localização GPS" className="w-28 h-28 object-contain" />
+                      <span className="text-[8px] font-black text-black uppercase tracking-tight mt-1.5 text-center">
+                        Aponte a câmera para navegar no Google Maps
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Botão de Impressão de Cupom com QR Code */}
+            <button
+              type="button"
+              onClick={() => printOrderReceipt(selected)}
+              className="w-full py-2.5 px-3 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-orange-300 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Printer size={14} />
+              <span>Imprimir Cupom com QR Code GPS</span>
+            </button>
 
             <div className="border-t border-white/[0.07] pt-3">
               <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-2">Itens</p>
