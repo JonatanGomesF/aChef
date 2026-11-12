@@ -238,7 +238,7 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       msg += ` (troco para R$ ${troco})`;
     }
 
-    const url = `https://wa.me/553599212311?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/5513996430887?text=${encodeURIComponent(msg)}`;
 
     setIsSending(false);
     setIsSuccess(true);

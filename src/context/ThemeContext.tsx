@@ -67,7 +67,7 @@ export const defaultThemeSettings: ThemeSettings = {
   heroTagline: "O autêntico sabor do litoral, Refeições, Porções,\nYakisobas e muito mais!\n\nTudo feito na Hora e com muito carinho!",
   heroButtonText: "Ver Cardápio",
   heroButtonWhatsappText: "Pedir no WhatsApp",
-  heroWhatsappLink: "https://wa.me/553599212311",
+  heroWhatsappLink: "https://wa.me/5513996430887",
   heroBgImage: "",
   aboutTitle: "Sobre o Sabor da Praia",
   aboutText:
@@ -84,7 +84,7 @@ export const defaultThemeSettings: ThemeSettings = {
   middleBgImage: "",
   contactTitle: "CONTATO & ATENDIMENTO",
   contactSubtitle: "Sabor da Praia • Delivery & Retirada",
-  contactPhone: "(35) 9921-2311",
+  contactPhone: "(13) 99643-0887",
   contactHours: "Ter - Sex: 17h45 às 23h45\nSáb & Dom: 15h às 00h",
   footerCopy: "© 2026 SABOR DA PRAIA. TODOS OS DIREITOS RESERVADOS.",
   customCss: "",
@@ -162,6 +162,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       if (!error && data?.theme_data) {
         const mergedSettings = { ...defaultThemeSettings, ...data.theme_data };
+        if (mergedSettings.heroWhatsappLink?.includes("3599212311")) {
+          mergedSettings.heroWhatsappLink = "https://wa.me/5513996430887";
+        }
+        if (mergedSettings.contactPhone?.includes("35")) {
+          mergedSettings.contactPhone = "(13) 99643-0887";
+        }
         setSettings(mergedSettings);
         localStorage.setItem("sabor-praia-theme-settings", JSON.stringify(mergedSettings));
         applyStyles(mergedSettings);
