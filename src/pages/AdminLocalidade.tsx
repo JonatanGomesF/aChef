@@ -14,7 +14,12 @@ export default function AdminLocalidade() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as DeliverySettings;
+        if (!parsed.storeCep || parsed.storeCep === "13310200" || parsed.storeCep === "13310-200") {
+          parsed.storeCep = "11730-006";
+        }
         setSettings(parsed);
+      } else {
+        setSettings(getDefaultDeliverySettings());
       }
     } catch {
       // ignore
@@ -191,13 +196,13 @@ export default function AdminLocalidade() {
                   <span className="text-[10px] font-bold text-white/35 uppercase tracking-widest">CEP da loja</span>
                   <input
                     type="text"
-                    value={settings.storeCep ?? ""}
+                    value={settings.storeCep ?? "11730-006"}
                     onChange={(e) => setSettings((prev) => ({ ...prev, storeCep: e.target.value }))}
-                    placeholder="00000-000"
+                    placeholder="11730-006"
                     maxLength={9}
                     className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-[#c0261a]/60"
                   />
-                  <p className="text-[10px] text-white/30 mt-1">Opcional: informe o CEP da loja para resolver automaticamente o endereço antes do cálculo.</p>
+                  <p className="text-[10px] text-white/30 mt-1">CEP da loja (11730-006) para calcular distância e entrega do cliente.</p>
                 </label>
 
                 <label className="space-y-1.5 block">

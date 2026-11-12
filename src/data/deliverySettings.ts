@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: DeliverySettings = {
   baseFee: 0,
   freeDistanceKm: 1,
   storeAddress: "",
-  storeCep: "13310200",
+  storeCep: "11730-006",
   rules: [
     { id: 1, minKm: 1, maxKm: 1, fee: 3, label: "Acima de 1km" },
     { id: 2, minKm: 2, maxKm: 3, fee: 4, label: "Acima de 3km" },

@@ -5,7 +5,6 @@ import {
   createProductId,
   fetchMenuCatalog,
   getMenuCatalog,
-  resetMenuCatalog,
   saveMenuCatalog,
   subscribeMenuCatalog,
   type MenuCatalog,
@@ -145,10 +144,9 @@ export default function AdminCardapio() {
   const [toast, setToast] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Modais de exclusão & restauração
+  // Modais de exclusão
   const [productToDelete, setProductToDelete] = useState<MenuProduct | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(null);
-  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
   // Modal de gerenciamento de adicionais (por item)
   const [extrasModalProduct, setExtrasModalProduct] = useState<MenuProduct | null>(null);
@@ -630,23 +628,6 @@ export default function AdminCardapio() {
     }
   };
 
-  const handleResetToDefault = async () => {
-    setConfirmResetOpen(false);
-    setSyncStatus("saving");
-    setSyncMessage("Restaurando cardápio original...");
-    try {
-      const def = await resetMenuCatalog();
-      setCatalog(def);
-      resetForm();
-      setSyncStatus("saved");
-      setSyncMessage("Cardápio padrão restaurado com sucesso!");
-      showToast("success", "Cardápio restaurado para o padrão original!");
-    } catch (err) {
-      console.error(err);
-      showToast("error", "Erro ao restaurar cardápio.");
-    }
-  };
-
   // Drag and Drop
   const handleDropCategory = (targetCategoryId: string) => {
     if (!draggedCategoryId || draggedCategoryId === targetCategoryId) return;
@@ -738,16 +719,6 @@ export default function AdminCardapio() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
-              {/* Botão de Restaurar Padrão */}
-              <button
-                onClick={() => setConfirmResetOpen(true)}
-                title="Restaura os itens originais do cardápio"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] px-3.5 py-2.5 text-xs font-bold text-white/60 hover:text-white transition-all cursor-pointer"
-              >
-                <RotateCcw size={14} />
-                <span>Restaurar Padrão</span>
-              </button>
-
               {/* Input e Botão de Nova Categoria */}
               <div className="flex items-center gap-2">
                 <input
@@ -1515,50 +1486,7 @@ export default function AdminCardapio() {
         </div>
       )}
 
-      {/* ── MODAL: CONFIRMAR RESTAURAÇÃO DE PADRÃO ── */}
-      {confirmResetOpen && (
-        <div
-          className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setConfirmResetOpen(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-3xl bg-[#171717] border border-amber-500/30 p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-600/15 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
-                <RotateCcw size={24} />
-              </div>
-              <div>
-                <h3 className="text-white font-black text-lg">Restaurar Cardápio Padrão</h3>
-                <p className="text-white/40 text-xs mt-0.5">Voltar aos pratos de fábrica</p>
-              </div>
-            </div>
 
-            <p className="text-white/70 text-xs leading-relaxed">
-              Deseja redefinir todo o cardápio para os pratos e categorias originais do Sabor da Praia? Quaisquer novos
-              itens ou alterações feitas serão substituídos pelo catálogo padrão original.
-            </p>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setConfirmResetOpen(false)}
-                className="px-4 py-2.5 rounded-xl border border-white/[0.1] text-white/60 hover:text-white hover:bg-white/[0.06] text-xs font-bold transition-all cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleResetToDefault}
-                className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all shadow-lg shadow-amber-950/40 cursor-pointer"
-              >
-                Sim, Restaurar Padrão
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── MODAL: GERENCIAMENTO DE ADICIONAIS DO ITEM (CRIAR, DELETAR, ATUALIZAR) ── */}
       {extrasModalProduct && (

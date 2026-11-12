@@ -34,6 +34,9 @@ export default function CheckoutDialog({ open, onOpenChange }: Props) {
       const raw = localStorage.getItem("yakinhome_delivery_settings");
       if (raw) {
         const parsed = JSON.parse(raw) as DeliverySettings;
+        if (!parsed.storeCep || parsed.storeCep === "13310200" || parsed.storeCep === "13310-200") {
+          parsed.storeCep = "11730-006";
+        }
         setSettings(parsed);
       }
     } catch {
