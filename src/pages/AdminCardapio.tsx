@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   Cloud,
   CloudCheck,
+  Copy,
   GripVertical,
   ImagePlus,
   Layers,
@@ -174,6 +175,19 @@ export default function AdminCardapio() {
           setCatalog(remote);
           setSyncStatus("saved");
           setSyncMessage("Sincronizado com a nuvem");
+
+          // Garante persistência na nuvem caso Marmitas Grandes tenha sido populada
+          const marmitasGrandes = remote.categories.find(
+            (c) =>
+              c.name.toLowerCase().includes("marmitas grandes") ||
+              c.id.toLowerCase().includes("marmitas-grandes")
+          );
+          if (marmitasGrandes) {
+            const count = remote.products.filter((p) => p.categoryId === marmitasGrandes.id).length;
+            if (count > 0) {
+              saveMenuCatalog(remote).catch(() => {});
+            }
+          }
         }
       } catch (err) {
         console.warn("Erro ao buscar cardápio da nuvem:", err);
@@ -659,6 +673,53 @@ export default function AdminCardapio() {
     setDraggedProductId(null);
   };
 
+  // Copiar produtos de uma categoria para outra (ex: Marmitas Médias -> Marmitas Grandes)
+  const handleCopyCategoryProducts = async (
+    fromCategoryId: string,
+    toCategoryId: string,
+    targetSize?: string
+  ) => {
+    const fromCat = catalog.categories.find((c) => c.id === fromCategoryId);
+    const toCat = catalog.categories.find((c) => c.id === toCategoryId);
+    if (!fromCat || !toCat) return;
+
+    const sourceProducts = catalog.products.filter((p) => p.categoryId === fromCategoryId);
+    if (sourceProducts.length === 0) {
+      showToast("error", `A categoria "${fromCat.name}" não possui pratos para copiar.`);
+      return;
+    }
+
+    const maxId = Math.max(...catalog.products.map((p) => Number(p.id) || 0), 100);
+    const now = Date.now();
+
+    const copied = sourceProducts.map((p, idx) => {
+      const newId = maxId + idx + 1;
+      const clonedExtras = (p.extras || []).map((e, eIdx) => ({
+        ...e,
+        id: `ext-${now}-${newId}-${eIdx}`,
+      }));
+
+      return {
+        ...p,
+        id: newId,
+        categoryId: toCategoryId,
+        size: targetSize || (toCat.name.toLowerCase().includes("grande") ? "(GRANDE)" : p.size),
+        order: idx,
+        extras: clonedExtras,
+      };
+    });
+
+    const nextCatalog = {
+      ...catalog,
+      products: [...catalog.products, ...copied],
+    };
+
+    await persist(
+      nextCatalog,
+      `${copied.length} pratos copiados com sucesso de "${fromCat.name}" para "${toCat.name}"!`
+    );
+  };
+
   // Filtragem de busca
   const cleanSearch = searchTerm.trim().toLowerCase();
   const totalProducts = catalog.products.length;
@@ -1141,6 +1202,36 @@ export default function AdminCardapio() {
 
                       {/* Controles da Categoria (Pausar, Mover Cima/Baixo e Excluir) */}
                       <div className="flex items-center gap-1.5 self-end sm:self-auto flex-wrap">
+                        {/* Botão Copiar de Marmitas Médias se for categoria Grande */}
+                        {category.name.toLowerCase().includes("grande") && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const mediasCat = catalog.categories.find(
+                                (c) => c.name.toLowerCase().includes("marmitas m") || c.id === "marmitas"
+                              );
+                              if (!mediasCat) {
+                                showToast("error", "Categoria de Marmitas Médias não encontrada.");
+                                return;
+                              }
+                              if (
+                                categoryProducts.length > 0 &&
+                                !confirm(
+                                  `A categoria "${category.name}" já possui ${categoryProducts.length} itens. Deseja adicionar uma cópia dos pratos de Marmitas Médias para cá com tamanho (GRANDE)?`
+                                )
+                              ) {
+                                return;
+                              }
+                              handleCopyCategoryProducts(mediasCat.id, category.id, "(GRANDE)");
+                            }}
+                            title="Copiar itens de Marmitas Médias para cá com tamanho (GRANDE)"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 text-xs font-bold transition-all cursor-pointer"
+                          >
+                            <Copy size={13} />
+                            <span>Copiar de Marmitas Médias</span>
+                          </button>
+                        )}
+
                         {/* Botão Pausar / Ativar Categoria */}
                         <button
                           type="button"
@@ -1194,10 +1285,38 @@ export default function AdminCardapio() {
 
                     {/* Lista de Produtos da Categoria */}
                     {categoryProducts.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-white/[0.06] p-8 text-center text-white/25 text-xs">
-                        {cleanSearch
-                          ? "Nenhum prato corresponde à busca nesta categoria."
-                          : "Nenhum prato nesta categoria ainda. Cadastre um item usando o formulário ao lado."}
+                      <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-8 text-center space-y-3">
+                        {cleanSearch ? (
+                          <p className="text-white/25 text-xs">Nenhum prato corresponde à busca nesta categoria.</p>
+                        ) : category.name.toLowerCase().includes("grande") ? (
+                          <>
+                            <p className="text-white/60 text-sm font-bold">Nenhum prato em {category.name} ainda.</p>
+                            <p className="text-white/35 text-xs max-w-md mx-auto">
+                              Clique no botão abaixo para copiar todos os 17 pratos de Marmitas Médias para cá com tamanho (GRANDE) e adicionais incluídos.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const mediasCat = catalog.categories.find(
+                                  (c) => c.name.toLowerCase().includes("marmitas m") || c.id === "marmitas"
+                                );
+                                if (mediasCat) {
+                                  handleCopyCategoryProducts(mediasCat.id, category.id, "(GRANDE)");
+                                } else {
+                                  showToast("error", "Categoria Marmitas Médias não encontrada.");
+                                }
+                              }}
+                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-[#e06900] text-white text-xs font-black shadow-lg shadow-orange-950/40 transition-all cursor-pointer"
+                            >
+                              <Copy size={14} />
+                              <span>Copiar pratos de Marmitas Médias para cá (GRANDE)</span>
+                            </button>
+                          </>
+                        ) : (
+                          <p className="text-white/25 text-xs">
+                            Nenhum prato nesta categoria ainda. Cadastre um item usando o formulário ao lado.
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <div className="grid gap-3">

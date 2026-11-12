@@ -28,14 +28,56 @@ export const MENU_CATALOG_EVENT = "yakinhome-menu-catalog-updated";
 const DEFAULT_CATEGORY_ID = "yakissobas";
 
 export function normalizeCatalog(catalog: MenuCatalog): MenuCatalog {
+  const categories = [...(catalog.categories || [])].sort((a, b) => a.order - b.order);
+  let products: MenuProduct[] = [...(catalog.products || [])]
+    .map((p) => ({
+      ...p,
+      extras: Array.isArray(p.extras) ? p.extras : undefined,
+    }))
+    .sort((a, b) => a.order - b.order);
+
+  // Auto-sync: se a categoria "Marmitas Grandes" existir mas estiver sem pratos,
+  // copia os pratos de "Marmitas Médias" alterando o tamanho/porção para "(GRANDE)" e mantendo adicionais
+  const marmitasGrandesCat = categories.find(
+    (c) =>
+      c.name.toLowerCase().includes("marmitas grandes") ||
+      c.id.toLowerCase().includes("marmitas-grandes")
+  );
+
+  if (marmitasGrandesCat) {
+    const grandesProducts = products.filter((p) => p.categoryId === marmitasGrandesCat.id);
+    if (grandesProducts.length === 0) {
+      const marmitasMediasCat = categories.find(
+        (c) =>
+          c.name.toLowerCase().includes("marmitas m") ||
+          c.id === "marmitas" ||
+          c.name.toLowerCase() === "marmitas"
+      );
+
+      if (marmitasMediasCat) {
+        const mediasProducts = products.filter((p) => p.categoryId === marmitasMediasCat.id);
+        if (mediasProducts.length > 0) {
+          const maxId = Math.max(...products.map((p) => Number(p.id) || 0), 100);
+          const copiedGrandes: MenuProduct[] = mediasProducts.map((p, idx) => ({
+            ...p,
+            id: maxId + idx + 1,
+            size: "(GRANDE)",
+            categoryId: marmitasGrandesCat.id,
+            order: idx,
+            extras: (p.extras || []).map((e, eIdx) => ({
+              ...e,
+              id: `ext-${p.id || idx}-${eIdx}-${(e.name || "extra").toLowerCase().replace(/\s+/g, "_")}`,
+            })),
+          }));
+          products = [...products, ...copiedGrandes];
+        }
+      }
+    }
+  }
+
   return {
-    categories: [...(catalog.categories || [])].sort((a, b) => a.order - b.order),
-    products: [...(catalog.products || [])]
-      .map((p) => ({
-        ...p,
-        extras: Array.isArray(p.extras) ? p.extras : undefined,
-      }))
-      .sort((a, b) => a.order - b.order),
+    categories,
+    products,
   };
 }
 

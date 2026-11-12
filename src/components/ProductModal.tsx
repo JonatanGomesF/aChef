@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import type { Product, ProductExtra } from "../data/products";
 import { getDefaultExtrasForProduct } from "../data/extras";
 import { X, Plus, Minus, Check, ChevronRight } from "lucide-react";
@@ -16,6 +16,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
   const [selectedExtras, setSelectedExtras] = useState<(string | number)[]>([]);
   const [activeExtraCategory, setActiveExtraCategory] = useState("Adicionais");
   const [visible, setVisible] = useState(false);
+  const openedProductIdRef = useRef<number | null>(null);
 
   const productExtras: ProductExtra[] = useMemo(() => {
     if (!product) return [];
@@ -31,35 +32,41 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
 
   useEffect(() => {
     if (open && product) {
-      setQuantity(1);
-      setObservation("");
-      setSelectedExtras([]);
+      // Reseta a seleção apenas quando um novo produto é aberto ou a modal acabou de abrir
+      if (openedProductIdRef.current !== product.id) {
+        openedProductIdRef.current = product.id;
+        setQuantity(1);
+        setObservation("");
+        setSelectedExtras([]);
 
-      const initialExtras = product.extras !== undefined
-        ? product.extras.filter((e) => e.available !== false)
-        : getDefaultExtrasForProduct(product.name).filter((e) => e.available !== false);
+        const initialExtras = product.extras !== undefined
+          ? product.extras.filter((e) => e.available !== false)
+          : getDefaultExtrasForProduct(product.name).filter((e) => e.available !== false);
 
-      const cats = Array.from(new Set(initialExtras.map((e) => e.category?.trim() || "Adicionais")));
-      setActiveExtraCategory(cats[0] ?? "Adicionais");
+        const cats = Array.from(new Set(initialExtras.map((e) => e.category?.trim() || "Adicionais")));
+        setActiveExtraCategory(cats[0] ?? "Adicionais");
+      }
       // Small delay so CSS transition plays
       requestAnimationFrame(() => setVisible(true));
     } else {
+      openedProductIdRef.current = null;
       setVisible(false);
     }
-  }, [open, product]);
+  }, [open, product?.id]);
 
   if (!open || !product) return null;
 
   function toggleExtra(id: string | number) {
-    setSelectedExtras((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedExtras((prev) => {
+      const exists = prev.some((x) => String(x) === String(id));
+      return exists ? prev.filter((x) => String(x) !== String(id)) : [...prev, id];
+    });
   }
 
   const isAvailable = product.available !== false;
 
   const extrasPrice = productExtras
-    .filter((e) => selectedExtras.includes(e.id))
+    .filter((e) => selectedExtras.some((x) => String(x) === String(e.id)))
     .reduce((t, e) => t + Number(e.price || 0), 0);
 
   const basePrice = product.promotionalPrice ?? product.price;
@@ -176,11 +183,19 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                     return (extra.category?.trim() || "Adicionais") === activeExtraCategory;
                   })
                   .map((extra) => {
-                    const isChecked = selectedExtras.includes(extra.id);
+                    const isChecked = selectedExtras.some((id) => String(id) === String(extra.id));
                     return (
-                      <label
+                      <div
                         key={extra.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => toggleExtra(extra.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggleExtra(extra.id);
+                          }
+                        }}
                         className={`flex items-center justify-between rounded-xl p-3.5 cursor-pointer select-none transition-all duration-200 border ${
                           isChecked
                             ? "border-primary bg-orange-50/60"
@@ -204,7 +219,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                         >
                           {Number(extra.price) > 0 ? `+ R$ ${Number(extra.price).toFixed(2)}` : "Grátis"}
                         </span>
-                      </label>
+                      </div>
                     );
                   })}
               </div>
@@ -261,7 +276,7 @@ export default function ProductModal({ open, product, onClose, onAddToCart }: Pr
                 ...product,
                 quantity,
                 observation,
-                extras: productExtras.filter((e) => selectedExtras.includes(e.id)),
+                extras: productExtras.filter((e) => selectedExtras.some((id) => String(id) === String(e.id))),
                 price: basePrice + extrasPrice,
               });
               handleClose();
