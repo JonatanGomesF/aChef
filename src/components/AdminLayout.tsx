@@ -13,7 +13,6 @@ import {
   MapPin,
   Printer,
   Utensils,
-  Palette,
 } from "lucide-react";
 
 type Props = { children: React.ReactNode };
@@ -27,7 +26,6 @@ const navItems = [
   { to: "/admin/estoque",   label: "Estoque",     Icon: Package         },
   { to: "/admin/localidade", label: "Localidade", Icon: MapPin          },
   { to: "/admin/impressora", label: "Impressora", Icon: Printer         },
-  { to: "/admin/aparencia",  label: "Aparência",  Icon: Palette         },
 ];
 
 export default function AdminLayout({ children }: Props) {
