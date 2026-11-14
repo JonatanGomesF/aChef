@@ -163,3 +163,4 @@ export function subscribeBalcaoProducts(callback: (products: BalcaoProduct[]) =>
     subscribers.delete(callback);
   };
 }
+

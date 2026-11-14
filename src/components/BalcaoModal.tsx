@@ -271,29 +271,25 @@ export default function BalcaoModal({
         change_for: trocoNumber && !isNaN(trocoNumber) ? trocoNumber : null,
         status: orderStatus,
         notes: combinedNotes,
-        latitude: null,
-        longitude: null,
-        location_url: null,
-        location_accuracy: null,
       };
 
-      const { data, error } = await supabase
-        .from("orders")
-        .insert([orderPayload])
-        .select()
-        .single();
+      const { error: insertError } = await supabase.from("orders").insert([orderPayload]);
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        throw insertError;
       }
 
-      const createdOrder = data || orderPayload;
+      const createdOrder = {
+        ...orderPayload,
+        id: Date.now(),
+        created_at: new Date().toISOString(),
+      };
       setSuccessOrder(createdOrder);
 
       // Imprimir automaticamente se habilitado
       if (autoPrint) {
         try {
-          await printOrderReceipt(createdOrder);
+          await printOrderReceipt(createdOrder as any);
         } catch (printErr) {
           console.warn("Aviso ao imprimir recibo do balcão:", printErr);
         }
