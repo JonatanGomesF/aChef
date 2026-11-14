@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import CadastrarProdutoBalcaoModal from "../components/CadastrarProdutoBalcaoModal";
 import {
   createCategoryId,
   createProductId,
@@ -39,6 +40,7 @@ import {
   Trash2,
   Upload,
   X,
+  Store,
 } from "lucide-react";
 
 type ProductForm = {
@@ -148,6 +150,7 @@ export default function AdminCardapio() {
   // Modais de exclusão
   const [productToDelete, setProductToDelete] = useState<MenuProduct | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(null);
+  const [cadastrarBalcaoModalOpen, setCadastrarBalcaoModalOpen] = useState(false);
 
   // Modal de gerenciamento de adicionais (por item)
   const [extrasModalProduct, setExtrasModalProduct] = useState<MenuProduct | null>(null);
@@ -780,6 +783,17 @@ export default function AdminCardapio() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
+              {/* Botão: Cadastrar Produto de Balcão (Itens que NÃO aparecem no cardápio de entrega) */}
+              <button
+                type="button"
+                onClick={() => setCadastrarBalcaoModalOpen(true)}
+                title="Cadastrar itens vendidos apenas presencialmente (cigarros, litrão, etc.) que NÃO aparecem no cardápio online"
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-amber-300 transition-all cursor-pointer shadow-sm"
+              >
+                <Store size={16} />
+                <span>Cadastrar Produto de Balcão</span>
+              </button>
+
               {/* Input e Botão de Nova Categoria */}
               <div className="flex items-center gap-2">
                 <input
@@ -1977,6 +1991,15 @@ export default function AdminCardapio() {
           </div>
         </div>
       )}
+
+      {/* Modal: Cadastrar Produto Exclusivo de Balcão (NÃO aparece no cardápio online) */}
+      <CadastrarProdutoBalcaoModal
+        open={cadastrarBalcaoModalOpen}
+        onClose={() => setCadastrarBalcaoModalOpen(false)}
+        onProductsUpdated={() => {
+          showToast("success", "Produtos de balcão atualizados com sucesso!");
+        }}
+      />
     </AdminLayout>
   );
 }

@@ -373,6 +373,10 @@ INSERT INTO public.site_theme (id, theme_data)
 VALUES (1, '{}'::jsonb)
 ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO public.site_theme (id, theme_data)
+VALUES (3, '{"products":[]}'::jsonb)
+ON CONFLICT (id) DO NOTHING;
+
 -- Garante que a tabela site_theme esteja na replicação realtime
 DO $$
 BEGIN

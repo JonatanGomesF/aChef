@@ -3,6 +3,8 @@ import { supabase } from "../services/supabase";
 import AdminLayout from "../components/AdminLayout";
 import RevenueGraph from "../components/RevenueGraph";
 import { printOrderReceipt, generateQrCodeDataUrl } from "../services/usbPrinter";
+import BalcaoModal from "../components/BalcaoModal";
+import CadastrarProdutoBalcaoModal from "../components/CadastrarProdutoBalcaoModal";
 import {
   ShoppingBag,
   TrendingUp,
@@ -28,6 +30,8 @@ import {
   Save,
   Printer,
   ExternalLink,
+  Store,
+  Plus,
 } from "lucide-react";
 
 export type OrderItem = {
@@ -223,6 +227,8 @@ export default function AdminDashboard() {
   const [advancingId, setAdvancingId] = useState<number | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [balcaoModalOpen, setBalcaoModalOpen] = useState(false);
+  const [cadastrarBalcaoModalOpen, setCadastrarBalcaoModalOpen] = useState(false);
   const knownOrderIdsRef = useRef<Set<number>>(new Set());
   const initialLoadDoneRef = useRef(false);
 
@@ -602,7 +608,28 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          {/* ── BOTÃO PRINCIPAL: LANÇAMENTO NO BALCÃO ── */}
+          <button
+            type="button"
+            onClick={() => setBalcaoModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-xl shadow-orange-950/40 border border-amber-300/30 transition-all cursor-pointer"
+          >
+            <Store size={18} />
+            <span>Lançamento no Balcão</span>
+          </button>
+
+          {/* ── BOTÃO: CADASTRAR PRODUTO DE BALCÃO (Cigarros, Litrão, etc.) ── */}
+          <button
+            type="button"
+            onClick={() => setCadastrarBalcaoModalOpen(true)}
+            title="Cadastrar produto exclusivo de balcão que NÃO aparece no cardápio online"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-white/80 hover:text-white font-bold text-xs transition-all cursor-pointer"
+          >
+            <Plus size={15} className="text-orange-400" />
+            <span>Cadastrar Produto de Balcão</span>
+          </button>
+
           {/* Status restaurante */}
           <button
             onClick={toggleOpen}
@@ -1649,6 +1676,26 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* ── MODAL: LANÇAMENTO NO BALCÃO (PDV LOCAL) ── */}
+      <BalcaoModal
+        open={balcaoModalOpen}
+        onClose={() => setBalcaoModalOpen(false)}
+        onOpenCadastrarProdutoBalcao={() => setCadastrarBalcaoModalOpen(true)}
+        onOrderCreated={(createdOrder) => {
+          showToast(`Venda de Balcão #${createdOrder.id || "OK"} registrada com sucesso!`);
+          loadData(true);
+        }}
+      />
+
+      {/* ── MODAL: CADASTRAR PRODUTO DE BALCÃO (EXCLUSIVO LOJA) ── */}
+      <CadastrarProdutoBalcaoModal
+        open={cadastrarBalcaoModalOpen}
+        onClose={() => setCadastrarBalcaoModalOpen(false)}
+        onProductsUpdated={() => {
+          showToast("Produtos de balcão atualizados!");
+        }}
+      />
     </AdminLayout>
   );
 }
