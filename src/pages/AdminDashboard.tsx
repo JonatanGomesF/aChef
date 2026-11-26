@@ -229,6 +229,7 @@ export default function AdminDashboard() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [balcaoModalOpen, setBalcaoModalOpen] = useState(false);
   const [cadastrarBalcaoModalOpen, setCadastrarBalcaoModalOpen] = useState(false);
+  const [openComandasCount, setOpenComandasCount] = useState(0);
   const knownOrderIdsRef = useRef<Set<number>>(new Set());
   const initialLoadDoneRef = useRef(false);
 
@@ -245,14 +246,19 @@ export default function AdminDashboard() {
     setRefreshing(true);
 
     try {
-      const [settingsRes, ordersRes, customersRes] = await Promise.all([
+      const [settingsRes, ordersRes, customersRes, comandasRes] = await Promise.all([
         supabase.from("restaurant_settings").select("is_open").eq("id", 1).single(),
         supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(300),
         supabase.from("customers").select("id", { count: "exact", head: true }),
+        supabase.from("comandas").select("id", { count: "exact", head: true }).eq("status", "open"),
       ]);
 
       if (settingsRes.data) {
         setIsOpen(Boolean(settingsRes.data.is_open));
+      }
+
+      if (!comandasRes.error) {
+        setOpenComandasCount(comandasRes.count ?? 0);
       }
 
       const fetchedOrders: Order[] = ordersRes.data || [];
@@ -308,6 +314,17 @@ export default function AdminDashboard() {
             setDeletingOrder((cur) => (cur && cur.id === deletedId ? null : cur));
             setViewingItemsOrder((cur) => (cur && cur.id === deletedId ? null : cur));
           }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "comandas" },
+        async () => {
+          const { count, error } = await supabase
+            .from("comandas")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "open");
+          if (!error) setOpenComandasCount(count ?? 0);
         }
       )
       .subscribe();
@@ -613,10 +630,15 @@ export default function AdminDashboard() {
           <button
             type="button"
             onClick={() => setBalcaoModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-95 text-white font-black text-xs sm:text-sm shadow-xl shadow-orange-950/40 border border-amber-300/30 transition-all cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-95 text-white font-black text-sm shadow-xl shadow-orange-950/40 border border-amber-300/30 transition-all cursor-pointer"
           >
             <Store size={18} />
             <span>Lançamento no Balcão</span>
+            {openComandasCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-black/25 text-white text-[11px] font-black">
+                {openComandasCount} {openComandasCount === 1 ? "aberta" : "abertas"}
+              </span>
+            )}
           </button>
 
           {/* ── BOTÃO: CADASTRAR PRODUTO DE BALCÃO (Cigarros, Litrão, etc.) ── */}
