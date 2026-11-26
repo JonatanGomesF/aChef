@@ -135,6 +135,7 @@ export default function BalcaoModal({
   const [selectedProductId, setSelectedProductId] = useState("");
   const [addQty, setAddQty] = useState("1");
   const [addObs, setAddObs] = useState("");
+  const [showObsField, setShowObsField] = useState(false);
   const [addingItem, setAddingItem] = useState(false);
 
   // ── Item Editing & Removal ──
@@ -436,6 +437,7 @@ export default function BalcaoModal({
       await loadSelectedDetails(selectedComanda.id, true);
       setAddQty("1");
       setAddObs("");
+      setShowObsField(false);
       showNotice("success", `+${parsedQty}x ${selectedProduct.name} lançado em ${selectedComanda.label}`);
     } catch (err: unknown) {
       showNotice("error", getErrorMessage(err, "Erro ao adicionar produto na comanda."));
@@ -642,8 +644,12 @@ export default function BalcaoModal({
         onClick={(e) => e.stopPropagation()}
         className="w-full h-[100dvh] sm:max-w-7xl sm:h-[94vh] flex flex-col rounded-none sm:rounded-3xl bg-[#121212] border-0 sm:border sm:border-orange-500/30 shadow-2xl overflow-hidden font-sans"
       >
-        {/* ── Top Header ── */}
-        <div className="flex items-center justify-between gap-2 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/[0.08] bg-[#191919] flex-shrink-0">
+        {/* ── Top Header (no celular, oculta quando uma comanda está aberta para dar máximo espaço) ── */}
+        <div
+          className={`items-center justify-between gap-2 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.08] bg-[#191919] flex-shrink-0 ${
+            selectedComanda ? "hidden lg:flex" : "flex"
+          }`}
+        >
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-950/40 flex-shrink-0">
               <Store size={22} />
@@ -781,19 +787,19 @@ export default function BalcaoModal({
           </div>
         ) : (
           /* ── Main Responsive Master-Detail Workspace ── */
-          <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+          <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-[minmax(0,1fr)] overflow-hidden">
             {/* ══════════════════════════════════════════════════════════════
                 LISTA DE COMANDAS (Mobile: visível quando nenhuma está selecionada | Desktop: 5 cols)
                ══════════════════════════════════════════════════════════════ */}
             <div
-              className={`lg:col-span-5 flex-col h-full border-r border-white/[0.08] bg-[#141414] overflow-hidden ${
+              className={`lg:col-span-5 flex-1 min-h-0 flex-col border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#141414] overflow-hidden ${
                 selectedComandaId ? "hidden lg:flex" : "flex"
               }`}
             >
               {/* Form: Abrir Nova Comanda (Texto Livre) */}
               <form
                 onSubmit={handleOpenNewComanda}
-                className="p-4 border-b border-white/[0.08] bg-[#181818] space-y-2.5 flex-shrink-0"
+                className="p-3.5 sm:p-4 border-b border-white/[0.08] bg-[#181818] space-y-2 flex-shrink-0"
               >
                 <label className="text-[11px] font-black uppercase tracking-wider text-amber-400 block">
                   Abrir Nova Comanda
@@ -805,12 +811,12 @@ export default function BalcaoModal({
                     onChange={(e) => setNewLabel(e.target.value)}
                     placeholder="Ex: Mesa 01, Varanda, João, Família Silva..."
                     maxLength={80}
-                    className="flex-1 min-h-[48px] bg-[#101010] border border-white/[0.12] focus:border-orange-500 rounded-2xl px-4 py-3 text-white text-sm sm:text-base font-bold outline-none placeholder:text-white/30"
+                    className="flex-1 min-h-[46px] bg-[#101010] border border-white/[0.12] focus:border-orange-500 rounded-2xl px-3.5 py-2.5 text-white text-sm sm:text-base font-bold outline-none placeholder:text-white/30"
                   />
                   <button
                     type="submit"
                     disabled={openingComanda || !newLabel.trim()}
-                    className="min-h-[48px] px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-[0.98] text-white font-black text-sm shadow-lg shadow-orange-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 flex-shrink-0"
+                    className="min-h-[46px] px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-[0.98] text-white font-black text-sm shadow-lg shadow-orange-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 flex-shrink-0"
                   >
                     <Plus size={18} />
                     <span>{openingComanda ? "Abrindo..." : "Abrir Comanda"}</span>
@@ -882,7 +888,7 @@ export default function BalcaoModal({
               </div>
 
               {/* Lista de Cards das Comandas */}
-              <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
+              <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-3.5 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-2.5">
                 {loadingComandas && comandas.length === 0 ? (
                   <div className="py-12 text-center text-white/40 text-sm">
                     Carregando comandas...
@@ -971,7 +977,7 @@ export default function BalcaoModal({
                 DETALHE DA COMANDA SELECIONADA (Mobile: visível ao selecionar | Desktop: 7 cols)
                ══════════════════════════════════════════════════════════════ */}
             <div
-              className={`lg:col-span-7 flex-col h-full bg-[#111111] overflow-hidden ${
+              className={`lg:col-span-7 flex-1 min-h-0 flex-col bg-[#111111] overflow-hidden ${
                 selectedComandaId ? "flex" : "hidden lg:flex"
               }`}
             >
@@ -992,72 +998,91 @@ export default function BalcaoModal({
               ) : (
                 <>
                   {/* Header da Comanda Selecionada */}
-                  <div className="px-4 sm:px-6 py-3.5 border-b border-white/[0.08] bg-[#181818] space-y-2 flex-shrink-0">
+                  <div className="px-3.5 sm:px-6 py-3 border-b border-white/[0.08] bg-[#181818] space-y-2 flex-shrink-0">
                     <div className="flex items-center justify-between gap-2">
                       <button
                         type="button"
                         onClick={() => setSelectedComandaId(null)}
-                        className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] text-white font-bold text-xs cursor-pointer"
+                        className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-bold text-xs cursor-pointer"
                       >
                         <ArrowLeft size={15} />
-                        <span>Comandas</span>
+                        <span>Voltar</span>
                       </button>
 
-                      <div className="flex items-center gap-2 ml-auto">
+                      <div className="flex items-center gap-1.5 ml-auto">
                         {selectedComanda.status === "open" && computedItemsCount === 0 && (
                           <button
                             type="button"
                             disabled={deletingEmptyId === selectedComanda.id}
                             onClick={() => handleDeleteEmpty(selectedComanda)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold cursor-pointer"
                           >
                             <Trash2 size={13} />
-                            <span>Cancelar vazia</span>
+                            <span>Cancelar</span>
                           </button>
                         )}
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-black uppercase border ${
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-black uppercase border ${
                             selectedComanda.status === "open"
                               ? "bg-amber-500/15 text-amber-300 border-amber-500/35"
                               : "bg-emerald-500/15 text-emerald-300 border-emerald-500/35"
                           }`}
                         >
-                          {selectedComanda.status === "open" ? "Comanda Aberta" : "Comanda Fechada"}
+                          {selectedComanda.status === "open" ? "Aberta" : "Fechada"}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            loadComandas(false);
+                            loadSelectedDetails(selectedComanda.id, false);
+                          }}
+                          title="Sincronizar"
+                          className="lg:hidden p-2 rounded-xl bg-white/[0.06] text-white/70 hover:text-white cursor-pointer"
+                        >
+                          <RefreshCw size={15} className={loadingDetails ? "animate-spin" : ""} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={onClose}
+                          aria-label="Fechar"
+                          className="lg:hidden p-2 rounded-xl bg-white/[0.06] text-white/70 hover:text-white cursor-pointer"
+                        >
+                          <X size={16} />
+                        </button>
                       </div>
                     </div>
 
-                    <div className="flex items-end justify-between gap-3 flex-wrap">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
-                        <h3 className="text-white font-black text-xl sm:text-2xl tracking-tight truncate">
+                        <h3 className="text-white font-black text-lg sm:text-2xl tracking-tight truncate">
                           {selectedComanda.label}
                         </h3>
-                        <div className="flex items-center gap-2.5 flex-wrap text-xs text-white/45 mt-0.5">
+                        <div className="flex items-center gap-2 flex-wrap text-[11px] sm:text-xs text-white/45">
                           <span className="font-mono font-bold text-white/75">{selectedComanda.code}</span>
-                          <span>• Aberta {formatDateTimeShort(selectedComanda.opened_at)}</span>
+                          <span>• {formatDateTimeShort(selectedComanda.opened_at)}</span>
                           {selectedComanda.opened_by && (
                             <span className="inline-flex items-center gap-1">
-                              <User size={11} />
+                              <User size={10} />
                               {formatActorName(selectedComanda.opened_by)}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <span className="text-[10px] font-black uppercase tracking-wider text-white/40 block">
-                          Acumulado
+                          Total
                         </span>
-                        <span className="text-emerald-400 font-black text-2xl leading-none">
+                        <span className="text-emerald-400 font-black text-xl sm:text-2xl leading-none">
                           R$ {computedTotal.toFixed(2)}
                         </span>
                       </div>
                     </div>
 
                     {selectedComanda.status === "closed" && (
-                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-200 flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <Lock size={14} className="text-emerald-400" />
+                      <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-[11px] sm:text-xs text-emerald-200 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <Lock size={13} className="text-emerald-400 flex-shrink-0" />
                           <span>
                             Fechada {formatDateTimeShort(selectedComanda.closed_at)} •{" "}
                             <strong>{selectedComanda.payment_method || "PIX"}</strong>
@@ -1074,22 +1099,24 @@ export default function BalcaoModal({
                   </div>
 
                   {/* Corpo Scrollável: Lançamento de Produtos + Itens Lançados + Histórico */}
-                  <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+                  <div className="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-5 space-y-4">
                     {/* Área para Adicionar Produtos (somente comanda aberta) */}
                     {selectedComanda.status === "open" && (
                       <form
                         onSubmit={handleAddProduct}
-                        className="p-4 rounded-2xl bg-[#181818] border border-white/[0.08] space-y-3.5"
+                        className="p-3 sm:p-4 rounded-2xl bg-[#181818] border border-white/[0.08] space-y-2.5 sm:space-y-3"
                       >
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-white font-black text-sm sm:text-base">
-                            Lançar Produto na Comanda
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-white font-black text-xs sm:text-sm uppercase tracking-wider">
+                            Adicionar Produto
                           </h4>
-                          {selectedProduct && (
-                            <span className="text-xs font-bold text-emerald-400">
-                              Unit: R$ {selectedProduct.price.toFixed(2)}
-                            </span>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => setShowObsField((v) => !v)}
+                            className="text-[11px] font-bold text-amber-400 hover:text-amber-300 cursor-pointer"
+                          >
+                            {showObsField ? "Ocultar obs" : "+ Observação"}
+                          </button>
                         </div>
 
                         {/* Dropdown de Seleção de Produtos */}
@@ -1100,66 +1127,58 @@ export default function BalcaoModal({
                           disabled={addingItem}
                         />
 
-                        {/* Quantidade + Observação */}
-                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                          <div className="sm:col-span-5 space-y-1.5">
-                            <label className="text-[11px] font-black uppercase tracking-wider text-white/60 block">
-                              Quantidade
-                            </label>
-                            <div className="flex items-center bg-[#121212] border border-white/[0.12] rounded-2xl p-1">
-                              <button
-                                type="button"
-                                onClick={() => setAddQty(String(Math.max(1, parsedQty - 1)))}
-                                className="w-11 h-11 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white flex items-center justify-center cursor-pointer"
-                              >
-                                <Minus size={18} />
-                              </button>
-                              <input
-                                type="number"
-                                min={1}
-                                inputMode="numeric"
-                                value={addQty}
-                                onChange={(e) => setAddQty(e.target.value)}
-                                className="flex-1 min-w-0 bg-transparent text-center text-white font-black text-lg outline-none"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setAddQty(String(parsedQty + 1))}
-                                className="w-11 h-11 rounded-xl bg-primary hover:bg-orange-600 text-white flex items-center justify-center cursor-pointer"
-                              >
-                                <Plus size={18} />
-                              </button>
-                            </div>
-                          </div>
+                        {showObsField && (
+                          <input
+                            type="text"
+                            value={addObs}
+                            onChange={(e) => setAddObs(e.target.value)}
+                            placeholder="Obs: Bem gelada, sem cebola, copo c/ gelo..."
+                            className="w-full min-h-[44px] bg-[#121212] border border-white/[0.12] focus:border-orange-500 rounded-xl px-3.5 py-2 text-white text-sm outline-none placeholder:text-white/30"
+                          />
+                        )}
 
-                          <div className="sm:col-span-7 space-y-1.5">
-                            <label className="text-[11px] font-black uppercase tracking-wider text-white/60 block">
-                              Observação do Item (Opcional)
-                            </label>
+                        {/* Quantidade + Botão Adicionar lado a lado */}
+                        <div className="flex items-stretch gap-2">
+                          <div className="flex items-center bg-[#121212] border border-white/[0.14] rounded-2xl p-1 w-32 sm:w-36 flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => setAddQty(String(Math.max(1, parsedQty - 1)))}
+                              className="w-9 h-10 rounded-xl bg-white/[0.07] hover:bg-white/[0.14] text-white flex items-center justify-center cursor-pointer"
+                            >
+                              <Minus size={16} />
+                            </button>
                             <input
-                              type="text"
-                              value={addObs}
-                              onChange={(e) => setAddObs(e.target.value)}
-                              placeholder="Ex: Bem gelada, sem cebola, copo c/ gelo..."
-                              className="w-full min-h-[54px] bg-[#121212] border border-white/[0.12] focus:border-orange-500 rounded-2xl px-3.5 py-3 text-white text-sm outline-none placeholder:text-white/25"
+                              type="number"
+                              min={1}
+                              inputMode="numeric"
+                              value={addQty}
+                              onChange={(e) => setAddQty(e.target.value)}
+                              className="flex-1 min-w-0 bg-transparent text-center text-white font-black text-base outline-none"
                             />
+                            <button
+                              type="button"
+                              onClick={() => setAddQty(String(parsedQty + 1))}
+                              className="w-9 h-10 rounded-xl bg-primary hover:bg-orange-600 text-white flex items-center justify-center cursor-pointer"
+                            >
+                              <Plus size={16} />
+                            </button>
                           </div>
-                        </div>
 
-                        <button
-                          type="submit"
-                          disabled={addingItem || !selectedProduct}
-                          className="w-full min-h-[52px] py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-lg shadow-orange-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
-                        >
-                          <Plus size={19} />
-                          <span>
-                            {addingItem
-                              ? "Adicionando..."
-                              : selectedProduct
-                                ? `Adicionar ${parsedQty}x • R$ ${(selectedProduct.price * parsedQty).toFixed(2)}`
-                                : "Selecione um produto acima"}
-                          </span>
-                        </button>
+                          <button
+                            type="submit"
+                            disabled={addingItem || !selectedProduct}
+                            className="flex-1 min-h-[50px] px-3 sm:px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-[0.99] text-white font-black text-xs sm:text-sm shadow-lg shadow-orange-950/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40"
+                          >
+                            <Plus size={17} className="flex-shrink-0" />
+                            <span className="truncate">
+                              {addingItem
+                                ? "Adicionando..."
+                                : selectedProduct
+                                  ? `Adicionar • R$ ${(selectedProduct.price * parsedQty).toFixed(2)}`
+                                  : "Adicionar"}
+                            </span>
+                          </button>
+                        </div>
                       </form>
                     )}
 
@@ -1333,20 +1352,19 @@ export default function BalcaoModal({
                   </div>
 
                   {/* Barra Inferior Fixa: Resumo e Botão FECHAR CONTA */}
-                  <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#191919] space-y-3 flex-shrink-0">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <span className="text-[11px] font-black uppercase tracking-wider text-white/45 block">
-                          Total da Comanda ({computedItemsCount}{" "}
-                          {computedItemsCount === 1 ? "item" : "itens"})
+                  <div className="px-3.5 sm:px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-white/[0.08] bg-[#191919] space-y-2.5 flex-shrink-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-white/50 block">
+                          Total ({computedItemsCount} {computedItemsCount === 1 ? "item" : "itens"})
                         </span>
-                        <span className="text-[11px] text-white/40">
+                        <span className="hidden sm:block text-[11px] text-white/40">
                           {selectedComanda.status === "open"
                             ? "Lançamentos pendentes — não contabilizado no financeiro"
                             : "Venda já integrada ao financeiro"}
                         </span>
                       </div>
-                      <span className="text-2xl sm:text-3xl font-black text-emerald-400 leading-none">
+                      <span className="text-xl sm:text-3xl font-black text-emerald-400 leading-none">
                         R$ {computedTotal.toFixed(2)}
                       </span>
                     </div>
@@ -1356,9 +1374,9 @@ export default function BalcaoModal({
                         type="button"
                         disabled={comandaItems.length === 0 || isClosingComanda}
                         onClick={handleOpenCloseConfirm}
-                        className="w-full min-h-[54px] py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-black text-base sm:text-lg shadow-xl shadow-emerald-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-full min-h-[50px] py-3 px-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] text-white font-black text-sm sm:text-lg shadow-xl shadow-emerald-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                       >
-                        <Receipt size={20} />
+                        <Receipt size={19} />
                         <span>FECHAR CONTA • R$ {computedTotal.toFixed(2)}</span>
                       </button>
                     ) : (

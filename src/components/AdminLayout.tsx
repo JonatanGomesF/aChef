@@ -28,16 +28,14 @@ const navItems = [
   { to: "/admin/impressora", label: "Impressora", Icon: Printer         },
 ];
 
-export default function AdminLayout({ children }: Props) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin/login");
-  };
-
-  const NavContent = () => (
+function SidebarNavContent({
+  onNavigate,
+  onLogout,
+}: {
+  onNavigate: () => void;
+  onLogout: () => void;
+}) {
+  return (
     <>
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-white/[0.06]">
@@ -60,7 +58,7 @@ export default function AdminLayout({ children }: Props) {
             key={to}
             to={to}
             end={to === "/admin"}
-            onClick={() => setSidebarOpen(false)}
+            onClick={onNavigate}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
                 isActive
@@ -82,7 +80,7 @@ export default function AdminLayout({ children }: Props) {
       {/* Logout */}
       <div className="px-3 py-4 border-t border-white/[0.06]">
         <button
-          onClick={logout}
+          onClick={onLogout}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 cursor-pointer"
         >
           <LogOut size={17} />
@@ -91,13 +89,23 @@ export default function AdminLayout({ children }: Props) {
       </div>
     </>
   );
+}
+
+export default function AdminLayout({ children }: Props) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] flex font-sans-montserrat">
 
       {/* ── Sidebar Desktop ── */}
       <aside className="hidden md:flex flex-col w-56 bg-[#141414] border-r border-white/[0.05] flex-shrink-0 fixed top-0 left-0 h-full z-30">
-        <NavContent />
+        <SidebarNavContent onNavigate={() => setSidebarOpen(false)} onLogout={logout} />
       </aside>
 
       {/* ── Mobile overlay ── */}
@@ -120,11 +128,11 @@ export default function AdminLayout({ children }: Props) {
         >
           <X size={18} />
         </button>
-        <NavContent />
+        <SidebarNavContent onNavigate={() => setSidebarOpen(false)} onLogout={logout} />
       </aside>
 
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col md:ml-56 min-h-screen">
+      <div className="flex-1 min-w-0 flex flex-col md:ml-56 min-h-screen overflow-x-hidden">
 
         {/* Top bar mobile */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-[#141414] border-b border-white/[0.05] sticky top-0 z-20">
@@ -143,7 +151,7 @@ export default function AdminLayout({ children }: Props) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
+        <main className="flex-1 p-3 sm:p-5 md:p-6 lg:p-8 min-w-0">
           {children}
         </main>
       </div>

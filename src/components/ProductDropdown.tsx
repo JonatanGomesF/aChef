@@ -84,18 +84,14 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <label className="text-[11px] font-black uppercase tracking-wider text-white/60 block mb-1.5">
-        Produto
-      </label>
-
       <button
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        className={`w-full min-h-[54px] px-4 py-3 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer disabled:opacity-50 ${
+        className={`w-full min-h-[52px] px-3.5 py-2.5 rounded-2xl border text-left flex items-center justify-between gap-2.5 transition-all cursor-pointer disabled:opacity-50 ${
           open
             ? "bg-[#222222] border-orange-500 ring-2 ring-orange-500/20"
-            : "bg-[#1c1c1c] border-white/[0.12] hover:border-white/25"
+            : "bg-[#121212] border-white/[0.14] hover:border-white/30"
         }`}
       >
         {selectedItem ? (
@@ -106,7 +102,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                   {selectedItem.name}
                 </span>
                 {selectedItem.size && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-white/70">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-white/75">
                     {selectedItem.size}
                   </span>
                 )}
@@ -116,7 +112,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                   </span>
                 )}
               </div>
-              <div className="text-[11px] text-white/40 truncate">
+              <div className="text-[11px] text-white/45 truncate">
                 {selectedItem.category}
                 {!selectedItem.available && " • Esgotado no cardápio"}
               </div>
@@ -126,23 +122,36 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
             </span>
           </div>
         ) : (
-          <span className="text-white/40 text-sm sm:text-base font-medium">
-            Selecione um produto do cardápio...
+          <span className="text-white/50 text-sm font-semibold">
+            Toque para escolher um produto...
           </span>
         )}
 
         <ChevronDown
-          size={20}
+          size={19}
           className={`text-white/50 flex-shrink-0 transition-transform duration-200 ${
             open ? "rotate-180 text-orange-400" : ""
           }`}
         />
       </button>
 
+      {/* No celular (< sm) abre como tela cheia limpa para nunca cortar; no desktop abre como dropdown ancorado */}
       {open && (
-        <div className="absolute left-0 right-0 mt-2 z-50 rounded-2xl bg-[#181818] border border-orange-500/35 shadow-2xl shadow-black/80 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
-          {/* Busca + Fechar */}
-          <div className="p-3 border-b border-white/[0.08] bg-[#1e1e1e] space-y-2.5">
+        <div className="fixed inset-0 z-[9996] flex flex-col bg-[#141414] sm:absolute sm:inset-auto sm:left-0 sm:right-0 sm:mt-2 sm:rounded-2xl sm:bg-[#181818] sm:border sm:border-orange-500/35 sm:shadow-2xl sm:shadow-black/80 overflow-hidden animate-in fade-in duration-150">
+          {/* Header mobile do seletor */}
+          <div className="flex sm:hidden items-center justify-between px-4 py-3 border-b border-white/[0.08] bg-[#1a1a1a] flex-shrink-0">
+            <span className="text-white font-black text-base">Selecionar Produto</span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="p-2 rounded-xl bg-white/[0.08] text-white/80 hover:text-white cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Busca + Categorias */}
+          <div className="p-3 border-b border-white/[0.08] bg-[#1c1c1c] space-y-2.5 flex-shrink-0">
             <div className="relative">
               <Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
               <input
@@ -150,7 +159,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar produto ou categoria..."
-                className="w-full bg-[#121212] border border-white/[0.1] focus:border-orange-500 rounded-xl pl-10 pr-9 py-2.5 text-white text-sm font-medium outline-none placeholder:text-white/30"
+                className="w-full min-h-[44px] bg-[#101010] border border-white/[0.12] focus:border-orange-500 rounded-xl pl-10 pr-9 py-2.5 text-white text-sm font-medium outline-none placeholder:text-white/35"
               />
               {search && (
                 <button
@@ -171,7 +180,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === "ALL"
                     ? "bg-primary text-white"
-                    : "bg-white/[0.05] text-white/60 hover:text-white"
+                    : "bg-white/[0.06] text-white/65 hover:text-white"
                 }`}
               >
                 Todos ({items.length})
@@ -184,7 +193,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
                     selectedCategory === "BALCAO_ONLY"
                       ? "bg-amber-500 text-stone-950"
-                      : "bg-amber-500/10 text-amber-400 border border-amber-500/25"
+                      : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
                   }`}
                 >
                   <Store size={12} />
@@ -200,7 +209,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     selectedCategory === cat
                       ? "bg-white text-stone-950"
-                      : "bg-white/[0.05] text-white/60 hover:text-white"
+                      : "bg-white/[0.06] text-white/65 hover:text-white"
                   }`}
                 >
                   {cat}
@@ -210,7 +219,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
           </div>
 
           {/* Lista de Opções */}
-          <div className="max-h-72 overflow-y-auto divide-y divide-white/[0.05]">
+          <div className="flex-1 sm:max-h-72 overflow-y-auto divide-y divide-white/[0.06] pb-6 sm:pb-0">
             {filteredItems.length === 0 ? (
               <div className="p-8 text-center text-white/40 text-sm space-y-1.5">
                 <Package size={28} className="mx-auto text-white/20" />
@@ -227,7 +236,7 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                     className={`w-full px-4 py-3.5 text-left flex items-center justify-between gap-3 transition-colors cursor-pointer ${
                       isSelected
                         ? "bg-orange-500/15"
-                        : "hover:bg-white/[0.05] active:bg-white/[0.08]"
+                        : "hover:bg-white/[0.05] active:bg-white/[0.1]"
                     }`}
                   >
                     <div className="min-w-0 flex-1 space-y-0.5">
@@ -251,10 +260,10 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-white/40">{item.category}</div>
+                      <div className="text-[11px] text-white/45">{item.category}</div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-emerald-400 font-black text-sm sm:text-base">
                         R$ {item.price.toFixed(2)}
                       </span>
@@ -270,4 +279,3 @@ export default function ProductDropdown({ items, selectedId, onSelect, disabled 
     </div>
   );
 }
-

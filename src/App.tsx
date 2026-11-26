@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import AdminPromocoes from "./pages/AdminPromocoes";
 import Home from "./pages/Home";
 import AdminClientes from "./pages/AdminClientes";
@@ -21,6 +21,8 @@ import CheckoutDialog from "./components/CheckoutDialog";
 import { useCart } from "./context/CartContext";
 
 function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
@@ -119,7 +121,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Navbar onOpenCart={() => setCartOpen(true)} />
+      {!isAdminRoute && <Navbar onOpenCart={() => setCartOpen(true)} />}
 
       <Routes>
         <Route path="/" element={<Home />} />

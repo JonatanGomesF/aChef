@@ -275,7 +275,7 @@ export default function CloseComandaConfirmModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#1a1a1a] flex flex-col-reverse sm:flex-row gap-2.5">
+        <div className="p-4 sm:p-5 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-white/[0.08] bg-[#1a1a1a] flex flex-col-reverse sm:flex-row gap-2.5 flex-shrink-0">
           <button
             type="button"
             disabled={isSubmitting}

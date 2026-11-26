@@ -56,9 +56,9 @@ export default function RevenueGraph({ data }: { data: DayRevenue[] }) {
         </div>
       </div>
 
-      <div className="relative rounded-[2rem] bg-slate-950/90 p-5">
+      <div className="relative rounded-2xl sm:rounded-[2rem] bg-slate-950/90 p-3 sm:p-5">
         <div className="pointer-events-none absolute inset-x-0 top-6 h-full bg-gradient-to-b from-white/5 via-transparent to-transparent" />
-        <svg viewBox="0 0 760 240" className="w-full h-[240px]">
+        <svg viewBox="0 0 760 240" className="w-full h-auto max-h-[240px]">
           <defs>
             <linearGradient id="lineGradient" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0%" stopColor="#f97316" />

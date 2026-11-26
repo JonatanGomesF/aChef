@@ -656,7 +656,7 @@ export default function AdminDashboard() {
           <button
             onClick={toggleOpen}
             disabled={toggling}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-lg ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-lg ${
               isOpen
                 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 shadow-emerald-950/20"
                 : "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20 shadow-rose-950/20"
@@ -677,10 +677,10 @@ export default function AdminDashboard() {
           <button
             onClick={() => loadData(false)}
             title="Recarregar do Supabase"
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/60 hover:text-white hover:border-white/20 transition-all cursor-pointer text-xs font-bold"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/60 hover:text-white hover:border-white/20 transition-all cursor-pointer text-xs font-bold"
           >
             <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
-            <span className="hidden sm:inline">Sincronizar</span>
+            <span>Sincronizar</span>
           </button>
         </div>
       </div>
@@ -797,7 +797,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── SEÇÃO: PEDIDOS EM ANDAMENTO EM TEMPO REAL ── */}
-      <div className="rounded-3xl p-6 bg-[#141414] border border-white/[0.06] shadow-2xl mb-8 space-y-4">
+      <div className="rounded-3xl p-4 sm:p-6 bg-[#141414] border border-white/[0.06] shadow-2xl mb-6 sm:mb-8 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -943,15 +943,15 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── SEÇÃO: PEDIDOS CONCLUÍDOS (FINALIZADOS) - LINHA A LINHA ── */}
-      <div className="rounded-3xl p-6 bg-[#141414] border border-white/[0.06] shadow-2xl space-y-5">
+      <div className="rounded-3xl p-4 sm:p-6 bg-[#141414] border border-white/[0.06] shadow-2xl space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-white/[0.06]">
           <div>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0">
                 <CheckCircle2 size={20} />
               </div>
               <div>
-                <h2 className="text-white font-black text-lg tracking-tight">Pedidos Concluídos (Finalizados)</h2>
+                <h2 className="text-white font-black text-base sm:text-lg tracking-tight">Pedidos Concluídos (Finalizados)</h2>
                 <p className="text-white/40 text-xs mt-0.5">
                   Linha a linha com controle total: edite ou delete pedidos diretamente no banco de dados Supabase
                 </p>
@@ -959,9 +959,9 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Filtro por status */}
-            <div className="inline-flex rounded-xl bg-white/[0.04] p-1 border border-white/[0.08]">
+            <div className="flex flex-wrap rounded-xl bg-white/[0.04] p-1 border border-white/[0.08] max-w-full">
               {(
                 [
                   { key: "delivered", label: `Concluídos (${allDeliveredOrders.length})` },
@@ -973,7 +973,7 @@ export default function AdminDashboard() {
                 <button
                   key={key}
                   onClick={() => setStatusFilter(key)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                     statusFilter === key
                       ? "bg-primary text-white shadow-md shadow-orange-950/40"
                       : "text-white/50 hover:text-white"
@@ -985,7 +985,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Filtro por período */}
-            <div className="inline-flex rounded-xl bg-white/[0.04] p-1 border border-white/[0.08]">
+            <div className="flex flex-wrap rounded-xl bg-white/[0.04] p-1 border border-white/[0.08] max-w-full">
               {(
                 [
                   { key: "all", label: "Todo período" },
@@ -997,7 +997,7 @@ export default function AdminDashboard() {
                 <button
                   key={key}
                   onClick={() => setDateFilter(key)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                     dateFilter === key
                       ? "bg-white/[0.12] text-white"
                       : "text-white/40 hover:text-white"
@@ -1048,7 +1048,88 @@ export default function AdminDashboard() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+          <>
+          {/* Cards Mobile (sem rolagem horizontal) */}
+          <div className="md:hidden space-y-3">
+            {filteredOrders.map((order) => {
+              const itemsCount =
+                order.items?.reduce((s, it) => s + (Number(it.quantity) || 1), 0) || 0;
+              const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
+              const StatusIcon = statusCfg.icon;
+
+              return (
+                <div
+                  key={`mobile-${order.id}`}
+                  className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-2.5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md bg-white/[0.07] text-white font-black text-xs">
+                        #{order.id}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${statusCfg.badgeClass}`}
+                      >
+                        <StatusIcon size={10} />
+                        {statusCfg.label}
+                      </span>
+                    </div>
+                    <span className="text-emerald-400 font-black text-base">
+                      R$ {Number(order.total || 0).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="text-white font-bold text-sm">{order.customer_name || "Cliente"}</div>
+                    <div className="text-white/45 text-[11px] mt-0.5">
+                      {formatDateTime(order.created_at)} • {order.payment_method || "Dinheiro"}
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-white/70 bg-black/30 rounded-xl px-3 py-2 line-clamp-2">
+                    {order.items?.map((it) => `${it.quantity}x ${it.name}`).join(", ") || "Sem itens"}
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewingItemsOrder(order)}
+                      className="flex-1 py-2 px-2.5 rounded-xl bg-white/[0.05] text-white/80 text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <Eye size={13} />
+                      <span>Itens ({itemsCount})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => printOrderReceipt(order)}
+                      className="p-2 rounded-xl bg-orange-500/15 text-orange-300 border border-orange-500/30 cursor-pointer"
+                      title="Imprimir"
+                    >
+                      <Printer size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(order)}
+                      className="p-2 rounded-xl bg-white/[0.06] text-amber-400 border border-white/[0.1] cursor-pointer"
+                      title="Editar"
+                    >
+                      <Edit3 size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeletingOrder(order)}
+                      className="p-2 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/30 cursor-pointer"
+                      title="Deletar"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-white/[0.06] bg-white/[0.02]">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/[0.08] bg-white/[0.03] text-white/40 text-[10px] font-black uppercase tracking-wider">
@@ -1225,6 +1306,7 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
