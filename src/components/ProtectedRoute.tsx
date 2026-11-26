@@ -1,31 +1,33 @@
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../services/supabase";
+import { fetchStaffProfileByEmail, type StaffRole } from "../services/staffAuth";
 
 type Props = {
   children: React.ReactNode;
+  allowedRoles?: StaffRole[];
 };
 
-// Tempo máximo (ms) que a verificação de acesso pode levar antes de liberar a
-// tela. Sem isso, um backend indisponível (ex.: projeto Supabase pausado, que
-// deixa de resolver o domínio) pode travar a tela em "Verificando Acesso...".
 const AUTH_CHECK_TIMEOUT = 10000;
 
 export default function ProtectedRoute({
   children,
+  allowedRoles = ["admin"],
 }: Props) {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<StaffRole | null>(null);
 
   useEffect(() => {
     let active = true;
     let settled = false;
 
-    const finish = (isAuthenticated: boolean) => {
+    const finish = (isAuthenticated: boolean, role: StaffRole | null = null) => {
       if (!active || settled) return;
       settled = true;
       clearTimeout(timer);
       setAuthenticated(isAuthenticated);
+      setUserRole(role);
       setLoading(false);
     };
 
@@ -34,7 +36,7 @@ export default function ProtectedRoute({
         "Verificação de acesso excedeu o tempo limite. " +
           "Verifique sua conexão e se o projeto Supabase está ativo (não pausado)."
       );
-      finish(false);
+      finish(false, null);
     }, AUTH_CHECK_TIMEOUT);
 
     async function checkAuth() {
@@ -49,34 +51,28 @@ export default function ProtectedRoute({
         }
 
         if (!session) {
-          finish(false);
+          finish(false, null);
           return;
         }
 
-        // Verifica se o usuário existe na tabela admins (com RLS restrito)
-        const { data, error } = await supabase
-          .from("admins")
-          .select("email")
-          .eq("email", session.user.email ?? "")
-          .limit(1);
+        const { profile, error } = await fetchStaffProfileByEmail(session.user.email);
 
         if (error) {
-          console.error("Erro ao verificar permissão de admin:", error);
-          finish(false);
+          console.error("Erro ao verificar permissão de acesso:", error);
+          finish(false, null);
           return;
         }
 
-        const isAdmin = !!data && data.length > 0;
-        finish(isAdmin);
-
-        if (!isAdmin) {
-          // Encerra a sessão sem bloquear a navegação (pode falhar se o
-          // backend estiver fora do ar, o que não deve travar a tela)
+        if (!profile) {
+          finish(false, null);
           supabase.auth.signOut().catch(() => {});
+          return;
         }
+
+        finish(true, profile.role);
       } catch (error) {
         console.error("Erro na verificação de autenticação:", error);
-        finish(false);
+        finish(false, null);
       }
     }
 
@@ -104,8 +100,12 @@ export default function ProtectedRoute({
     );
   }
 
-  if (!authenticated) {
-    return <Navigate to="/admin/login" />;
+  if (!authenticated || !userRole) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  if (!allowedRoles.includes(userRole)) {
+    return <Navigate to={userRole === "waiter" ? "/garcom" : "/admin"} replace />;
   }
 
   return <>{children}</>;

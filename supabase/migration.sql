@@ -447,6 +447,77 @@ CREATE INDEX IF NOT EXISTS idx_orders_location ON public.orders(latitude, longit
 -- 14. SISTEMA DE COMANDAS ABERTAS (BALCÃO / GARÇONS)
 -- ─────────────────────────────────────────────
 
+-- Suporte a perfis de acesso: 'admin' (dono/gerente) e 'waiter' (garçom sem acesso financeiro)
+ALTER TABLE public.admins
+  ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'waiter'));
+
+ALTER TABLE public.admins
+  ADD COLUMN IF NOT EXISTS display_name TEXT NOT NULL DEFAULT '';
+
+-- Atualiza is_admin() para permitir acesso financeiro/config apenas ao perfil 'admin'
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.admins
+    WHERE lower(email) = lower(COALESCE(auth.jwt() ->> 'email', ''))
+      AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Função para verificar equipe autorizada a operar comandas ('admin' ou 'waiter')
+CREATE OR REPLACE FUNCTION public.is_staff()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.admins
+    WHERE lower(email) = lower(COALESCE(auth.jwt() ->> 'email', ''))
+      AND role IN ('admin', 'waiter')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Cada usuário autenticado lê apenas o próprio cargo; apenas 'admin' gerencia toda a tabela admins
+DROP POLICY IF EXISTS admins_read_own ON public.admins;
+CREATE POLICY admins_read_own ON public.admins
+  FOR SELECT
+  TO authenticated
+  USING (lower(email) = lower(COALESCE(auth.jwt() ->> 'email', '')));
+
+-- Garante que views financeiras respeitem as políticas RLS do usuário logado (quando existirem)
+DO $$
+BEGIN
+  IF to_regclass('public.orders_today') IS NOT NULL THEN
+    EXECUTE 'ALTER VIEW public.orders_today SET (security_invoker = true)';
+  END IF;
+  IF to_regclass('public.revenue_last_7_days') IS NOT NULL THEN
+    EXECUTE 'ALTER VIEW public.revenue_last_7_days SET (security_invoker = true)';
+  END IF;
+  IF to_regclass('public.top_customers') IS NOT NULL THEN
+    EXECUTE 'ALTER VIEW public.top_customers SET (security_invoker = true)';
+  END IF;
+END $$;
+
+-- Permite que garçons autenticados leiam apenas o catálogo de produtos e disponibilidade (somente leitura)
+DO $$
+BEGIN
+  IF to_regclass('public.site_theme') IS NOT NULL THEN
+    EXECUTE 'DROP POLICY IF EXISTS theme_read_staff ON public.site_theme';
+    EXECUTE 'CREATE POLICY theme_read_staff ON public.site_theme FOR SELECT TO authenticated USING (public.is_staff())';
+  END IF;
+
+  IF to_regclass('public.product_availability') IS NOT NULL THEN
+    EXECUTE 'DROP POLICY IF EXISTS product_availability_read_staff ON public.product_availability';
+    EXECUTE 'CREATE POLICY product_availability_read_staff ON public.product_availability FOR SELECT TO authenticated USING (public.is_staff())';
+  END IF;
+
+  IF to_regclass('public.menu_catalog') IS NOT NULL THEN
+    EXECUTE 'DROP POLICY IF EXISTS menu_catalog_read_staff ON public.menu_catalog';
+    EXECUTE 'CREATE POLICY menu_catalog_read_staff ON public.menu_catalog FOR SELECT TO authenticated USING (public.is_staff())';
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS public.comandas (
   id              BIGSERIAL PRIMARY KEY,
   code            TEXT NOT NULL UNIQUE,
@@ -572,25 +643,63 @@ CREATE TRIGGER comanda_items_sync_totals
   AFTER INSERT OR UPDATE OR DELETE ON public.comanda_items
   FOR EACH ROW EXECUTE FUNCTION public.sync_comanda_totals();
 
--- RLS para Comandas, Itens e Histórico (apenas admins/garçons autenticados)
+-- RLS para Comandas, Itens e Histórico
+-- Garçons ('waiter') visualizam apenas comandas abertas; donos ('admin') visualizam tudo (abertas e fechadas)
+-- Mutações de garçons ocorrem exclusivamente via RPCs atômicas SECURITY DEFINER
 ALTER TABLE public.comandas        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comanda_items   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comanda_history ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS comandas_auth_all ON public.comandas;
-CREATE POLICY comandas_auth_all ON public.comandas
+DROP POLICY IF EXISTS comandas_staff_select ON public.comandas;
+CREATE POLICY comandas_staff_select ON public.comandas
+  FOR SELECT TO authenticated
+  USING (public.is_admin() OR (public.is_staff() AND status = 'open'));
+
+DROP POLICY IF EXISTS comandas_admin_write ON public.comandas;
+CREATE POLICY comandas_admin_write ON public.comandas
   FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS comanda_items_auth_all ON public.comanda_items;
-CREATE POLICY comanda_items_auth_all ON public.comanda_items
+DROP POLICY IF EXISTS comanda_items_staff_select ON public.comanda_items;
+CREATE POLICY comanda_items_staff_select ON public.comanda_items
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin()
+    OR (
+      public.is_staff()
+      AND EXISTS (
+        SELECT 1 FROM public.comandas c
+        WHERE c.id = comanda_id AND c.status = 'open'
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS comanda_items_admin_write ON public.comanda_items;
+CREATE POLICY comanda_items_admin_write ON public.comanda_items
   FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS comanda_history_auth_all ON public.comanda_history;
-CREATE POLICY comanda_history_auth_all ON public.comanda_history
+DROP POLICY IF EXISTS comanda_history_staff_select ON public.comanda_history;
+CREATE POLICY comanda_history_staff_select ON public.comanda_history
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin()
+    OR (
+      public.is_staff()
+      AND EXISTS (
+        SELECT 1 FROM public.comandas c
+        WHERE c.id = comanda_id AND c.status = 'open'
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS comanda_history_admin_write ON public.comanda_history;
+CREATE POLICY comanda_history_admin_write ON public.comanda_history
   FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
@@ -641,7 +750,7 @@ DECLARE
   v_label   TEXT;
   v_comanda public.comandas;
 BEGIN
-  IF NOT public.is_admin() THEN
+  IF NOT public.is_staff() THEN
     RAISE EXCEPTION 'Acesso negado: usuário não autorizado.';
   END IF;
 
@@ -682,7 +791,7 @@ DECLARE
   v_obs      TEXT;
   v_price    NUMERIC(10,2);
 BEGIN
-  IF NOT public.is_admin() THEN
+  IF NOT public.is_staff() THEN
     RAISE EXCEPTION 'Acesso negado: usuário não autorizado.';
   END IF;
 
@@ -778,7 +887,7 @@ DECLARE
   v_item    public.comanda_items;
   v_comanda public.comandas;
 BEGIN
-  IF NOT public.is_admin() THEN
+  IF NOT public.is_staff() THEN
     RAISE EXCEPTION 'Acesso negado: usuário não autorizado.';
   END IF;
 
@@ -855,7 +964,7 @@ DECLARE
   v_actor   TEXT;
   v_comanda public.comandas;
 BEGIN
-  IF NOT public.is_admin() THEN
+  IF NOT public.is_staff() THEN
     RAISE EXCEPTION 'Acesso negado: usuário não autorizado.';
   END IF;
 
@@ -887,7 +996,7 @@ DECLARE
   v_comanda public.comandas;
   v_count   INTEGER;
 BEGIN
-  IF NOT public.is_admin() THEN
+  IF NOT public.is_staff() THEN
     RAISE EXCEPTION 'Acesso negado: usuário não autorizado.';
   END IF;
 
@@ -929,7 +1038,7 @@ DECLARE
   v_notes      TEXT;
   v_token      TEXT;
 BEGIN
-  IF NOT public.is_admin() THEN
+  IF NOT public.is_staff() THEN
     RAISE EXCEPTION 'Acesso negado: usuário não autorizado.';
   END IF;
 

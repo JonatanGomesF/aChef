@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabase";
+import { fetchStaffProfileByEmail } from "../services/staffAuth";
 import { Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 // Detecta falhas de rede/conexão (backend fora do ar, projeto Supabase
@@ -65,33 +66,28 @@ export default function AdminLogin() {
         return;
       }
 
-      // Verifica se o usuário autenticado está na tabela admins
-      const { data: adminData, error: adminError } = await supabase
-        .from("admins")
-        .select("email")
-        .eq("email", cleanEmail)
-        .limit(1);
+      // Verifica o perfil do usuário na tabela admins ('admin' ou 'waiter')
+      const { profile, error: adminError } = await fetchStaffProfileByEmail(cleanEmail);
 
       if (adminError) {
         setError(
           isConnectionError(adminError.message)
             ? CONNECTION_ERROR_MESSAGE
-            : "Erro ao verificar permissão de administrador. Tente novamente."
+            : "Erro ao verificar permissão de acesso. Tente novamente."
         );
         setLoading(false);
         return;
       }
 
-      if (!adminData || adminData.length === 0) {
-        // Não bloqueia a tela aguardando o signOut caso o backend esteja fora do ar
+      if (!profile) {
         supabase.auth.signOut().catch(() => {});
-        setError("Acesso restrito: Seu e-mail não possui permissão de administrador na tabela public.admins.");
+        setError("Acesso restrito: Seu e-mail não possui permissão cadastrada na tabela public.admins.");
         setLoading(false);
         return;
       }
 
       setLoading(false);
-      navigate("/admin");
+      navigate(profile.role === "waiter" ? "/garcom" : "/admin");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erro inesperado ao realizar login.";
       setError(message);

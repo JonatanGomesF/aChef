@@ -57,13 +57,19 @@ import {
   AlertCircle,
   User,
   Lock,
+  LogOut,
 } from "lucide-react";
+import type { StaffRole } from "../services/staffAuth";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onOrderCreated?: (order: ReceiptOrderData) => void;
   onOpenCadastrarProdutoBalcao?: () => void;
+  embedded?: boolean;
+  staffRole?: StaffRole;
+  staffLabel?: string;
+  onLogout?: () => void;
 };
 
 function formatDateTimeShort(dateStr?: string | null): string {
@@ -95,7 +101,12 @@ export default function BalcaoModal({
   onClose,
   onOrderCreated,
   onOpenCadastrarProdutoBalcao,
+  embedded = false,
+  staffRole = "admin",
+  staffLabel,
+  onLogout,
 }: Props) {
+  const isWaiter = staffRole === "waiter";
   // ── Catalogs (reutiliza cadastro existente do sistema) ──
   const [menuCatalog, setMenuCatalog] = useState<MenuCatalog>(getMenuCatalog);
   const [balcaoProducts, setBalcaoProducts] = useState<BalcaoProduct[]>(getBalcaoProducts);
@@ -374,8 +385,10 @@ export default function BalcaoModal({
     [comandas]
   );
 
+  const effectiveTab = isWaiter ? "open" : activeTab;
+
   const visibleComandas = useMemo(() => {
-    const base = activeTab === "open" ? openComandas : closedComandas;
+    const base = effectiveTab === "open" ? openComandas : closedComandas;
     if (!searchComandas.trim()) return base;
     const q = searchComandas.toLowerCase();
     return base.filter(
@@ -384,7 +397,7 @@ export default function BalcaoModal({
         c.code.toLowerCase().includes(q) ||
         (c.opened_by && c.opened_by.toLowerCase().includes(q))
     );
-  }, [activeTab, openComandas, closedComandas, searchComandas]);
+  }, [effectiveTab, openComandas, closedComandas, searchComandas]);
 
   // ── Actions ──
   const handleOpenNewComanda = async (e: React.FormEvent) => {
@@ -532,10 +545,15 @@ export default function BalcaoModal({
       setCloseModalOpen(false);
       closeTokenRef.current = null;
 
-      setComandas((prev) =>
-        prev.map((c) => (c.id === result.comanda.id ? result.comanda : c))
-      );
-      await loadSelectedDetails(result.comanda.id, true);
+      if (isWaiter) {
+        setComandas((prev) => prev.filter((c) => c.id !== result.comanda.id));
+        setSelectedComandaId(null);
+      } else {
+        setComandas((prev) =>
+          prev.map((c) => (c.id === result.comanda.id ? result.comanda : c))
+        );
+        await loadSelectedDetails(result.comanda.id, true);
+      }
 
       const receiptOrder: ReceiptOrderData = {
         id: result.order?.id || result.comanda.order_id || result.comanda.id,
@@ -578,7 +596,9 @@ export default function BalcaoModal({
 
       showNotice(
         "success",
-        `Conta "${result.comanda.label}" fechada! Venda #${receiptOrder.id} registrada no financeiro.`
+        isWaiter
+          ? `Conta "${result.comanda.label}" fechada e enviada para o caixa!`
+          : `Conta "${result.comanda.label}" fechada! Venda #${receiptOrder.id} registrada no financeiro.`
       );
     } catch (err: unknown) {
       showNotice("error", getErrorMessage(err, "Falha ao fechar comanda. Tente novamente."));
@@ -635,14 +655,15 @@ export default function BalcaoModal({
 
   if (!open) return null;
 
-  return (
-    <div
-      className="fixed inset-0 z-[9990] flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150"
-      onClick={onClose}
-    >
+  const innerContent = (
+    <>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full h-[100dvh] sm:max-w-7xl sm:h-[94vh] flex flex-col rounded-none sm:rounded-3xl bg-[#121212] border-0 sm:border sm:border-orange-500/30 shadow-2xl overflow-hidden font-sans"
+        className={
+          embedded
+            ? "w-full h-[100dvh] flex flex-col bg-[#121212] overflow-hidden font-sans"
+            : "w-full h-[100dvh] sm:max-w-7xl sm:h-[94vh] flex flex-col rounded-none sm:rounded-3xl bg-[#121212] border-0 sm:border sm:border-orange-500/30 shadow-2xl overflow-hidden font-sans"
+        }
       >
         {/* ── Top Header (no celular, oculta quando uma comanda está aberta para dar máximo espaço) ── */}
         <div
@@ -657,7 +678,7 @@ export default function BalcaoModal({
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-white font-black text-base sm:text-xl tracking-tight truncate">
-                  Comandas — Balcão
+                  {isWaiter ? "Atendimento — Comandas" : "Comandas — Balcão"}
                 </h2>
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -665,13 +686,15 @@ export default function BalcaoModal({
                 </span>
               </div>
               <p className="text-white/45 text-[11px] sm:text-xs truncate">
-                {openComandas.length} aberta(s) • Venda entra no financeiro só ao fechar conta
+                {isWaiter && staffLabel
+                  ? `${formatActorName(staffLabel)} • ${openComandas.length} comanda(s) aberta(s)`
+                  : `${openComandas.length} aberta(s) • Venda entra no financeiro só ao fechar conta`}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {onOpenCadastrarProdutoBalcao && (
+            {!isWaiter && onOpenCadastrarProdutoBalcao && (
               <button
                 type="button"
                 onClick={onOpenCadastrarProdutoBalcao}
@@ -695,14 +718,26 @@ export default function BalcaoModal({
               <RefreshCw size={17} className={loadingComandas ? "animate-spin" : ""} />
             </button>
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Fechar janela"
-              className="p-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white/60 hover:text-white transition-all cursor-pointer"
-            >
-              <X size={20} />
-            </button>
+            {embedded && onLogout ? (
+              <button
+                type="button"
+                onClick={onLogout}
+                title="Sair da conta"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-bold text-xs transition-all cursor-pointer"
+              >
+                <LogOut size={15} />
+                <span>Sair</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Fechar janela"
+                className="p-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white/60 hover:text-white transition-all cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -735,8 +770,12 @@ export default function BalcaoModal({
             <div className="flex items-center gap-2">
               <CheckCircle2 size={18} className="text-emerald-400 flex-shrink-0" />
               <span>
-                Comanda <strong>{closedOrderBanner.label}</strong> ({closedOrderBanner.comandaCode}) fechada!
-                Venda #{closedOrderBanner.order.id} • R$ {Number(closedOrderBanner.order.total).toFixed(2)} registrada.
+                Comanda <strong>{closedOrderBanner.label}</strong> ({closedOrderBanner.comandaCode}) fechada!{" "}
+                {!isWaiter && (
+                  <>
+                    Venda #{closedOrderBanner.order.id} • R$ {Number(closedOrderBanner.order.total).toFixed(2)} registrada.
+                  </>
+                )}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -826,45 +865,56 @@ export default function BalcaoModal({
 
               {/* Tabs Abertas / Fechadas + Busca */}
               <div className="p-3.5 border-b border-white/[0.06] bg-[#151515] space-y-2.5 flex-shrink-0">
-                <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-[#0e0e0e] border border-white/[0.06]">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("open")}
-                    className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      activeTab === "open"
-                        ? "bg-amber-500 text-stone-950 shadow-md"
-                        : "text-white/55 hover:text-white"
-                    }`}
-                  >
-                    <span>Abertas</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                        activeTab === "open" ? "bg-black/20 text-stone-950" : "bg-white/10 text-white"
+                {!isWaiter ? (
+                  <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-[#0e0e0e] border border-white/[0.06]">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("open")}
+                      className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                        activeTab === "open"
+                          ? "bg-amber-500 text-stone-950 shadow-md"
+                          : "text-white/55 hover:text-white"
                       }`}
                     >
+                      <span>Abertas</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                          activeTab === "open" ? "bg-black/20 text-stone-950" : "bg-white/10 text-white"
+                        }`}
+                      >
+                        {openComandas.length}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("closed")}
+                      className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                        activeTab === "closed"
+                          ? "bg-emerald-500 text-stone-950 shadow-md"
+                          : "text-white/55 hover:text-white"
+                      }`}
+                    >
+                      <span>Fechadas</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                          activeTab === "closed" ? "bg-black/20 text-stone-950" : "bg-white/10 text-white"
+                        }`}
+                      >
+                        {closedComandas.length}
+                      </span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs font-black uppercase tracking-wider text-white/60">
+                      Comandas Abertas
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/30">
                       {openComandas.length}
                     </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("closed")}
-                    className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      activeTab === "closed"
-                        ? "bg-emerald-500 text-stone-950 shadow-md"
-                        : "text-white/55 hover:text-white"
-                    }`}
-                  >
-                    <span>Fechadas</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                        activeTab === "closed" ? "bg-black/20 text-stone-950" : "bg-white/10 text-white"
-                      }`}
-                    >
-                      {closedComandas.length}
-                    </span>
-                  </button>
-                </div>
+                  </div>
+                )}
 
                 <div className="relative">
                   <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/35" />
@@ -1041,14 +1091,16 @@ export default function BalcaoModal({
                         >
                           <RefreshCw size={15} className={loadingDetails ? "animate-spin" : ""} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={onClose}
-                          aria-label="Fechar"
-                          className="lg:hidden p-2 rounded-xl bg-white/[0.06] text-white/70 hover:text-white cursor-pointer"
-                        >
-                          <X size={16} />
-                        </button>
+                        {!embedded && (
+                          <button
+                            type="button"
+                            onClick={onClose}
+                            aria-label="Fechar"
+                            className="lg:hidden p-2 rounded-xl bg-white/[0.06] text-white/70 hover:text-white cursor-pointer"
+                          >
+                            <X size={16} />
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -1406,6 +1458,19 @@ export default function BalcaoModal({
         onClose={() => !isClosingComanda && setCloseModalOpen(false)}
         onConfirm={handleConfirmCloseComanda}
       />
+    </>
+  );
+
+  if (embedded) {
+    return innerContent;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[9990] flex items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      {innerContent}
     </div>
   );
 }

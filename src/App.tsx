@@ -12,6 +12,7 @@ import AdminProdutos from "./pages/AdminProdutos";
 import AdminCardapio from "./pages/AdminCardapio";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminAparencia from "./pages/AdminAparencia";
+import GarcomComandas from "./pages/GarcomComandas";
 import { ThemeProvider } from "./context/ThemeContext";
 
 import Cart from "./components/Cart";
@@ -22,7 +23,8 @@ import { useCart } from "./context/CartContext";
 
 function App() {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAdminRoute =
+    location.pathname.startsWith("/admin") || location.pathname.startsWith("/garcom");
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
@@ -129,6 +131,20 @@ function App() {
         <Route
           path="/admin/login"
           element={<AdminLogin />}
+        />
+
+        <Route
+          path="/garcom/login"
+          element={<AdminLogin />}
+        />
+
+        <Route
+          path="/garcom"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "waiter"]}>
+              <GarcomComandas />
+            </ProtectedRoute>
+          }
         />
 
         <Route
